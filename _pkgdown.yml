@@ -1,0 +1,20 @@
+url: ~
+template:
+  bootstrap: 5
+
+reference:
+- title: Functies
+  desc: >
+    This package has the following functions:
+  contents:
+  - detect_clusters
+  - detect_clusters_page
+  - extract_clusters_text
+  - plot_clusters
+
+- title: Datasets
+  desc: >
+    This package contains a number of suitable datasets with columns that can
+    be used to experiment with this package.
+  contents:
+  - has_keyword("datasets")

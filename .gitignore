@@ -1,0 +1,10 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+docs
+
+*.pdf
+inst/doc
+/doc/
+/Meta/

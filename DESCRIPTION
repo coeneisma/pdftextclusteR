@@ -1,0 +1,31 @@
+Package: pdftextclusteR
+Title: Properly importing PDF files that may contain columns or other text boxes.
+Version: 0.0.0.9002
+Authors@R: 
+    person("Coen", "Eisma", , "coeneisma@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0009-0007-9001-2572"))
+Description: For importing PDF files, the pdftools package is available. 
+    However, this package does not work optimally when dealing with PDF files 
+    containing multiple columns. The pdftextclusteR package uses a 
+    Density-Based Spatial Clustering algorithm to determine which words are 
+    (likely) associated with each other.
+License: MIT + file LICENSE
+URL: https://gitlab.ds-ocw.rijkscloud.nl/Datalab/pdftoolscolumndetection
+Depends: 
+    R (>= 2.10)
+Imports: 
+    broom,
+    dbscan,
+    dplyr,
+    lifecycle,
+    pdftools,
+    purrr,
+    tidyr
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

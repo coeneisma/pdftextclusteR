@@ -1,0 +1,97 @@
+---
+title: "Get started with cluster detection"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Get started with cluster detection}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(pdftextclusteR)
+```
+
+Below is an example of how to import a PDF file using the pdftools package, then detect columns with [pdftoolsclumndetection()], and finally plot the results.
+
+For this example, the Quality Agenda 2024-2027 Mediacollege Amsterdam was used. More information about this report can be found at [rijksoverheid.nl](https://www.rijksoverheid.nl/documenten/rapporten/2024/06/10/kwaliteitsagenda-2024-2027-mediacollege-amsterdam).
+
+### Loading Packages
+
+```{r}
+library(pdftools)
+library(pdftextclusteR)
+```
+
+### Loading Data
+
+Data is loaded using the [pdftools::pdf_data()] function. The result is a list object with a tibble for each page containing the data.
+
+```{r error=FALSE, warning=FALSE, message=FALSE}
+#' Reading a PDF document with `pdftools`
+ka <- pdf_data("https://www.rijksoverheid.nl/binaries/rijksoverheid/documenten/rapporten/2024/06/10/kwaliteitsagenda-2024-2027-mediacollege-amsterdam/Kwaliteitsagenda+2024-2027+Mediacollege+Amsterdam.pdf")
+
+```
+
+The metadata for the first 5 words on page 7 are, for example:
+
+```{r}
+head(ka[[7]], 5)
+```
+
+### Detecting Columns and Text Boxes
+
+There are two functions for this:
+
+-   `detect_clusters_page()` \> detect columns on a single page;
+
+-   `detect_clusters()` \> detect columns across all pages of a list object obtained via [pdftools::pdf_data()].
+
+In this example, we use the [detect_clusters_page()] function.
+
+```{r}
+ka_clusters <- ka[[7]] |> 
+  pdftextclusteR::detect_clusters_page()
+
+head(ka_clusters, 5)
+```
+
+### Plotting the Clusters
+
+Using the [plot_clusters()] function, you can create a visual representation of the detected clusters:
+
+```{r plot_clusters}
+ka_clusters |> 
+  plot_clusters()
+```
+
+If you compare this with the source PDF page, you can see that the package has clustered the text quite accurately in this case:
+
+![](images/example_pdf.png)
+
+## Verschillende algoritmen
+
+The [dbscan] package is used to detect the clusters. This package supports four different algorithms:
+
+-   `dbscan`
+
+-   `jpclust`
+
+-   `sNNclust`
+
+-   `hdbscan`
+
+By default, the `dbscan` algorithm is used because it provides good results. However, as a user, you can also choose one of the other algorithms. Below is an example of clustering the same page using the `sNNclust` algorithm:
+
+```{r}
+ka[[7]] |> 
+  detect_clusters_page(algoritme = "sNNclust") |> 
+  plot_clusters()
+
+```
