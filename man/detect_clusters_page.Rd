@@ -2,26 +2,25 @@
 % Please edit documentation in R/detect_clusters.R
 \name{detect_clusters_page}
 \alias{detect_clusters_page}
-\title{Detecteer kolommen en tekstvakken in PDF-pagina}
+\title{Detect Columns and Text Boxes in PDF Page}
 \usage{
 detect_clusters_page(pdf_data_pagina, algoritme = "dbscan", ...)
 }
 \arguments{
-\item{pdf_data_pagina}{Tibble wat uit elk element van \code{\link[=pdf_data]{pdf_data()}} gehaald
-kan worden}
+\item{...}{algorithm-specific arguments}
 
-\item{algoritme}{algoritme dat gebruikt moet worden om de tekstkolommen of
-tekstvakken te detecteren}
+\item{pdf_data_page}{Tibble that can be extracted from each element of \code{\link[=pdf_data]{pdf_data()}}}
 
-\item{...}{algoritme-specifieke argumenten}
+\item{algorithm}{algorithm to be used to detect text columns or
+text boxes}
 }
 \value{
-Tibble met per woord aangegeven tot welk cluster het woord hoort.
+Tibble indicating which cluster each word belongs to.
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Met deze functie detecteer je kolommen
-en tekstvakken in een pdf-pagina. Hiervoor moet je eerst het bestand inlezen
-met de \code{\link[=pdf_data]{pdf_data()}}-functie uit de \link{pdftools}-package.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} This function detects columns
+and text boxes in a PDF page. To do this, you first need to read the file
+using the \code{\link[pdftools:pdftools]{pdftools::pdf_data()}}-function from the \link{pdftools} package.
 }
 \examples{
 npo[[10]] |>

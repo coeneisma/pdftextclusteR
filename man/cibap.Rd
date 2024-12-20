@@ -3,16 +3,16 @@
 \docType{data}
 \name{cibap}
 \alias{cibap}
-\title{CIBAP-rapport}
+\title{CIBAP Report}
 \format{
 \subsection{\code{cibap}}{
 
-Een Large list object met 73 elementen. Elk element bevat een tibble met 6 kolommen en één record per woord dat op de pagina voorkomt.
+A large list object with 73 elements. Each element contains a tibble with 6 columns and one record for each word on the page.
 \describe{
-\item{width, height}{Breedte en hoogte van een woord}
-\item{x, y}{De x- en y-coördinaten van een woord. De x-coördinaat wordt van boven gemeten.}
-\item{space}{Of er na het woord méér dan een spatie aanwezig is.}
-\item{text}{Het woord waar de metadata betrekking op heeft.}
+\item{width, height}{Width and height of a word}
+\item{x, y}{The x and y coordinates of a word. The x-coordinate is measured from the top.}
+\item{space}{Indicates whether there is more than one space after the word.}
+\item{text}{The word that the metadata refers to.}
 }
 }
 }
@@ -23,12 +23,12 @@ Een Large list object met 73 elementen. Elk element bevat een tibble met 6 kolom
 cibap
 }
 \description{
-Deze dataset is het resultaat van het inlezen van van het rapport
-\verb{Kwaliteitsagenda 2024-2027 Cibap} die op 16 september 2024 op
-de website van de Rijksoverheid is geplaatst.
+This dataset is the result of reading the report
+\verb{Kwaliteitsagenda 2024-2027 Cibap}, which was posted on the Rijksoverheid website
+on September 16, 2024.
 }
 \details{
-Dit document is gekozen omdat er verschillende pagina's met
-kolommen en afwijkende indelingen zijn.
+This document was chosen because it contains several pages with
+columns and different layouts.
 }
 \keyword{datasets}

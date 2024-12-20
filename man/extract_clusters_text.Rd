@@ -2,21 +2,22 @@
 % Please edit documentation in R/extract_clusters_text.R
 \name{extract_clusters_text}
 \alias{extract_clusters_text}
-\title{De tekst per cluster exporteren}
+\title{Export the Text Per Cluster}
 \usage{
 extract_clusters_text(pdf_data_pagina_clusters)
 }
 \arguments{
-\item{pdf_data_pagina_clusters}{het resultaat van de functie
-\link{detect_clusters_page}}
+\item{pdf_data_page_clusters}{the result of the function
+\code{\link[=detect_clusters_page]{detect_clusters_page()}}}
 }
 \value{
-een Tibble met een aantal records dat gelijk is aan het aantal
-gedetecteerde clusters op de pagina
+a Tibble with the same number of records as the number
+of detected clusters on the page
 }
 \description{
-Met deze functie wordt per cluster de tekst aan een character-string
-toegevoegd.
+As an end user, you mainly want to work with the text from the
+different detected text clusters. This function combines the text
+from each cluster into a character string and places it in a Tibble.
 }
 \examples{
 npo[[1]] |>

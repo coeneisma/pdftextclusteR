@@ -2,31 +2,31 @@
 % Please edit documentation in R/detect_clusters.R
 \name{detect_clusters}
 \alias{detect_clusters}
-\title{Detecteer kolommen en tekstvakken in PDF-document}
+\title{Detect Columns and Text Boxes in PDF Document}
 \usage{
 detect_clusters(pdf_data, algoritme = "dbscan", ...)
 }
 \arguments{
-\item{pdf_data}{list-object dat het resultaat is van de
-\code{\link[pdftools:pdftools]{pdftools::pdf_data()}}-functie}
+\item{pdf_data}{list-object resulting from the
+\code{\link[pdftools:pdftools]{pdftools::pdf_data()}}-function}
 
-\item{algoritme}{het algoritme dat gebruikt moet worden om de tekstkolommen
-of tekstvakken te detecteren}
+\item{...}{algorithm-specific arguments}
 
-\item{...}{algoritme-specifieke argumenten}
+\item{algorithm}{the algorithm to be used to detect text columns
+or text boxes}
 }
 \value{
-Een list-object, waarbij per pagina een Tibble is opgenomen en per
-woord is aangegeven tot welk cluster het woord hoort.
+A list-object, where each page contains a tibble and each
+word is assigned to a cluster.
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Met deze functie detecteer je kolommen
-en tekstvakken in een pdf-bestand. Hiervoor moet je eerst het bestand inlezen
-met de \code{\link[pdftools:pdftools]{pdftools::pdf_data()}}-functie uit \link{pdftools}.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} This function detects columns
+and text boxes in a PDF file. To do this, you first need to read the file
+using the \code{\link[pdftools:pdftools]{pdftools::pdf_data()}}-function from the \link{pdftools} package.
 }
 \details{
-Op de achtergrond wordt de functie
-\link{detect_clusters_page} gebruik
+In the background, the function
+\code{\link[=detect_clusters_page]{detect_clusters_page()}} is used
 }
 \examples{
 npo |>
