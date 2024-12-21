@@ -13,7 +13,6 @@ For importing PDF files, the pdftools package is available. However, this packag
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://gitlab.ds-ocw.rijkscloud.nl/Datalab/pdftoolscolumndetection}
   \item \url{https://coeneisma.github.io/pdftextclusteR/}
 }
 

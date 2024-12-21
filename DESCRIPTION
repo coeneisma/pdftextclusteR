@@ -10,7 +10,7 @@ Description: For importing PDF files, the pdftools package is available.
     Density-Based Spatial Clustering algorithm to determine which words are 
     (likely) associated with each other.
 License: MIT + file LICENSE
-URL: https://gitlab.ds-ocw.rijkscloud.nl/Datalab/pdftoolscolumndetection, https://coeneisma.github.io/pdftextclusteR/
+URL: https://coeneisma.github.io/pdftextclusteR/
 Depends: 
     R (>= 2.10)
 Imports: 
