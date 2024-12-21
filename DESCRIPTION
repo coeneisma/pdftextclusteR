@@ -17,6 +17,7 @@ Imports:
     broom,
     dbscan,
     dplyr,
+    ggplot2,
     lifecycle,
     pdftools,
     purrr,
