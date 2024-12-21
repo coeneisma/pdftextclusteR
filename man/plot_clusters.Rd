@@ -20,5 +20,7 @@ and number, making them easy to visually detect and compare with
 the original PDF.
 }
 \examples{
-plot_clusters(npo[[12]])
+npo[[12]] |>
+  detect_clusters_page() |>
+  plot_clusters()
 }

@@ -12,7 +12,9 @@
 #' @export
 #'
 #' @examples
-#' plot_clusters(npo[[12]])
+#' npo[[12]] |>
+#'   detect_clusters_page() |>
+#'   plot_clusters()
 plot_clusters <- function(pdf_data_pagina_cluster){
 
   # Data for outlines
