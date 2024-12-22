@@ -8,13 +8,24 @@
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![R-CMD-check](https://github.com/coeneisma/pdftextclusteR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/coeneisma/pdftextclusteR/actions/workflows/R-CMD-check.yaml)
+
 <!-- badges: end -->
 
-The \[pdftools\] package is available for importing PDF files. However,
-this package does not work optimally when importing PDF files with
-multiple columns and text boxes. This package uses a Density-Based
-Spatial Clustering algorithm to determine which words are (likely)
-associated with each other.
+The [pdftools](https://docs.ropensci.org/pdftools/) package is available
+for importing PDF files. However, this package does not work optimally
+when importing PDF files with multiple columns and text boxes. Since
+the`pdftools::pdf_text()` function from the `pdftools` package processes
+text line by line, it often fails to maintain the context of the text.
+As a result, the output may contain sentences with unrelated fragments
+of text from different parts of the page. Words that are not placed in
+the correct context are unsuitable for text analysis.
+
+However, the words grouped into clusters by this package using a
+Density-Based Spatial Clustering algorithm are likely to be contextually
+related and thus suitable for text analysis.
+
+See `vignette("pdftextclusteR")` for more information on the usage of
+the package.
 
 ## Installation
 

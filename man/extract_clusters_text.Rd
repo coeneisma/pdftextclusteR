@@ -4,20 +4,20 @@
 \alias{extract_clusters_text}
 \title{Export the Text Per Cluster}
 \usage{
-extract_clusters_text(pdf_data_pagina_clusters)
+extract_clusters_text(pdf_data_page_clusters)
 }
 \arguments{
-\item{pdf_data_page_clusters}{the result of the function
-\code{\link[=detect_clusters_page]{detect_clusters_page()}}}
+\item{pdf_data_page_clusters}{the result of \code{\link[=detect_clusters_page]{detect_clusters_page()}}}
 }
 \value{
-a Tibble with the same number of records as the number
-of detected clusters on the page
+a Tibble with the same number of records as the number of detected
+clusters on the page
 }
 \description{
-As an end user, you mainly want to work with the text from the
-different detected text clusters. This function combines the text
-from each cluster into a character string and places it in a Tibble.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} As an end user, you mainly want to work
+with the text from the different detected text clusters. This function
+combines the text from each cluster into a character string and places it in
+a Tibble.
 }
 \examples{
 npo[[1]] |>

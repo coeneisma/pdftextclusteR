@@ -1,5 +1,5 @@
 Package: pdftextclusteR
-Title: Properly importing PDF files that may contain columns or other text boxes.
+Title: Properly importing text from PDF files that may contain columns or other text boxes
 Version: 0.0.0.9002
 Authors@R: 
     person("Coen", "Eisma", , "coeneisma@gmail.com", role = c("aut", "cre"),
@@ -18,10 +18,14 @@ Imports:
     dbscan,
     dplyr,
     ggplot2,
+    graphics,
     lifecycle,
     pdftools,
     purrr,
-    tidyr
+    stats,
+    tibble,
+    tidyr,
+    utils
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)

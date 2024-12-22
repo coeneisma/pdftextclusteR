@@ -4,15 +4,15 @@
 \alias{detect_clusters_page}
 \title{Detect Columns and Text Boxes in PDF Page}
 \usage{
-detect_clusters_page(pdf_data_pagina, algoritme = "dbscan", ...)
+detect_clusters_page(pdf_data_page, algorithm = "dbscan", ...)
 }
 \arguments{
-\item{...}{algorithm-specific arguments}
-
-\item{pdf_data_page}{Tibble that can be extracted from each element of \code{\link[=pdf_data]{pdf_data()}}}
+\item{pdf_data_page}{list item of the result of the \code{\link[pdftools:pdftools]{pdftools::pdf_data()}}-function}
 
 \item{algorithm}{algorithm to be used to detect text columns or
 text boxes}
+
+\item{...}{algorithm-specific arguments}
 }
 \value{
 Tibble indicating which cluster each word belongs to.

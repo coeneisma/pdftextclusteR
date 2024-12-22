@@ -7,7 +7,7 @@
 #' In the background, the function
 #' [detect_clusters_page()] is used
 #'
-#' @param pdf_data list-object resulting from the
+#' @param pdf_data result of the [pdftools::pdf_data()]-function
 #'   [pdftools::pdf_data()]-function
 #' @param algorithm the algorithm to be used to detect text columns
 #'   or text boxes
@@ -18,9 +18,10 @@
 #' @export
 #'
 #' @examples
-#' npo |>
+# First 3 pages
+#' head(npo, 3) |>
 #'    detect_clusters()
-detect_clusters <- function(pdf_data, algoritme = "dbscan", ...){
+detect_clusters <- function(pdf_data, algorithm = "dbscan", ...){
   purrr::map(pdf_data, detect_clusters_page)
 }
 
@@ -31,7 +32,7 @@ detect_clusters <- function(pdf_data, algoritme = "dbscan", ...){
 #' and text boxes in a PDF page. To do this, you first need to read the file
 #' using the [pdftools::pdf_data()]-function from the [pdftools] package.
 #'
-#' @param pdf_data_page Tibble that can be extracted from each element of [pdf_data()]
+#' @param pdf_data_page list item of the result of the [pdftools::pdf_data()]-function
 #' @param algorithm algorithm to be used to detect text columns or
 #'   text boxes
 #' @param ... algorithm-specific arguments
@@ -42,9 +43,9 @@ detect_clusters <- function(pdf_data, algoritme = "dbscan", ...){
 #' @examples
 #' npo[[10]] |>
 #'    detect_clusters_page()
-detect_clusters_page <- function(pdf_data_pagina, algoritme = "dbscan", ...){
+detect_clusters_page <- function(pdf_data_page, algorithm = "dbscan", ...){
 
-  coords <- pdf_data_pagina |>
+  coords <- pdf_data_page |>
     tibble::rowid_to_column() |>
     dplyr::mutate(
       x_min = x,
@@ -70,7 +71,7 @@ detect_clusters_page <- function(pdf_data_pagina, algoritme = "dbscan", ...){
     dplyr::select(word1 = word1_rowid, word2 = word2_rowid, distance)
 
   # Determine the most common height
-  max_n_height <- pdf_data_pagina |>
+  max_n_height <- pdf_data_page |>
     dplyr::count(height, sort = TRUE) |>
     dplyr::slice(1) |>
     dplyr::pull(height)
@@ -86,7 +87,7 @@ detect_clusters_page <- function(pdf_data_pagina, algoritme = "dbscan", ...){
 
   # Determine default values for arguments
   default_args <- switch(
-    algoritme,
+    algorithm,
     dbscan = list(eps = max_n_height * 1.5, minPts = 2),
     jpclust = list(k = 20, kt = 10),
     sNNclust = list(k = 5, eps = 2, minPts = 3),
@@ -102,7 +103,7 @@ detect_clusters_page <- function(pdf_data_pagina, algoritme = "dbscan", ...){
 
   # Compute cluster based on the chosen algorithm
   cluster <- switch(
-    algoritme,
+    algorithm,
     dbscan = do.call(dbscan::dbscan, c(list(distance_matrix), final_args)),
     jpclust = do.call(dbscan::jpclust, c(list(distance_matrix), final_args)),
     sNNclust = do.call(dbscan::sNNclust, c(list(distance_matrix), final_args)),
@@ -110,8 +111,11 @@ detect_clusters_page <- function(pdf_data_pagina, algoritme = "dbscan", ...){
   )
 
 
-  return(broom::augment(cluster, pdf_data_pagina))
+  return(broom::augment(cluster, pdf_data_page))
 
 }
 
-
+utils::globalVariables(c(".cluster", "distance", "height", "width",
+                         "word1", "word1_rowid", "word2", "word2_rowid",
+                         "x", "x_center", "x_dist", "xmax", "xmin",
+                         "y", "y_center", "y_dist", "ymax", "ymin"))

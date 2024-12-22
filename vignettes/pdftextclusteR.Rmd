@@ -1,5 +1,5 @@
 ---
-title: "Get started with cluster detection"
+title: "pdftextclusteR: detect text clusters in PDF"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Get started with cluster detection}
@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 library(pdftextclusteR)
 ```
 
-Below is an example of how to import a PDF file using the pdftools package, then detect columns with [pdftoolsclumndetection()], and finally plot the results.
+Below is an example of how to import a PDF file using the pdftools package, then detect columns with `pdftoolsclumndetection()`, and finally plot the results.
 
 For this example, the Quality Agenda 2024-2027 Mediacollege Amsterdam was used. More information about this report can be found at [rijksoverheid.nl](https://www.rijksoverheid.nl/documenten/rapporten/2024/06/10/kwaliteitsagenda-2024-2027-mediacollege-amsterdam).
 
@@ -51,7 +51,7 @@ There are two functions for this:
 
 -   `detect_clusters_page()` \> detect columns on a single page;
 
--   `detect_clusters()` \> detect columns across all pages of a list object obtained via [pdftools::pdf_data()].
+-   `detect_clusters()` \> detect columns across all pages of a list object obtained via `pdftools::pdf_data()`.
 
 In this example, we use the [detect_clusters_page()] function.
 
@@ -75,9 +75,9 @@ If you compare this with the source PDF page, you can see that the package has c
 
 ![](images/example_pdf.png)
 
-## Verschillende algoritmen
+## Different algorithms
 
-The [dbscan] package is used to detect the clusters. This package supports four different algorithms:
+The [dbscan](https://github.com/mhahsler/dbscan) package is used to detect the clusters. This package supports four different algorithms:
 
 -   `dbscan`
 
@@ -91,7 +91,7 @@ By default, the `dbscan` algorithm is used because it provides good results. How
 
 ```{r}
 ka[[7]] |> 
-  detect_clusters_page(algoritme = "sNNclust") |> 
+  detect_clusters_page(algorithm = "sNNclust") |> 
   plot_clusters()
 
 ```

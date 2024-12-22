@@ -1,4 +1,15 @@
 url: https://coeneisma.github.io/pdftextclusteR/
 template:
   bootstrap: 5
+reference:
+  - title: Functions
+  - contents:
+    - detect_clusters_page
+    - detect_clusters
+    - extract_clusters_text
+    - plot_clusters
+  - title: Datasets
+  - contents:
+    - npo
+    - cibap
 

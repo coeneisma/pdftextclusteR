@@ -4,16 +4,16 @@
 \alias{detect_clusters}
 \title{Detect Columns and Text Boxes in PDF Document}
 \usage{
-detect_clusters(pdf_data, algoritme = "dbscan", ...)
+detect_clusters(pdf_data, algorithm = "dbscan", ...)
 }
 \arguments{
-\item{pdf_data}{list-object resulting from the
+\item{pdf_data}{result of the \code{\link[pdftools:pdftools]{pdftools::pdf_data()}}-function
 \code{\link[pdftools:pdftools]{pdftools::pdf_data()}}-function}
-
-\item{...}{algorithm-specific arguments}
 
 \item{algorithm}{the algorithm to be used to detect text columns
 or text boxes}
+
+\item{...}{algorithm-specific arguments}
 }
 \value{
 A list-object, where each page contains a tibble and each
@@ -29,6 +29,6 @@ In the background, the function
 \code{\link[=detect_clusters_page]{detect_clusters_page()}} is used
 }
 \examples{
-npo |>
+head(npo, 3) |>
    detect_clusters()
 }

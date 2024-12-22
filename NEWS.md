@@ -1,3 +1,4 @@
-# pdftoolscolumndetection (development version)
+# pdftextclusteR (development version)
 
-* Opzetten package.
+* All functions implemented.
+* Project and pkgdown-website deployd.
