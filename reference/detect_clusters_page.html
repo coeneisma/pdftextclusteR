@@ -19,11 +19,8 @@ using the pdftools::pdf_data()-function from the pdftools package."><meta proper
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/get_started.html">Get started with cluster detection</a></li>
-  </ul></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/pdftextclusteR.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -47,24 +44,24 @@ using the <code><a href="https://docs.ropensci.org/pdftools/reference/pdftools.h
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">detect_clusters_page</span><span class="op">(</span><span class="va">pdf_data_pagina</span>, algoritme <span class="op">=</span> <span class="st">"dbscan"</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">detect_clusters_page</span><span class="op">(</span><span class="va">pdf_data_page</span>, algorithm <span class="op">=</span> <span class="st">"dbscan"</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>algorithm-specific arguments</p></dd>
-
-
-<dt id="arg-pdf-data-page">pdf_data_page<a class="anchor" aria-label="anchor" href="#arg-pdf-data-page"></a></dt>
-<dd><p>Tibble that can be extracted from each element of <code>pdf_data()</code></p></dd>
+<dl><dt id="arg-pdf-data-page">pdf_data_page<a class="anchor" aria-label="anchor" href="#arg-pdf-data-page"></a></dt>
+<dd><p>list item of the result of the <code><a href="https://docs.ropensci.org/pdftools/reference/pdftools.html" class="external-link">pdftools::pdf_data()</a></code>-function</p></dd>
 
 
 <dt id="arg-algorithm">algorithm<a class="anchor" aria-label="anchor" href="#arg-algorithm"></a></dt>
 <dd><p>algorithm to be used to detect text columns or
 text boxes</p></dd>
+
+
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
+<dd><p>algorithm-specific arguments</p></dd>
 
 </dl></div>
     <div class="section level2">

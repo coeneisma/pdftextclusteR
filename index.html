@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Properly importing PDF files that may contain columns or other text boxes. • pdftextclusteR</title>
+<title>Properly importing text from PDF files that may contain columns or other text boxes • pdftextclusteR</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="apple-touch-icon.png">
@@ -16,7 +16,7 @@
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Properly importing PDF files that may contain columns or other text boxes.">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Properly importing text from PDF files that may contain columns or other text boxes">
 <meta name="description" content="For importing PDF files, the pdftools package is available. However, this package does not work optimally when dealing with PDF files containing multiple columns. The pdftextclusteR package uses a Density-Based Spatial Clustering algorithm to determine which words are (likely) associated with each other.">
 <meta property="og:description" content="For importing PDF files, the pdftools package is available. However, this package does not work optimally when dealing with PDF files containing multiple columns. The pdftextclusteR package uses a Density-Based Spatial Clustering algorithm to determine which words are (likely) associated with each other.">
 <meta property="og:image" content="https://coeneisma.github.io/pdftextclusteR/logo.png">
@@ -38,13 +38,8 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="articles/pdftextclusteR.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/get_started.html">Get started with cluster detection</a></li>
-  </ul>
-</li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -65,7 +60,10 @@
 </div>
 <!-- badges: start -->
 
-<p>The [pdftools] package is available for importing PDF files. However, this package does not work optimally when importing PDF files with multiple columns and text boxes. This package uses a Density-Based Spatial Clustering algorithm to determine which words are (likely) associated with each other.</p>
+<!-- badges: end -->
+<p>The <a href="https://docs.ropensci.org/pdftools/" class="external-link">pdftools</a> package is available for importing PDF files. However, this package does not work optimally when importing PDF files with multiple columns and text boxes. Since the<code><a href="https://docs.ropensci.org/pdftools/reference/pdftools.html" class="external-link">pdftools::pdf_text()</a></code> function from the <code>pdftools</code> package processes text line by line, it often fails to maintain the context of the text. As a result, the output may contain sentences with unrelated fragments of text from different parts of the page. Words that are not placed in the correct context are unsuitable for text analysis.</p>
+<p>However, the words grouped into clusters by this package using a Density-Based Spatial Clustering algorithm are likely to be contextually related and thus suitable for text analysis.</p>
+<p>See <code><a href="articles/pdftextclusteR.html">vignette("pdftextclusteR")</a></code> for more information on the usage of the package.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
