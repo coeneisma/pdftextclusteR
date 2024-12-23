@@ -3,7 +3,7 @@ pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   pdftextclusteR: pdftextclusteR.html
-last_built: 2024-12-23T08:10Z
+last_built: 2024-12-23T08:30Z
 urls:
   reference: https://coeneisma.github.io/pdftextclusteR/reference
   article: https://coeneisma.github.io/pdftextclusteR/articles
