@@ -23,8 +23,7 @@ assigned to a cluster.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-}
-\details{
+
 This function detects columns and text boxes in a PDF file. To do this, you
 first need to read the file using the \code{\link[pdftools:pdftools]{pdftools::pdf_data()}}-function from
 the \link{pdftools} package.

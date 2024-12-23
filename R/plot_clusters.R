@@ -1,5 +1,6 @@
 #' Plot the [detect_clusters()] Object
 #'
+#' @description
 #' `r lifecycle::badge('experimental')`
 #'
 #' This function plots a page where the clusters are detected using the

@@ -1,5 +1,6 @@
 #' Detect Columns and Text Boxes in PDF Document
 #'
+#' @description
 #' `r lifecycle::badge('experimental')`
 #'
 #' This function detects columns and text boxes in a PDF file. To do this, you

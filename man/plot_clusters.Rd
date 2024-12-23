@@ -15,8 +15,7 @@ a ggplot2 rectangle plot.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-}
-\details{
+
 This function plots a page where the clusters are detected using the
 \code{\link[=detect_clusters]{detect_clusters()}} function. Each cluster is assigned a unique color and
 number, making them easy to visually detect and compare with the original
