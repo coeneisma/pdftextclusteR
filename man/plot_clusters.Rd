@@ -2,24 +2,28 @@
 % Please edit documentation in R/plot_clusters.R
 \name{plot_clusters}
 \alias{plot_clusters}
-\title{Plot the detect_clusters_page() Object}
+\title{Plot the \code{\link[=detect_clusters]{detect_clusters()}} Object}
 \usage{
 plot_clusters(pdf_data_page_clusters)
 }
 \arguments{
-\item{pdf_data_page_clusters}{the result of \code{\link[=detect_clusters_page]{detect_clusters_page()}}}
+\item{pdf_data_page_clusters}{a single list-item from the result of
+\code{\link[=detect_clusters]{detect_clusters()}}}
 }
 \value{
 a ggplot2 rectangle plot.
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} This function plots a page where the
-clusters are detected using the \code{\link[=detect_clusters_page]{detect_clusters_page()}} function. Each
-cluster is assigned a unique color and number, making them easy to visually
-detect and compare with the original PDF.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+}
+\details{
+This function plots a page where the clusters are detected using the
+\code{\link[=detect_clusters]{detect_clusters()}} function. Each cluster is assigned a unique color and
+number, making them easy to visually detect and compare with the original
+PDF.
 }
 \examples{
 npo[[12]] |>
-  detect_clusters_page() |>
+  detect_clusters() |>
   plot_clusters()
 }

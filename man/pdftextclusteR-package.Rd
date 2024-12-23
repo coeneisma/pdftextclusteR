@@ -4,7 +4,7 @@
 \name{pdftextclusteR-package}
 \alias{pdftextclusteR}
 \alias{pdftextclusteR-package}
-\title{pdftextclusteR: Properly importing PDF files that may contain columns or other text boxes}
+\title{pdftextclusteR: Properly importing text from PDF files that may contain columns or other text boxes in R}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 

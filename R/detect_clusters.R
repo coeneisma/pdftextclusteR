@@ -1,50 +1,96 @@
 #' Detect Columns and Text Boxes in PDF Document
 #'
-#' `r lifecycle::badge('experimental')` This function detects columns
-#' and text boxes in a PDF file. To do this, you first need to read the file
-#' using the [pdftools::pdf_data()]-function from the [pdftools] package.
+#' `r lifecycle::badge('experimental')`
 #'
-#' In the background, the function
-#' [detect_clusters_page()] is used
+#' This function detects columns and text boxes in a PDF file. To do this, you
+#' first need to read the file using the [pdftools::pdf_data()]-function from
+#' the [pdftools] package.
 #'
-#' @param pdf_data result of the [pdftools::pdf_data()]-function
-#'   [pdftools::pdf_data()]-function
-#' @param algorithm the algorithm to be used to detect text columns
-#'   or text boxes
-#' @param ... algorithm-specific arguments
+#' The function works on both a list of pages, as returned by the
+#' [pdftools::pdf_data()] function, and individual pages extracted from that
+#' list. This makes it flexible for use on either the entire document or
+#' specific pages within it.
 #'
-#' @return A list-object, where each page contains a tibble and each
-#'   word is assigned to a cluster.
+#' @param pdf_data result of the [pdftools::pdf_data()]-function or a page of
+#'   this result.
+#' @param algorithm the algorithm to be used to detect text columns or text
+#'   boxes
+#' @param ... algorithm-specific arguments.
+#'
+#' @return If the input is a list of pages, a list-object is returned, where
+#'   each page contains a tibble and each word is assigned to a cluster. If the
+#'   input is a single page, a tibble is returned directly, with each word
+#'   assigned to a cluster.
 #' @export
 #'
 #' @examples
-# First 3 pages
+#' # First 3 pages
 #' head(npo, 3) |>
 #'    detect_clusters()
+#'
+#' # 3th page
+#' npo[[3]] |>
+#'    detect_clusters()
 detect_clusters <- function(pdf_data, algorithm = "dbscan", ...){
-  purrr::map(pdf_data, detect_clusters_page)
+  # Check if input is a data.frame or list
+  if(!is.data.frame(pdf_data)){
+    purrr::map(pdf_data, ~ detect_clusters_page(.x, algorith = algorithm, ...))
+  }
+  else{
+    detect_clusters_page(pdf_data, algorithm = "dbscan", ...)
+  }
+
+}
+
+
+#' Detect Columns and Text Boxes in PDF Document
+#'
+#' `r lifecycle::badge('experimental')` This function detects columns and text
+#' boxes in a PDF file. To do this, you first need to read the file using the
+#' [pdftools::pdf_data()]-function from the [pdftools] package.
+#'
+#' In the background, the function [detect_clusters_page()] is used
+#'
+#' @param pdf_data result of the [pdftools::pdf_data()]-function
+#' @param algorithm the algorithm to be used to detect text columns or text
+#'   boxes
+#' @param ... algorithm-specific arguments
+#' @noRd
+#' @return A list-object, where each page contains a tibble and each word is
+#'   assigned to a cluster.
+detect_clusters_list <- function(pdf_data, algorithm = "dbscan", ...){
+  purrr::map(pdf_data, ~ detect_clusters_page(.x, algorithm = algorithm, ...))
 }
 
 
 #' Detect Columns and Text Boxes in PDF Page
 #'
-#' `r lifecycle::badge('experimental')` This function detects columns
-#' and text boxes in a PDF page. To do this, you first need to read the file
-#' using the [pdftools::pdf_data()]-function from the [pdftools] package.
+#' `r lifecycle::badge('experimental')` This function detects columns and text
+#' boxes in a PDF page. To do this, you first need to read the file using the
+#' [pdftools::pdf_data()]-function from the [pdftools] package.
 #'
-#' @param pdf_data_page list item of the result of the [pdftools::pdf_data()]-function
-#' @param algorithm algorithm to be used to detect text columns or
-#'   text boxes
+#' @param pdf_data_page list item of the result of the
+#'   [pdftools::pdf_data()]-function
+#' @param algorithm algorithm to be used to detect text columns or text boxes
 #' @param ... algorithm-specific arguments
-#'
-#' @return Tibble indicating which cluster each word belongs to.
-#' @export
-#'
-#' @examples
-#' npo[[10]] |>
-#'    detect_clusters_page()
+#' @noRd
+#' @return a tibble is returned, with each word assigned to a cluster.
 detect_clusters_page <- function(pdf_data_page, algorithm = "dbscan", ...){
 
+  # Check if all required variables are present
+  required_vars <- c("width", "height", "x", "y", "space", "text")
+  missing_vars <- setdiff(required_vars, colnames(pdf_data_page))
+
+  if (length(missing_vars) > 0) {
+    stop(
+      sprintf(
+        "The data.frame is missing the following required variable(s): %s",
+        paste(missing_vars, collapse = ", ")
+      )
+    )
+  }
+
+  # Calculate the coordinates of the bounding box of each word
   coords <- pdf_data_page |>
     tibble::rowid_to_column() |>
     dplyr::mutate(
@@ -54,8 +100,8 @@ detect_clusters_page <- function(pdf_data_page, algorithm = "dbscan", ...){
       y_max = y + height
     )
 
-  # Calculate distances between all words
-  afstanden <- tidyr::expand_grid(word1 = coords, word2 = coords) |>
+  # Calculate distances between all words/bounding boxes
+  word_distances <- tidyr::expand_grid(word1 = coords, word2 = coords) |>
     dplyr::mutate(
       # Calculate horizontal distance
       x_dist = pmax(0, pmax(word1$x_min - word2$x_max,
@@ -70,7 +116,7 @@ detect_clusters_page <- function(pdf_data_page, algorithm = "dbscan", ...){
     tidyr::unnest(word2, names_sep = "_") |>
     dplyr::select(word1 = word1_rowid, word2 = word2_rowid, distance)
 
-  # Determine the most common height
+  # Determine the most common height to use for standard `eps`-value
   max_n_height <- pdf_data_page |>
     dplyr::count(height, sort = TRUE) |>
     dplyr::slice(1) |>
@@ -78,7 +124,7 @@ detect_clusters_page <- function(pdf_data_page, algorithm = "dbscan", ...){
 
 
   # Generate distance matrix
-  distance_matrix <- afstanden  |>
+  distance_matrix <- word_distances  |>
     tidyr::pivot_wider(names_from = word2,
                        values_from = distance,
                        values_fill = Inf) |>
@@ -109,7 +155,6 @@ detect_clusters_page <- function(pdf_data_page, algorithm = "dbscan", ...){
     sNNclust = do.call(dbscan::sNNclust, c(list(distance_matrix), final_args)),
     hdbscan = do.call(dbscan::hdbscan, c(list(distance_matrix), final_args))
   )
-
 
   return(broom::augment(cluster, pdf_data_page))
 

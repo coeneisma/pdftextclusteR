@@ -7,28 +7,39 @@
 detect_clusters(pdf_data, algorithm = "dbscan", ...)
 }
 \arguments{
-\item{pdf_data}{result of the \code{\link[pdftools:pdftools]{pdftools::pdf_data()}}-function
-\code{\link[pdftools:pdftools]{pdftools::pdf_data()}}-function}
+\item{pdf_data}{result of the \code{\link[pdftools:pdftools]{pdftools::pdf_data()}}-function or a page of
+this result.}
 
-\item{algorithm}{the algorithm to be used to detect text columns
-or text boxes}
+\item{algorithm}{the algorithm to be used to detect text columns or text
+boxes}
 
-\item{...}{algorithm-specific arguments}
+\item{...}{algorithm-specific arguments.}
 }
 \value{
-A list-object, where each page contains a tibble and each
-word is assigned to a cluster.
+If the input is a list of pages, a list-object is returned, where
+each page contains a tibble and each word is assigned to a cluster. If the
+input is a single page, a tibble is returned directly, with each word
+assigned to a cluster.
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} This function detects columns
-and text boxes in a PDF file. To do this, you first need to read the file
-using the \code{\link[pdftools:pdftools]{pdftools::pdf_data()}}-function from the \link{pdftools} package.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 }
 \details{
-In the background, the function
-\code{\link[=detect_clusters_page]{detect_clusters_page()}} is used
+This function detects columns and text boxes in a PDF file. To do this, you
+first need to read the file using the \code{\link[pdftools:pdftools]{pdftools::pdf_data()}}-function from
+the \link{pdftools} package.
+
+The function works on both a list of pages, as returned by the
+\code{\link[pdftools:pdftools]{pdftools::pdf_data()}} function, and individual pages extracted from that
+list. This makes it flexible for use on either the entire document or
+specific pages within it.
 }
 \examples{
+# First 3 pages
 head(npo, 3) |>
+   detect_clusters()
+
+# 3th page
+npo[[3]] |>
    detect_clusters()
 }
