@@ -14,24 +14,25 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
-library(pdftextclusteR)
-```
+For importing PDF files, the `pdftools` package is available. However, this
+package does not work optimally when dealing with PDF files containing multiple
+columns. The `pdftextclusteR` package uses a Density-Based Spatial Clustering
+algorithm to determine which words are (likely) associated with each other.
 
-Below is an example of how to import a PDF file using the pdftools package, then detect columns with `pdftoolsclumndetection()`, and finally plot the results.
+Below is an example of how to import a PDF file using the pdftools package, then detect columns with `detect_clusters()`, plot the results with `plot_clusters()` andd finally extract the text with `extract_clusters()` function.
 
 For this example, the Quality Agenda 2024-2027 Mediacollege Amsterdam was used. More information about this report can be found at [rijksoverheid.nl](https://www.rijksoverheid.nl/documenten/rapporten/2024/06/10/kwaliteitsagenda-2024-2027-mediacollege-amsterdam).
 
-### Loading Packages
+## Loading Packages
 
-```{r}
+```{r setup}
 library(pdftools)
 library(pdftextclusteR)
 ```
 
-### Loading Data
+## Loading Data
 
-Data is loaded using the [pdftools::pdf_data()] function. The result is a list object with a tibble for each page containing the data.
+Data is loaded using the `pdftools::pdf_data()` function. The result is a list object with a tibble for each page containing the data.
 
 ```{r error=FALSE, warning=FALSE, message=FALSE}
 #' Reading a PDF document with `pdftools`
@@ -45,24 +46,20 @@ The metadata for the first 5 words on page 7 are, for example:
 head(ka[[7]], 5)
 ```
 
-### Detecting Columns and Text Boxes
+## Detecting text clusters
 
-There are two functions for this:
+Clusters - usually columns and text boxes - are detected with the `detect_clusters()` function.
 
--   `detect_clusters_page()` \> detect columns on a single page;
-
--   `detect_clusters()` \> detect columns across all pages of a list object obtained via `pdftools::pdf_data()`.
-
-In this example, we use the [detect_clusters_page()] function.
 
 ```{r}
 ka_clusters <- ka[[7]] |> 
-  pdftextclusteR::detect_clusters_page()
+  detect_clusters()
 
 head(ka_clusters, 5)
 ```
 
-### Plotting the Clusters
+
+## Plotting the Clusters
 
 Using the [plot_clusters()] function, you can create a visual representation of the detected clusters:
 
@@ -74,6 +71,24 @@ ka_clusters |>
 If you compare this with the source PDF page, you can see that the package has clustered the text quite accurately in this case:
 
 ![](images/example_pdf.png)
+
+## Extract text from clusters
+
+The text of the detected clusters can be extracted with the `extract_clusters()`. 
+
+```{r}
+ka_clusters_text <- ka[[7]] |> 
+  detect_clusters() |> 
+  extract_clusters()
+```
+
+The text from the first 5 clusters are:
+
+```{r}
+head(ka_clusters_text, 5)
+```
+
+
 
 ## Different algorithms
 
@@ -91,7 +106,6 @@ By default, the `dbscan` algorithm is used because it provides good results. How
 
 ```{r}
 ka[[7]] |> 
-  detect_clusters_page(algorithm = "sNNclust") |> 
+  detect_clusters(algorithm = "sNNclust") |> 
   plot_clusters()
-
 ```

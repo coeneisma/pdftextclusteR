@@ -1,18 +1,21 @@
-#' Plot the detect_clusters_page() Object
+#' Plot the [detect_clusters()] Object
 #'
-#' `r lifecycle::badge('experimental')` This function plots a page where the
-#' clusters are detected using the [detect_clusters_page()] function. Each
-#' cluster is assigned a unique color and number, making them easy to visually
-#' detect and compare with the original PDF.
+#' `r lifecycle::badge('experimental')`
 #'
-#' @param pdf_data_page_clusters the result of [detect_clusters_page()]
+#' This function plots a page where the clusters are detected using the
+#' [detect_clusters()] function. Each cluster is assigned a unique color and
+#' number, making them easy to visually detect and compare with the original
+#' PDF.
+#'
+#' @param pdf_data_page_clusters a single list-item from the result of
+#'   [detect_clusters()]
 #'
 #' @return a ggplot2 rectangle plot.
 #' @export
 #'
 #' @examples
 #' npo[[12]] |>
-#'   detect_clusters_page() |>
+#'   detect_clusters() |>
 #'   plot_clusters()
 plot_clusters <- function(pdf_data_page_clusters){
 
