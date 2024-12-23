@@ -1,5 +1,6 @@
 #' Extract the Text Per Cluster from the [detect_clusters()] object
 #'
+#' @description
 #' `r lifecycle::badge('experimental')`
 #'
 #' As an end user, you mainly want to work with the text from the different

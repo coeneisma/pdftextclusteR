@@ -18,8 +18,7 @@ containing the text extracted from each cluster on that page.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-}
-\details{
+
 As an end user, you mainly want to work with the text from the different
 detected text clusters. This function combines the text from each cluster
 into a character string and places it in a Tibble.
