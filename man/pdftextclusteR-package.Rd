@@ -4,16 +4,18 @@
 \name{pdftextclusteR-package}
 \alias{pdftextclusteR}
 \alias{pdftextclusteR-package}
-\title{pdftextclusteR: Properly importing text from PDF files that may contain columns or other text boxes in R}
+\title{pdftextclusteR: Detecting Text Clusters in PDF Documents Using Density-Based Clustering Algorithms}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-For importing PDF files, the pdftools package is available. However, this package does not work optimally when dealing with PDF files containing multiple columns. The pdftextclusteR package uses a Density-Based Spatial Clustering algorithm to determine which words are (likely) associated with each other.
+Detect and extract text clusters, such as columns and text boxes, from PDF documents. Utilizes the 'pdftools' package for PDF import and applies density-based clustering algorithms from the 'dbscan' package to accurately group related text elements, facilitating improved text analysis and extraction from complex PDF layouts.
 }
 \seealso{
 Useful links:
 \itemize{
   \item \url{https://coeneisma.github.io/pdftextclusteR/}
+  \item \url{https://github.com/coeneisma/pdftextclusteR}
+  \item Report bugs at \url{https://github.com/coeneisma/pdftextclusteR/issues}
 }
 
 }

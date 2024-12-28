@@ -27,18 +27,18 @@
 #' @examples
 #' # First 3 pages
 #' head(npo, 3) |>
-#'    detect_clusters()
+#'    pdf_detect_clusters()
 #'
 #' # 3th page
 #' npo[[3]] |>
-#'    detect_clusters()
-detect_clusters <- function(pdf_data, algorithm = "dbscan", ...){
+#'    pdf_detect_clusters()
+pdf_detect_clusters <- function(pdf_data, algorithm = "dbscan", ...){
   # Check if input is a data.frame or list
   if(!is.data.frame(pdf_data)){
-    purrr::map(pdf_data, ~ detect_clusters_page(.x, algorith = algorithm, ...))
+    purrr::map(pdf_data, ~ pdf_detect_clusters_page(.x, algorith = algorithm, ...))
   }
   else{
-    detect_clusters_page(pdf_data, algorithm = "dbscan", ...)
+    pdf_detect_clusters_page(pdf_data, algorithm = "dbscan", ...)
   }
 
 }
@@ -50,7 +50,7 @@ detect_clusters <- function(pdf_data, algorithm = "dbscan", ...){
 #' boxes in a PDF file. To do this, you first need to read the file using the
 #' [pdftools::pdf_data()]-function from the [pdftools] package.
 #'
-#' In the background, the function [detect_clusters_page()] is used
+#' In the background, the function [pdf_detect_clusters_page()] is used
 #'
 #' @param pdf_data result of the [pdftools::pdf_data()]-function
 #' @param algorithm the algorithm to be used to detect text columns or text
@@ -59,8 +59,8 @@ detect_clusters <- function(pdf_data, algorithm = "dbscan", ...){
 #' @noRd
 #' @return A list-object, where each page contains a tibble and each word is
 #'   assigned to a cluster.
-detect_clusters_list <- function(pdf_data, algorithm = "dbscan", ...){
-  purrr::map(pdf_data, ~ detect_clusters_page(.x, algorithm = algorithm, ...))
+pdf_detect_clusters_list <- function(pdf_data, algorithm = "dbscan", ...){
+  purrr::map(pdf_data, ~ pdf_detect_clusters_page(.x, algorithm = algorithm, ...))
 }
 
 
@@ -76,7 +76,7 @@ detect_clusters_list <- function(pdf_data, algorithm = "dbscan", ...){
 #' @param ... algorithm-specific arguments
 #' @noRd
 #' @return a tibble is returned, with each word assigned to a cluster.
-detect_clusters_page <- function(pdf_data_page, algorithm = "dbscan", ...){
+pdf_detect_clusters_page <- function(pdf_data_page, algorithm = "dbscan", ...){
 
   # Check if all required variables are present
   required_vars <- c("width", "height", "x", "y", "space", "text")

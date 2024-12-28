@@ -25,9 +25,9 @@ knitr::opts_chunk$set(
 
 <!-- badges: end -->
 
-The [pdftools](https://docs.ropensci.org/pdftools/) package is available for importing PDF files. However, this package does not work optimally when importing PDF files with multiple columns and text boxes. Since the`pdftools::pdf_text()` function from the `pdftools` package processes text line by line, it often fails to maintain the context of the text. As a result, the output may contain sentences with unrelated fragments of text from different parts of the page. Words that are not placed in the correct context are unsuitable for text analysis. 
+The [pdftools](https://docs.ropensci.org/pdftools/) package is available for importing PDF files. However, this package does not work optimally when importing PDF files with multiple columns and text boxes. Since the `pdftools::pdf_text()` function from the `pdftools` package processes text line by line, it often fails to maintain the context of the text. As a result, the output may contain sentences with unrelated fragments of text from different parts of the page. Words that are not placed in the correct context are unsuitable for text analysis. 
 
-However, the words grouped into clusters by this package using a Density-Based Spatial Clustering algorithm are likely to be contextually related and thus suitable for text analysis.
+However, the words grouped into clusters by this package using a Density-Based Spatial Clustering algorithm are likely to be contextually related and thus suitable for text analysis. This package directly utilizes the clustering algorithms implemented in the [dbscan](https://github.com/mhahsler/dbscan) package.
 
 See `vignette("pdftextclusteR")` for more information on the usage of the package. 
 
