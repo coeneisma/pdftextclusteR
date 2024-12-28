@@ -4,9 +4,9 @@ template:
 reference:
   - title: Functions
   - contents:
-    - detect_clusters
-    - plot_clusters
-    - extract_clusters
+    - pdf_detect_clusters
+    - pdf_plot_clusters
+    - pdf_extract_clusters
   - title: Datasets
   - contents:
     - npo

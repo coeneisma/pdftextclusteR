@@ -19,7 +19,7 @@ package does not work optimally when dealing with PDF files containing multiple
 columns. The `pdftextclusteR` package uses a Density-Based Spatial Clustering
 algorithm to determine which words are (likely) associated with each other.
 
-Below is an example of how to import a PDF file using the pdftools package, then detect columns with `detect_clusters()`, plot the results with `plot_clusters()` andd finally extract the text with `extract_clusters()` function.
+Below is an example of how to import a PDF file using the pdftools package, then detect columns with `pdf_detect_clusters()`, plot the results with `pdf_plot_clusters()` andd finally extract the text with `pdf_extract_clusters()` function.
 
 For this example, the Quality Agenda 2024-2027 Mediacollege Amsterdam was used. More information about this report can be found at [rijksoverheid.nl](https://www.rijksoverheid.nl/documenten/rapporten/2024/06/10/kwaliteitsagenda-2024-2027-mediacollege-amsterdam).
 
@@ -48,12 +48,12 @@ head(ka[[7]], 5)
 
 ## Detecting text clusters
 
-Clusters - usually columns and text boxes - are detected with the `detect_clusters()` function.
+Clusters - usually columns and text boxes - are detected with the `pdf_detect_clusters()` function.
 
 
 ```{r}
 ka_clusters <- ka[[7]] |> 
-  detect_clusters()
+  pdf_detect_clusters()
 
 head(ka_clusters, 5)
 ```
@@ -61,11 +61,11 @@ head(ka_clusters, 5)
 
 ## Plotting the Clusters
 
-Using the [plot_clusters()] function, you can create a visual representation of the detected clusters:
+Using the [pdf_plot_clusters()] function, you can create a visual representation of the detected clusters:
 
-```{r plot_clusters}
+```{r pdf_plot_clusters}
 ka_clusters |> 
-  plot_clusters()
+  pdf_plot_clusters()
 ```
 
 If you compare this with the source PDF page, you can see that the package has clustered the text quite accurately in this case:
@@ -74,12 +74,12 @@ If you compare this with the source PDF page, you can see that the package has c
 
 ## Extract text from clusters
 
-The text of the detected clusters can be extracted with the `extract_clusters()`. 
+The text of the detected clusters can be extracted with the `pdf_extract_clusters()`. 
 
 ```{r}
 ka_clusters_text <- ka[[7]] |> 
-  detect_clusters() |> 
-  extract_clusters()
+  pdf_detect_clusters() |> 
+  pdf_extract_clusters()
 ```
 
 The text from the first 5 clusters are:
@@ -106,6 +106,6 @@ By default, the `dbscan` algorithm is used because it provides good results. How
 
 ```{r}
 ka[[7]] |> 
-  detect_clusters(algorithm = "sNNclust") |> 
-  plot_clusters()
+  pdf_detect_clusters(algorithm = "sNNclust") |> 
+  pdf_plot_clusters()
 ```

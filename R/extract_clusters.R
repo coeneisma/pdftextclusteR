@@ -1,4 +1,4 @@
-#' Extract the Text Per Cluster from the [detect_clusters()] object
+#' Extract the Text Per Cluster from the [pdf_detect_clusters()] object
 #'
 #' @description
 #' `r lifecycle::badge('experimental')`
@@ -7,7 +7,7 @@
 #' detected text clusters. This function combines the text from each cluster
 #' into a character string and places it in a Tibble.
 #'
-#' @param pdf_data result of the [detect_clusters()]-function or a page of this
+#' @param pdf_data result of the [pdf_detect_clusters()]-function or a page of this
 #'   result
 #'
 #' @return If the input is a list of tibbles, a list-object is returned, where
@@ -18,25 +18,25 @@
 #'
 #' @examples
 #' npo[[1]] |>
-#'    detect_clusters() |>
-#'    extract_clusters()
-extract_clusters <- function(pdf_data){
+#'    pdf_detect_clusters() |>
+#'    pdf_extract_clusters()
+pdf_extract_clusters <- function(pdf_data){
   if(!is.data.frame(pdf_data)){
-    purrr::map(pdf_data, ~ extract_clusters_text_page(.x))
+    purrr::map(pdf_data, ~ pdf_extract_clusters_text_page(.x))
   }
   else{
-    extract_clusters_text_page(pdf_data)
+    pdf_extract_clusters_text_page(pdf_data)
   }
 }
 
 #' Export the Text Per Cluster on a single page
 #'
-#' @param pdf_data the result of [detect_clusters()]
+#' @param pdf_data the result of [pdf_detect_clusters()]
 #'
 #' @return a Tibble with the same number of records as the number of detected
 #'   clusters on the page
 #' @noRd
-extract_clusters_text_page <- function(pdf_data){
+pdf_extract_clusters_text_page <- function(pdf_data){
 
   clusters_text <- pdf_data |>
     dplyr::group_by(.cluster) |>
