@@ -43,6 +43,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/coeneisma/pdftextclusteR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -58,7 +59,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>pdftextclusteR: detect text clusters in PDF</h1>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/coeneisma/pdftextclusteR/blob/main/vignettes/pdftextclusteR.Rmd" class="external-link"><code>vignettes/pdftextclusteR.Rmd</code></a></small>
       <div class="d-none name"><code>pdftextclusteR.Rmd</code></div>
     </div>
 
@@ -71,9 +72,9 @@ with PDF files containing multiple columns. The
 Clustering algorithm to determine which words are (likely) associated
 with each other.</p>
 <p>Below is an example of how to import a PDF file using the pdftools
-package, then detect columns with <code><a href="../reference/detect_clusters.html">detect_clusters()</a></code>, plot
-the results with <code><a href="../reference/plot_clusters.html">plot_clusters()</a></code> andd finally extract the
-text with <code><a href="../reference/extract_clusters.html">extract_clusters()</a></code> function.</p>
+package, then detect columns with <code><a href="../reference/pdf_detect_clusters.html">pdf_detect_clusters()</a></code>,
+plot the results with <code><a href="../reference/pdf_plot_clusters.html">pdf_plot_clusters()</a></code> andd finally
+extract the text with <code><a href="../reference/pdf_extract_clusters.html">pdf_extract_clusters()</a></code> function.</p>
 <p>For this example, the Quality Agenda 2024-2027 Mediacollege Amsterdam
 was used. More information about this report can be found at <a href="https://www.rijksoverheid.nl/documenten/rapporten/2024/06/10/kwaliteitsagenda-2024-2027-mediacollege-amsterdam" class="external-link">rijksoverheid.nl</a>.</p>
 <div class="section level2">
@@ -107,10 +108,10 @@ data.</p>
 <h2 id="detecting-text-clusters">Detecting text clusters<a class="anchor" aria-label="anchor" href="#detecting-text-clusters"></a>
 </h2>
 <p>Clusters - usually columns and text boxes - are detected with the
-<code><a href="../reference/detect_clusters.html">detect_clusters()</a></code> function.</p>
+<code><a href="../reference/pdf_detect_clusters.html">pdf_detect_clusters()</a></code> function.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ka_clusters</span> <span class="op">&lt;-</span> <span class="va">ka</span><span class="op">[[</span><span class="fl">7</span><span class="op">]</span><span class="op">]</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="../reference/detect_clusters.html">detect_clusters</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="../reference/pdf_detect_clusters.html">pdf_detect_clusters</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Error in get(paste0(generic, ".", class), envir = get_method_env()) : </span></span>
 <span><span class="co">#&gt;   object 'type_sum.accel' not found</span></span>
 <span></span>
@@ -127,12 +128,12 @@ data.</p>
 <div class="section level2">
 <h2 id="plotting-the-clusters">Plotting the Clusters<a class="anchor" aria-label="anchor" href="#plotting-the-clusters"></a>
 </h2>
-<p>Using the [plot_clusters()] function, you can create a visual
+<p>Using the [pdf_plot_clusters()] function, you can create a visual
 representation of the detected clusters:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ka_clusters</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="../reference/plot_clusters.html">plot_clusters</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="pdftextclusteR_files/figure-html/plot_clusters-1.png" width="700"></p>
+<span>  <span class="fu"><a href="../reference/pdf_plot_clusters.html">pdf_plot_clusters</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="pdftextclusteR_files/figure-html/pdf_plot_clusters-1.png" width="700"></p>
 <p>If you compare this with the source PDF page, you can see that the
 package has clustered the text quite accurately in this case:</p>
 <p><img src="images%2Fexample_pdf.png"></p>
@@ -141,11 +142,11 @@ package has clustered the text quite accurately in this case:</p>
 <h2 id="extract-text-from-clusters">Extract text from clusters<a class="anchor" aria-label="anchor" href="#extract-text-from-clusters"></a>
 </h2>
 <p>The text of the detected clusters can be extracted with the
-<code><a href="../reference/extract_clusters.html">extract_clusters()</a></code>.</p>
+<code><a href="../reference/pdf_extract_clusters.html">pdf_extract_clusters()</a></code>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ka_clusters_text</span> <span class="op">&lt;-</span> <span class="va">ka</span><span class="op">[[</span><span class="fl">7</span><span class="op">]</span><span class="op">]</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="../reference/detect_clusters.html">detect_clusters</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="../reference/extract_clusters.html">extract_clusters</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="../reference/pdf_detect_clusters.html">pdf_detect_clusters</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/pdf_extract_clusters.html">pdf_extract_clusters</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>The text from the first 5 clusters are:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ka_clusters_text</span>, <span class="fl">5</span><span class="op">)</span></span>
@@ -177,8 +178,8 @@ the other algorithms. Below is an example of clustering the same page
 using the <code>sNNclust</code> algorithm:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ka</span><span class="op">[[</span><span class="fl">7</span><span class="op">]</span><span class="op">]</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="../reference/detect_clusters.html">detect_clusters</a></span><span class="op">(</span>algorithm <span class="op">=</span> <span class="st">"sNNclust"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="../reference/plot_clusters.html">plot_clusters</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="../reference/pdf_detect_clusters.html">pdf_detect_clusters</a></span><span class="op">(</span>algorithm <span class="op">=</span> <span class="st">"sNNclust"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/pdf_plot_clusters.html">pdf_plot_clusters</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="pdftextclusteR_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
