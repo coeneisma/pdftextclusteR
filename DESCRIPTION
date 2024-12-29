@@ -23,6 +23,7 @@ Imports:
     pdftools,
     purrr,
     stats,
+    stringr,
     tibble,
     tidyr,
     utils

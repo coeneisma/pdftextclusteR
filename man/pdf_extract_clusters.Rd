@@ -7,21 +7,23 @@
 pdf_extract_clusters(pdf_data)
 }
 \arguments{
-\item{pdf_data}{result of the \code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}}-function or a page of this
-result}
+\item{pdf_data}{result of the \code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}}-function or a page of
+this result}
 }
 \value{
 If the input is a list of tibbles, a list-object is returned, where
 each element is a tibble containing the text extracted from each cluster on
 a page. If the input is a single tibble, a tibble is returned directly,
-containing the text extracted from each cluster on that page.
+containing the text extracted from each cluster on that page, including a
+word count per cluster.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
 As an end user, you mainly want to work with the text from the different
 detected text clusters. This function combines the text from each cluster
-into a character string and places it in a Tibble.
+into a character string and places it in a Tibble. A word count is added
+per cluster.
 }
 \examples{
 npo[[1]] |>
