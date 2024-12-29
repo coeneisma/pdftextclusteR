@@ -1,6 +1,6 @@
 Package: pdftextclusteR
 Title: Detecting Text Clusters in PDF Documents Using Density-Based Clustering Algorithms
-Version: 0.0.0.9003
+Version: 0.0.0.9005
 Authors@R: 
     person("Coen", "Eisma", , "coeneisma@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0009-0007-9001-2572"))
@@ -23,6 +23,7 @@ Imports:
     pdftools,
     purrr,
     stats,
+    stringr,
     tibble,
     tidyr,
     utils
@@ -32,6 +33,8 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat (>= 3.0.0)
 VignetteBuilder: knitr
 BugReports: https://github.com/coeneisma/pdftextclusteR/issues
+Config/testthat/edition: 3

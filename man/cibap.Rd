@@ -11,7 +11,7 @@ A large list object with 73 elements. Each element contains a tibble with 6 colu
 \describe{
 \item{width, height}{Width and height of a word}
 \item{x, y}{The x and y coordinates of a word. The x-coordinate is measured from the top.}
-\item{space}{Indicates whether there is more than one space after the word.}
+\item{space}{Indicates whether there is a space after the word. This indicates a line break.}
 \item{text}{The word that the metadata refers to.}
 }
 }
