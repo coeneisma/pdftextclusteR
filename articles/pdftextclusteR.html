@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pdftextclusteR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9005</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -150,15 +150,14 @@ package has clustered the text quite accurately in this case:</p>
 <p>The text from the first 5 clusters are:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ka_clusters_text</span>, <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 2</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># Groups:   .cluster [5]</span></span></span>
-<span><span class="co">#&gt;   .cluster text                                                                 </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                                                </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0        Inleiding 7                                                          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 1        Waar liggen de belangrijkste ontwikkelopgaven voor onze onderwijstea…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2        Met deze Kwaliteitsagenda 2024-2027 wil MA haar ambities voor de kom…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 3        Kwaliteitsagenda 2024-2027                                           </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 4        We bouwen voort op de doelstellingen uit de Kwaliteitsagenda 2019-20…</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 3</span></span></span>
+<span><span class="co">#&gt;   .cluster word_count text                                                      </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                                     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0                 2 <span style="color: #949494;">"</span>Inleiding\n 7\n<span style="color: #949494;">"</span>                                         </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 1                89 <span style="color: #949494;">"</span>Waar liggen de belangrijkste ontwikkelopgaven voor onze …</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2                89 <span style="color: #949494;">"</span>Met deze Kwaliteitsagenda 2024-2027 wil MA haar\n ambiti…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 3                 3 <span style="color: #949494;">"</span>Kwaliteitsagenda 2024-2027\n<span style="color: #949494;">"</span>                            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 4                63 <span style="color: #949494;">"</span>We bouwen voort op de doelstellingen uit de\n Kwaliteits…</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="different-algorithms">Different algorithms<a class="anchor" aria-label="anchor" href="#different-algorithms"></a>
