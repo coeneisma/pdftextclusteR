@@ -45,3 +45,47 @@ install it using the function:
 devtools::install_github("coeneisma/pdftextclusteR")
   ref = "development")
 ```
+
+## Example
+
+This is a basic example of the capabilities of this package.
+
+``` r
+library(pdftextclusteR)
+library(pdftools)
+
+# Read a PDF-file with pdftools::pdf_data()
+ka <- pdf_data("https://www.rijksoverheid.nl/binaries/rijksoverheid/documenten/rapporten/2024/06/10/kwaliteitsagenda-2024-2027-mediacollege-amsterdam/Kwaliteitsagenda+2024-2027+Mediacollege+Amsterdam.pdf")
+
+# Detect clusters on the 7th page
+ka_clusters <- ka[[7]] |> 
+  pdf_detect_clusters()
+
+# Plot clusters on the first page
+ka_clusters |> 
+  pdf_plot_clusters()
+```
+
+<img src="man/figures/README-example-1.png" width="100%" />
+
+Compared with the orriginal document it is quite acurate.
+
+![](vignettes/images/example_pdf.png) Text can be extracted to do
+further analysis:
+
+``` r
+ka_clusters_text <- ka_clusters |> 
+  pdf_extract_clusters()
+
+ka_clusters_text
+#> # A tibble: 7 × 3
+#>   .cluster word_count text                                                      
+#>   <fct>         <int> <chr>                                                     
+#> 1 0                 2 "Inleiding\n 7\n"                                         
+#> 2 1                89 "Waar liggen de belangrijkste ontwikkelopgaven voor onze …
+#> 3 2                89 "Met deze Kwaliteitsagenda 2024-2027 wil MA haar\n ambiti…
+#> 4 3                 3 "Kwaliteitsagenda 2024-2027\n"                            
+#> 5 4                63 "We bouwen voort op de doelstellingen uit de\n Kwaliteits…
+#> 6 5                53 "De strategie en daarmee de prioriteiten voor de MA\n Kwa…
+#> 7 6                93 "Ook het werkveld is binnen verschillende overleggen\n en…
+```
