@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="index.html">pdftextclusteR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9006</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9007</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -74,6 +74,43 @@
 <p>The latest version can be found on the development branch. You can install it using the function:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"coeneisma/pdftextclusteR"</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  ref <span class="ot">=</span> <span class="st">"development"</span><span class="er">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+</h2>
+<p>This is a basic example of the capabilities of this package.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://coeneisma.github.io/pdftextclusteR/">pdftextclusteR</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/pdftools/" class="external-link">pdftools</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Read a PDF-file with pdftools::pdf_data()</span></span>
+<span><span class="va">ka</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://docs.ropensci.org/pdftools/reference/pdftools.html" class="external-link">pdf_data</a></span><span class="op">(</span><span class="st">"https://www.rijksoverheid.nl/binaries/rijksoverheid/documenten/rapporten/2024/06/10/kwaliteitsagenda-2024-2027-mediacollege-amsterdam/Kwaliteitsagenda+2024-2027+Mediacollege+Amsterdam.pdf"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Detect clusters on the 7th page</span></span>
+<span><span class="va">ka_clusters</span> <span class="op">&lt;-</span> <span class="va">ka</span><span class="op">[[</span><span class="fl">7</span><span class="op">]</span><span class="op">]</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="reference/pdf_detect_clusters.html">pdf_detect_clusters</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Plot clusters on the first page</span></span>
+<span><span class="va">ka_clusters</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="reference/pdf_plot_clusters.html">pdf_plot_clusters</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-example-1.png" width="100%"></p>
+<p>Compared with the orriginal document it is quite acurate.</p>
+<p><img src="articles/images/example_pdf.png"> Text can be extracted to do further analysis:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ka_clusters_text</span> <span class="op">&lt;-</span> <span class="va">ka_clusters</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="reference/pdf_extract_clusters.html">pdf_extract_clusters</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ka_clusters_text</span></span>
+<span><span class="co">#&gt; # A tibble: 7 × 3</span></span>
+<span><span class="co">#&gt;   .cluster word_count text                                                      </span></span>
+<span><span class="co">#&gt;   &lt;fct&gt;         &lt;int&gt; &lt;chr&gt;                                                     </span></span>
+<span><span class="co">#&gt; 1 0                 2 "Inleiding\n 7\n"                                         </span></span>
+<span><span class="co">#&gt; 2 1                89 "Waar liggen de belangrijkste ontwikkelopgaven voor onze …</span></span>
+<span><span class="co">#&gt; 3 2                89 "Met deze Kwaliteitsagenda 2024-2027 wil MA haar\n ambiti…</span></span>
+<span><span class="co">#&gt; 4 3                 3 "Kwaliteitsagenda 2024-2027\n"                            </span></span>
+<span><span class="co">#&gt; 5 4                63 "We bouwen voort op de doelstellingen uit de\n Kwaliteits…</span></span>
+<span><span class="co">#&gt; 6 5                53 "De strategie en daarmee de prioriteiten voor de MA\n Kwa…</span></span>
+<span><span class="co">#&gt; 7 6                93 "Ook het werkveld is binnen verschillende overleggen\n en…</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
