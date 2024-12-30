@@ -13,7 +13,7 @@ this result.}
 \item{algorithm}{the algorithm to be used to detect text columns or text
 boxes}
 
-\item{...}{algorithm-specific arguments.}
+\item{...}{algorithm-specific arguments. See \code{\link[dbscan:dbscan]{dbscan::dbscan()}}, \code{\link[dbscan:jpclust]{dbscan::jpclust()}}, \code{\link[dbscan:sNNclust]{dbscan::sNNclust()}} and \code{\link[dbscan:hdbscan]{dbscan::hdbscan()}} for more information}
 }
 \value{
 If the input is a list of pages, a list-object is returned, where
@@ -32,13 +32,16 @@ The function works on both a list of pages, as returned by the
 \code{\link[pdftools:pdftools]{pdftools::pdf_data()}} function, and individual pages extracted from that
 list. This makes it flexible for use on either the entire document or
 specific pages within it.
+
+This package directly utilizes the clustering algorithms implemented in the
+\link{dbscan} package. For this a \code{\link[stats:dist]{stats::dist()}} object is created.
 }
 \examples{
 # First 3 pages
 head(npo, 3) |>
    pdf_detect_clusters()
 
-# 3th page
+# 3th page with sNNclust algorithm with minPts = 5
 npo[[3]] |>
-   pdf_detect_clusters()
+   pdf_detect_clusters(algorithm = "sNNclust", minPts = 5)
 }
