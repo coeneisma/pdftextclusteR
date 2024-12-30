@@ -1,7 +1,6 @@
 #' Detect Columns and Text Boxes in PDF Document
 #'
-#' @description
-#' `r lifecycle::badge('experimental')`
+#' @description `r lifecycle::badge('experimental')`
 #'
 #' This function detects columns and text boxes in a PDF file. To do this, you
 #' first need to read the file using the [pdftools::pdf_data()]-function from
@@ -12,11 +11,14 @@
 #' list. This makes it flexible for use on either the entire document or
 #' specific pages within it.
 #'
+#' This package directly utilizes the clustering algorithms implemented in the
+#' [dbscan] package. For this a [stats::dist()] object is created.
+#'
 #' @param pdf_data result of the [pdftools::pdf_data()]-function or a page of
 #'   this result.
 #' @param algorithm the algorithm to be used to detect text columns or text
 #'   boxes
-#' @param ... algorithm-specific arguments.
+#' @param ... algorithm-specific arguments. See [dbscan::dbscan()], [dbscan::jpclust()], [dbscan::sNNclust()] and [dbscan::hdbscan()] for more information
 #'
 #' @return If the input is a list of pages, a list-object is returned, where
 #'   each page contains a tibble and each word is assigned to a cluster. If the
@@ -29,9 +31,9 @@
 #' head(npo, 3) |>
 #'    pdf_detect_clusters()
 #'
-#' # 3th page
+#' # 3th page with sNNclust algorithm with minPts = 5
 #' npo[[3]] |>
-#'    pdf_detect_clusters()
+#'    pdf_detect_clusters(algorithm = "sNNclust", minPts = 5)
 pdf_detect_clusters <- function(pdf_data, algorithm = "dbscan", ...){
   # Check if input is a data.frame or list
   if(!is.data.frame(pdf_data)){

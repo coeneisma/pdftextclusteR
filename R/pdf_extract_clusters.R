@@ -38,6 +38,9 @@ pdf_extract_clusters <- function(pdf_data){
 #'   clusters on the page
 #' @noRd
 pdf_extract_clusters_text_page <- function(pdf_data){
+  # Binding variable to function to prevent "Undefined global functions or
+  # variables:" note from devtools::check()
+  word_count <- NA
 
   clusters_text <- pdf_data |>
     dplyr::mutate(text = dplyr::case_when(space == FALSE ~ paste0(text, "\n"),
@@ -47,9 +50,9 @@ pdf_extract_clusters_text_page <- function(pdf_data){
     dplyr::select(.cluster, text) |>
     dplyr::distinct() |>
     dplyr::mutate(word_count = stringr::str_count(text, "\\b\\w+\\b")) |>
-    dplyr::ungroup()
+    dplyr::ungroup() |>
+    dplyr::select(.cluster, word_count, text)
 
-  return(clusters_text |>
-           dplyr::select(.cluster, word_count, text))
+  return(clusters_text)
 
 }

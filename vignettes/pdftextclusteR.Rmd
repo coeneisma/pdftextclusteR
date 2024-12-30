@@ -61,7 +61,7 @@ head(ka_clusters, 5)
 
 ## Plotting the Clusters
 
-Using the [pdf_plot_clusters()] function, you can create a visual representation of the detected clusters:
+Using the `pdf_plot_clusters()` function, you can create a visual representation of the detected clusters:
 
 ```{r pdf_plot_clusters}
 ka_clusters |> 
