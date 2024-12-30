@@ -6,14 +6,18 @@ the pdftools package.
 The function works on both a list of pages, as returned by the
 pdftools::pdf_data() function, and individual pages extracted from that
 list. This makes it flexible for use on either the entire document or
-specific pages within it."><meta property="og:description" content="
+specific pages within it.
+This package directly utilizes the clustering algorithms implemented in the
+dbscan package. For this a stats::dist() object is created."><meta property="og:description" content="
 This function detects columns and text boxes in a PDF file. To do this, you
 first need to read the file using the pdftools::pdf_data()-function from
 the pdftools package.
 The function works on both a list of pages, as returned by the
 pdftools::pdf_data() function, and individual pages extracted from that
 list. This makes it flexible for use on either the entire document or
-specific pages within it."><meta property="og:image" content="https://coeneisma.github.io/pdftextclusteR/logo.png"></head><body>
+specific pages within it.
+This package directly utilizes the clustering algorithms implemented in the
+dbscan package. For this a stats::dist() object is created."><meta property="og:image" content="https://coeneisma.github.io/pdftextclusteR/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -21,7 +25,7 @@ specific pages within it."><meta property="og:image" content="https://coeneisma.
 
     <a class="navbar-brand me-2" href="../index.html">pdftextclusteR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9005</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9006</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,6 +60,8 @@ the pdftools package.</p>
 <code><a href="https://docs.ropensci.org/pdftools/reference/pdftools.html" class="external-link">pdftools::pdf_data()</a></code> function, and individual pages extracted from that
 list. This makes it flexible for use on either the entire document or
 specific pages within it.</p>
+<p>This package directly utilizes the clustering algorithms implemented in the
+dbscan package. For this a <code><a href="https://rdrr.io/r/stats/dist.html" class="external-link">stats::dist()</a></code> object is created.</p>
     </div>
 
     <div class="section level2">
@@ -78,7 +84,7 @@ boxes</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>algorithm-specific arguments.</p></dd>
+<dd><p>algorithm-specific arguments. See <code><a href="https://rdrr.io/pkg/dbscan/man/dbscan.html" class="external-link">dbscan::dbscan()</a></code>, <code><a href="https://rdrr.io/pkg/dbscan/man/jpclust.html" class="external-link">dbscan::jpclust()</a></code>, <code><a href="https://rdrr.io/pkg/dbscan/man/sNNclust.html" class="external-link">dbscan::sNNclust()</a></code> and <code><a href="https://rdrr.io/pkg/dbscan/man/hdbscan.html" class="external-link">dbscan::hdbscan()</a></code> for more information</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -139,9 +145,9 @@ assigned to a cluster.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 216 more rows</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># 3th page</span></span></span>
+<span class="r-in"><span><span class="co"># 3th page with sNNclust algorithm with minPts = 5</span></span></span>
 <span class="r-in"><span><span class="va">npo</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>   <span class="fu">pdf_detect_clusters</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span>   <span class="fu">pdf_detect_clusters</span><span class="op">(</span>algorithm <span class="op">=</span> <span class="st">"sNNclust"</span>, minPts <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 226 × 8</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    width height     x     y space text        .cluster noise</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span></span>
