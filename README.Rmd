@@ -42,7 +42,7 @@ devtools::install_github("coeneisma/pdftextclusteR")
 The latest version can be found on the development branch. You can install it using the function:
 
 ``` r
-devtools::install_github("coeneisma/pdftextclusteR")
+devtools::install_github("coeneisma/pdftextclusteR",
   ref = "development")
 ```
 

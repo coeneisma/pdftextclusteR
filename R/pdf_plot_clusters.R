@@ -3,6 +3,55 @@
 #' @description
 #' `r lifecycle::badge('experimental')`
 #'
+#' This function plots the clusters that are detected using the
+#' [pdf_detect_clusters()] function. Each cluster is assigned a unique color and
+#' number, making them easy to visually detect and compare with the original
+#' PDF.
+#'
+#' The function works on both a single page (as a list item from the result of
+#' [pdf_detect_clusters()]) and a list of pages (the entire output of
+#' [pdf_detect_clusters()]). When applied to a list of pages, the function
+#' returns a list of ggplot2 objects, one for each page.
+#'
+#' This flexibility allows users to visualize clusters for specific pages or for
+#' the entire document.
+#'
+#' @param pdf_data_page_clusters A single list item from the result of
+#'   [pdf_detect_clusters()], or the full list of pages returned by
+#'   [pdf_detect_clusters()].
+#'
+#' @return A ggplot2 rectangle plot when applied to a single page. When applied
+#'   to a list of pages, a list of ggplot2 rectangle plots is returned.
+#' @export
+#'
+#' @examples
+#' # Example for a single page
+#' npo[[12]] |>
+#'   pdf_detect_clusters() |>
+#'   pdf_plot_clusters()
+#'
+#' # Example for a list of pages
+#' npo |>
+#'   head(3) |>
+#'   pdf_detect_clusters() |>
+#'   pdf_plot_clusters()
+pdf_plot_clusters <- function(pdf_data_clusters)
+{
+  # Check if input is a data.frame or list
+  if(!is.data.frame(pdf_data_clusters)){
+    purrr::map(pdf_data_clusters, ~ pdf_plot_clusters_page(.x))
+  }
+  else{
+    pdf_plot_clusters_page(pdf_data_clusters)
+  }
+}
+
+
+#' Plot one page of the [pdf_detect_clusters()] Object
+#'
+#' @description
+#' `r lifecycle::badge('experimental')`
+#'
 #' This function plots a page where the clusters are detected using the
 #' [pdf_detect_clusters()] function. Each cluster is assigned a unique color and
 #' number, making them easy to visually detect and compare with the original
@@ -12,13 +61,13 @@
 #'   [pdf_detect_clusters()]
 #'
 #' @return a ggplot2 rectangle plot.
-#' @export
+#' @noRd
 #'
 #' @examples
 #' npo[[12]] |>
 #'   pdf_detect_clusters() |>
 #'   pdf_plot_clusters()
-pdf_plot_clusters <- function(pdf_data_page_clusters){
+pdf_plot_clusters_page <- function(pdf_data_page_clusters){
 
   # Data for outlines
   merged_data <- pdf_data_page_clusters |>
