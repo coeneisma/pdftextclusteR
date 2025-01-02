@@ -7,7 +7,7 @@
 pdf_plot_clusters(pdf_data_clusters)
 }
 \arguments{
-\item{pdf_data_page_clusters}{A single list item from the result of
+\item{pdf_data_clusters}{A single list item from the result of
 \code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}}, or the full list of pages returned by
 \code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}}.}
 }

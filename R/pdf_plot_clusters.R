@@ -16,7 +16,7 @@
 #' This flexibility allows users to visualize clusters for specific pages or for
 #' the entire document.
 #'
-#' @param pdf_data_page_clusters A single list item from the result of
+#' @param pdf_data_clusters A single list item from the result of
 #'   [pdf_detect_clusters()], or the full list of pages returned by
 #'   [pdf_detect_clusters()].
 #'
