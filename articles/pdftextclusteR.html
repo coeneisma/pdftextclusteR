@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pdftextclusteR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9007</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9008</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,12 +65,19 @@
 
     
     
-<p>For importing PDF files, the <code>pdftools</code> package is
-available. However, this package does not work optimally when dealing
-with PDF files containing multiple columns. The
-<code>pdftextclusteR</code> package uses a Density-Based Spatial
-Clustering algorithm to determine which words are (likely) associated
-with each other.</p>
+<p>The <a href="https://docs.ropensci.org/pdftools/" class="external-link">pdftools</a>
+package is available for importing PDF files. However, this package does
+not work optimally when importing PDF files with multiple columns and
+text boxes. Since the <code><a href="https://docs.ropensci.org/pdftools/reference/pdftools.html" class="external-link">pdftools::pdf_text()</a></code> function from
+the <code>pdftools</code> package processes text line by line, it often
+fails to maintain the context of the text. As a result, the output may
+contain sentences with unrelated fragments of text from different parts
+of the page. Words that are not placed in the correct context are
+unsuitable for text analysis.</p>
+<p>However, the words grouped into clusters by this package using a
+Density-Based Spatial Clustering algorithm are likely to be contextually
+related and thus suitable for text analysis. This package directly
+utilizes the clustering algorithms implemented in the <a href="https://github.com/mhahsler/dbscan" class="external-link">dbscan</a> package.</p>
 <p>Below is an example of how to import a PDF file using the pdftools
 package, then detect columns with <code><a href="../reference/pdf_detect_clusters.html">pdf_detect_clusters()</a></code>,
 plot the results with <code><a href="../reference/pdf_plot_clusters.html">pdf_plot_clusters()</a></code> andd finally
