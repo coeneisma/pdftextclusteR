@@ -1,3 +1,7 @@
+.onLoad <- function(...) {
+  S7::methods_register()
+}
+
 #' Detect Columns and Text Boxes in PDF Document
 #'
 #' @description `r lifecycle::badge('experimental')`
