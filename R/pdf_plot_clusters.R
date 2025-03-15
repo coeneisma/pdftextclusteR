@@ -37,12 +37,42 @@
 #'   pdf_plot_clusters()
 pdf_plot_clusters <- function(pdf_data_clusters)
 {
-  # Check if input is a data.frame or list
-  if(!is.data.frame(pdf_data_clusters)){
-    purrr::map(pdf_data_clusters, ~ pdf_plot_clusters_page(.x))
-  }
-  else{
-    pdf_plot_clusters_page(pdf_data_clusters)
+  # Check if input is a list or single data.frame
+  if (!is.data.frame(pdf_data_clusters)) {
+
+    # Count total number of pages
+    total_pages <- length(pdf_data_clusters)
+
+    # Process all pages safely
+    plots <- purrr::map(pdf_data_clusters, function(page_data) {
+      if (is.null(page_data) || !is.data.frame(page_data) || nrow(page_data) == 0) {
+        return(NULL)  # Return NULL for empty pages
+      } else {
+        return(pdf_plot_clusters_page(page_data))
+      }
+    })
+
+    # Count successful and failed plots
+    successful_plots <- sum(!purrr::map_lgl(plots, is.null))
+    failed_plots <- total_pages - successful_plots
+
+    # CLI messages
+    cli::cli_alert_info("Total pages provided: {total_pages}")
+    cli::cli_alert_success("Successfully plotted {successful_plots} page{?s}.")
+    if (failed_plots > 0) {
+      cli::cli_alert_danger("{failed_plots} page{?s} could not be plotted because they contain no text.")
+    }
+
+    return(plots)
+
+  } else {
+
+    # Check if the single page is empty or NULL
+    if (is.null(pdf_data_clusters) || nrow(pdf_data_clusters) == 0) {
+      cli::cli_abort("The provided page contains no text and cannot be plotted.")
+    }
+
+    return(pdf_plot_clusters_page(pdf_data_clusters))
   }
 }
 
@@ -68,6 +98,12 @@ pdf_plot_clusters <- function(pdf_data_clusters)
 #'   pdf_detect_clusters() |>
 #'   pdf_plot_clusters()
 pdf_plot_clusters_page <- function(pdf_data_page_clusters){
+
+  # Check if the page is empty
+  if (nrow(pdf_data_page_clusters) == 0) {
+    cli::cli_alert_danger("This page contains no text and cannot be plotted.")
+    return(NULL)
+  }
 
   # Data for outlines
   merged_data <- pdf_data_page_clusters |>
@@ -128,8 +164,7 @@ pdf_plot_clusters_page <- function(pdf_data_page_clusters){
       color = "red", size = 8
     ) +
     ggplot2::labs(x = "X-axis",
-         y = "Y-axis",
-         title = "Detected clusters on page") +
+                  y = "Y-axis",
+                  title = "Detected clusters on page") +
     ggplot2::theme_bw()
 }
-
