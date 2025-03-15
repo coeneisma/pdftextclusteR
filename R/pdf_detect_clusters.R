@@ -177,7 +177,7 @@ pdf_detect_clusters_page <- function(pdf_data_page, algorithm = "dbscan", ...){
   # Determine default values for arguments
   default_args <- switch(
     algorithm,
-    dbscan = list(eps = max_n_height * 1.5, minPts = 2),
+    dbscan = list(eps = max_n_height * 1, minPts = 2),
     jpclust = list(k = 20, kt = 10),
     sNNclust = list(k = 5, eps = 2, minPts = 3),
     hdbscan = list(minPts = 2),
