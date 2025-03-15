@@ -7,7 +7,6 @@
 pdf_detect_clusters(
   pdf_data,
   algorithm = "dbscan",
-  renumber = TRUE,
   tolerance_factor = 0.1,
   ...
 )
@@ -19,10 +18,8 @@ this result.}
 \item{algorithm}{the algorithm to be used to detect text columns or text
 boxes}
 
-\item{renumber}{logical; should clusters be renumbered in reading order (left to right, top to bottom)? Default is TRUE}
-
 \item{tolerance_factor}{numeric; factor used for column detection when renumbering.
-Higher values allow more variation in x-coordinates. Default is 0.2 (20\% of page width).}
+Higher values allow more variation in x-coordinates. Default is 0.1 (10\% of page width).}
 
 \item{...}{algorithm-specific arguments. See \code{\link[dbscan:dbscan]{dbscan::dbscan()}}, \code{\link[dbscan:jpclust]{dbscan::jpclust()}}, \code{\link[dbscan:sNNclust]{dbscan::sNNclust()}} and \code{\link[dbscan:hdbscan]{dbscan::hdbscan()}} for more information}
 }
@@ -55,8 +52,4 @@ head(npo, 3) |>
 # 3th page with sNNclust algorithm with minPts = 5
 npo[[3]] |>
    pdf_detect_clusters(algorithm = "sNNclust", minPts = 5)
-
-# With logical reading order renumbering
-npo[[3]] |>
-   pdf_detect_clusters(renumber = TRUE)
 }

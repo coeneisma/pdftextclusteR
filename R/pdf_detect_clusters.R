@@ -18,9 +18,8 @@
 #'   this result.
 #' @param algorithm the algorithm to be used to detect text columns or text
 #'   boxes
-#' @param renumber logical; should clusters be renumbered in reading order (left to right, top to bottom)? Default is TRUE
 #' @param tolerance_factor numeric; factor used for column detection when renumbering.
-#'   Higher values allow more variation in x-coordinates. Default is 0.2 (20% of page width).
+#'   Higher values allow more variation in x-coordinates. Default is 0.1 (10% of page width).
 #' @param ... algorithm-specific arguments. See [dbscan::dbscan()], [dbscan::jpclust()], [dbscan::sNNclust()] and [dbscan::hdbscan()] for more information
 #'
 #' @return If the input is a list of pages, a list-object is returned, where
@@ -37,11 +36,7 @@
 #' # 3th page with sNNclust algorithm with minPts = 5
 #' npo[[3]] |>
 #'    pdf_detect_clusters(algorithm = "sNNclust", minPts = 5)
-#'
-#' # With logical reading order renumbering
-#' npo[[3]] |>
-#'    pdf_detect_clusters(renumber = TRUE)
-pdf_detect_clusters <- function(pdf_data, algorithm = "dbscan", renumber = TRUE,
+pdf_detect_clusters <- function(pdf_data, algorithm = "dbscan",
                                 tolerance_factor = 0.1, ...) {
   # Check if input is a data.frame or list
   if (!is.data.frame(pdf_data)) {
@@ -49,28 +44,62 @@ pdf_detect_clusters <- function(pdf_data, algorithm = "dbscan", renumber = TRUE,
     # Count total number of pages
     total_pages <- length(pdf_data)
 
+    # Create progress bar for multiple pages
+    if (total_pages > 1) {
+      cli::cli_alert_info("Processing {total_pages} pages")
+
+      # Create a horizontal progress bar with ETA
+      cli::cli_progress_bar(
+        format = paste0(
+          "Processing: ",
+          "{cli::pb_spin} [{cli::pb_current}/{cli::pb_total}] ",
+          "[{cli::pb_bar}] {cli::pb_percent}% ",
+          "ETA: {cli::pb_eta}"
+        ),
+        total = total_pages,
+        clear = FALSE
+      )
+    }
+
     # Process all pages and check if they are empty
-    results <- purrr::map(pdf_data, ~ if (nrow(.x) == 0) NULL else {
-      clusters <- pdf_detect_clusters_page(.x, algorithm, ...)
-      if (renumber && !is.null(clusters)) {
-        clusters <- pdf_renumber_clusters_page(clusters, tolerance_factor)
+    results <- vector("list", total_pages)
+
+    for (i in seq_len(total_pages)) {
+      page_data <- pdf_data[[i]]
+
+      if (nrow(page_data) == 0) {
+        results[[i]] <- NULL
+      } else {
+        # Detect clusters
+        clusters <- pdf_detect_clusters_page(page_data, algorithm, ...)
+
+        # Always renumber clusters
+        if (!is.null(clusters)) {
+          clusters <- pdf_renumber_clusters_page(clusters, tolerance_factor)
+        }
+
+        results[[i]] <- clusters
       }
-      clusters
-    })
+
+      # Update progress after each page is fully processed
+      if (total_pages > 1) {
+        cli::cli_progress_update()
+      }
+    }
+
+    # Close progress bar
+    if (total_pages > 1) {
+      cli::cli_progress_done()
+    }
 
     # Count successful and failed detections
     successful_pages <- sum(!purrr::map_lgl(results, is.null))
     failed_pages <- total_pages - successful_pages
 
-    # CLI messages
-    cli::cli_alert_info("Total pages provided: {total_pages}")
-    cli::cli_alert_success("Clusters successfully detected on {successful_pages} page{?s}.")
+    # CLI message
+    cli::cli_alert_success("Clusters successfully detected and renumbered on {successful_pages} page{?s}.")
     if (failed_pages > 0) {
       cli::cli_alert_danger("{failed_pages} page{?s} contain no text and could not be processed.")
-    }
-
-    if (renumber) {
-      cli::cli_alert_success("Clusters renumbered in reading order.")
     }
 
     return(results)
@@ -86,17 +115,14 @@ pdf_detect_clusters <- function(pdf_data, algorithm = "dbscan", renumber = TRUE,
     # Detect clusters
     clusters <- pdf_detect_clusters_page(pdf_data, algorithm, ...)
 
-    # Renumber clusters if requested
-    if (renumber) {
-      clusters <- pdf_renumber_clusters_page(clusters, tolerance_factor)
-      cli::cli_alert_success("Clusters renumbered in reading order.")
-    }
+    # Always renumber clusters
+    clusters <- pdf_renumber_clusters_page(clusters, tolerance_factor)
 
     # Count the number of clusters
     num_clusters <- length(unique(clusters$.cluster[clusters$.cluster != 0]))
 
     # CLI message
-    cli::cli_alert_info("Clusters detected: {num_clusters} on this page.")
+    cli::cli_alert_info("Clusters detected and renumbered: {num_clusters} on this page.")
 
     return(clusters)
   }
