@@ -18,6 +18,9 @@
 #'   this result.
 #' @param algorithm the algorithm to be used to detect text columns or text
 #'   boxes
+#' @param renumber logical; should clusters be renumbered in reading order (left to right, top to bottom)? Default is TRUE
+#' @param tolerance_factor numeric; factor used for column detection when renumbering.
+#'   Higher values allow more variation in x-coordinates. Default is 0.2 (20% of page width).
 #' @param ... algorithm-specific arguments. See [dbscan::dbscan()], [dbscan::jpclust()], [dbscan::sNNclust()] and [dbscan::hdbscan()] for more information
 #'
 #' @return If the input is a list of pages, a list-object is returned, where
@@ -34,7 +37,12 @@
 #' # 3th page with sNNclust algorithm with minPts = 5
 #' npo[[3]] |>
 #'    pdf_detect_clusters(algorithm = "sNNclust", minPts = 5)
-pdf_detect_clusters <- function(pdf_data, algorithm = "dbscan", ...) {
+#'
+#' # With logical reading order renumbering
+#' npo[[3]] |>
+#'    pdf_detect_clusters(renumber = TRUE)
+pdf_detect_clusters <- function(pdf_data, algorithm = "dbscan", renumber = TRUE,
+                                tolerance_factor = 0.1, ...) {
   # Check if input is a data.frame or list
   if (!is.data.frame(pdf_data)) {
 
@@ -42,7 +50,13 @@ pdf_detect_clusters <- function(pdf_data, algorithm = "dbscan", ...) {
     total_pages <- length(pdf_data)
 
     # Process all pages and check if they are empty
-    results <- purrr::map(pdf_data, ~ if (nrow(.x) == 0) NULL else pdf_detect_clusters_page(.x, algorithm, ...))
+    results <- purrr::map(pdf_data, ~ if (nrow(.x) == 0) NULL else {
+      clusters <- pdf_detect_clusters_page(.x, algorithm, ...)
+      if (renumber && !is.null(clusters)) {
+        clusters <- pdf_renumber_clusters_page(clusters, tolerance_factor)
+      }
+      clusters
+    })
 
     # Count successful and failed detections
     successful_pages <- sum(!purrr::map_lgl(results, is.null))
@@ -53,6 +67,10 @@ pdf_detect_clusters <- function(pdf_data, algorithm = "dbscan", ...) {
     cli::cli_alert_success("Clusters successfully detected on {successful_pages} page{?s}.")
     if (failed_pages > 0) {
       cli::cli_alert_danger("{failed_pages} page{?s} contain no text and could not be processed.")
+    }
+
+    if (renumber) {
+      cli::cli_alert_success("Clusters renumbered in reading order.")
     }
 
     return(results)
@@ -68,6 +86,12 @@ pdf_detect_clusters <- function(pdf_data, algorithm = "dbscan", ...) {
     # Detect clusters
     clusters <- pdf_detect_clusters_page(pdf_data, algorithm, ...)
 
+    # Renumber clusters if requested
+    if (renumber) {
+      clusters <- pdf_renumber_clusters_page(clusters, tolerance_factor)
+      cli::cli_alert_success("Clusters renumbered in reading order.")
+    }
+
     # Count the number of clusters
     num_clusters <- length(unique(clusters$.cluster[clusters$.cluster != 0]))
 
@@ -78,9 +102,76 @@ pdf_detect_clusters <- function(pdf_data, algorithm = "dbscan", ...) {
   }
 }
 
+#' Renumber clusters in logical reading order
+#'
+#' @param pdf_page_clusters a tibble with clusters from pdf_detect_clusters_page
+#' @param tolerance_factor tolerance factor for column detection
+#' @noRd
+#' @return a tibble with renumbered clusters
+pdf_renumber_clusters_page <- function(pdf_page_clusters, tolerance_factor = 0.1) {
+  # Check if there are clusters to renumber
+  if (length(unique(pdf_page_clusters$.cluster)) <= 1) {
+    return(pdf_page_clusters)  # No clusters to renumber
+  }
 
+  # Calculate the left edge and vertical center of each cluster
+  cluster_positions <- pdf_page_clusters |>
+    dplyr::group_by(.cluster) |>
+    dplyr::summarise(
+      x_left = min(x),  # Left edge of the cluster
+      y_center = (min(y) + max(y + height)) / 2,  # Vertical center for ordering within columns
+      .groups = 'drop'
+    ) |>
+    dplyr::filter(.cluster != 0)  # Ignore noise (cluster 0)
 
+  # Determine page properties
+  page_width <- max(pdf_page_clusters$x + pdf_page_clusters$width) - min(pdf_page_clusters$x)
+  tolerance <- page_width * tolerance_factor
 
+  # Detect columns (group by x-coordinate with tolerance)
+  cluster_columns <- cluster_positions |>
+    dplyr::mutate(
+      # Round x_left to nearest multiple of tolerance to group into columns
+      column_approx = round(x_left / tolerance) * tolerance
+    ) |>
+    dplyr::arrange(column_approx, y_center) |>
+    dplyr::group_by(column_approx) |>
+    dplyr::mutate(column_number = dplyr::cur_group_id()) |>
+    dplyr::ungroup() |>
+    dplyr::arrange(column_number, y_center) |>
+    dplyr::mutate(new_cluster = dplyr::row_number())
+
+  # Create mapping from old to new cluster numbers
+  cluster_mapping <- cluster_columns |>
+    dplyr::select(.cluster, new_cluster) |>
+    tibble::deframe()
+
+  # First, convert to numeric for the mapping operations
+  numeric_clusters <- pdf_page_clusters |>
+    dplyr::mutate(.cluster_num = as.numeric(as.character(.cluster)))
+
+  # Apply mapping to get new numeric cluster values
+  mapped_clusters <- numeric_clusters |>
+    dplyr::mutate(
+      .cluster_new = dplyr::if_else(
+        .cluster_num == 0,
+        0,
+        as.numeric(cluster_mapping[as.character(.cluster_num)])
+      )
+    )
+
+  # Convert back to factor with the same levels structure as original
+  max_cluster <- max(mapped_clusters$.cluster_new)
+  renumbered_clusters <- mapped_clusters |>
+    dplyr::mutate(
+      .cluster = factor(.cluster_new, levels = 0:max_cluster),
+      # Remove temporary columns
+      .cluster_num = NULL,
+      .cluster_new = NULL
+    )
+
+  return(renumbered_clusters)
+}
 
 #' Detect Columns and Text Boxes in PDF Document
 #'
@@ -172,7 +263,7 @@ pdf_detect_clusters_page <- function(pdf_data_page, algorithm = "dbscan", ...){
                        values_from = distance,
                        values_fill = Inf) |>
     tibble::column_to_rownames(var = "word1") |>
-    as.dist()
+    stats::as.dist()
 
   # Determine default values for arguments
   default_args <- switch(
@@ -188,7 +279,7 @@ pdf_detect_clusters_page <- function(pdf_data_page, algorithm = "dbscan", ...){
   user_args <- list(...)
 
   # Combine default argument values with user-specified values
-  final_args <- modifyList(default_args, user_args)
+  final_args <- utils::modifyList(default_args, user_args)
 
   # Compute cluster based on the chosen algorithm
   cluster <- switch(
@@ -200,7 +291,6 @@ pdf_detect_clusters_page <- function(pdf_data_page, algorithm = "dbscan", ...){
   )
 
   return(broom::augment(cluster, pdf_data_page))
-
 }
 
 utils::globalVariables(c(".cluster", "distance", "height", "width",
