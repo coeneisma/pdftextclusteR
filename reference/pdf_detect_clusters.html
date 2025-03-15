@@ -54,10 +54,10 @@ dbscan package. For this a stats::dist() object is created."><meta property="og:
     <div class="ref-description section level2">
     <p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="figures/lifecycle-experimental.svg" alt="[Experimental]"></a></p>
 <p>This function detects columns and text boxes in a PDF file. To do this, you
-first need to read the file using the <code><a href="https://docs.ropensci.org/pdftools/reference/pdftools.html" class="external-link">pdftools::pdf_data()</a></code>-function from
-the <a href="https://docs.ropensci.org/pdftools/reference/pdftools.html" class="external-link">pdftools</a> package.</p>
+first need to read the file using the <code><a href="https://docs.ropensci.org/pdftools//reference/pdftools.html" class="external-link">pdftools::pdf_data()</a></code>-function from
+the <a href="https://docs.ropensci.org/pdftools//reference/pdftools.html" class="external-link">pdftools</a> package.</p>
 <p>The function works on both a list of pages, as returned by the
-<code><a href="https://docs.ropensci.org/pdftools/reference/pdftools.html" class="external-link">pdftools::pdf_data()</a></code> function, and individual pages extracted from that
+<code><a href="https://docs.ropensci.org/pdftools//reference/pdftools.html" class="external-link">pdftools::pdf_data()</a></code> function, and individual pages extracted from that
 list. This makes it flexible for use on either the entire document or
 specific pages within it.</p>
 <p>This package directly utilizes the clustering algorithms implemented in the
@@ -66,7 +66,12 @@ dbscan package. For this a <code><a href="https://rdrr.io/r/stats/dist.html" cla
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">pdf_detect_clusters</span><span class="op">(</span><span class="va">pdf_data</span>, algorithm <span class="op">=</span> <span class="st">"dbscan"</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">pdf_detect_clusters</span><span class="op">(</span></span>
+<span>  <span class="va">pdf_data</span>,</span>
+<span>  algorithm <span class="op">=</span> <span class="st">"dbscan"</span>,</span>
+<span>  tolerance_factor <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -74,13 +79,18 @@ dbscan package. For this a <code><a href="https://rdrr.io/r/stats/dist.html" cla
 
 
 <dl><dt id="arg-pdf-data">pdf_data<a class="anchor" aria-label="anchor" href="#arg-pdf-data"></a></dt>
-<dd><p>result of the <code><a href="https://docs.ropensci.org/pdftools/reference/pdftools.html" class="external-link">pdftools::pdf_data()</a></code>-function or a page of
+<dd><p>result of the <code><a href="https://docs.ropensci.org/pdftools//reference/pdftools.html" class="external-link">pdftools::pdf_data()</a></code>-function or a page of
 this result.</p></dd>
 
 
 <dt id="arg-algorithm">algorithm<a class="anchor" aria-label="anchor" href="#arg-algorithm"></a></dt>
 <dd><p>the algorithm to be used to detect text columns or text
 boxes</p></dd>
+
+
+<dt id="arg-tolerance-factor">tolerance_factor<a class="anchor" aria-label="anchor" href="#arg-tolerance-factor"></a></dt>
+<dd><p>numeric; factor used for column detection when renumbering.
+Higher values allow more variation in x-coordinates. Default is 0.1 (10% of page width).</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -100,6 +110,8 @@ assigned to a cluster.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># First 3 pages</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">npo</span>, <span class="fl">3</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>   <span class="fu">pdf_detect_clusters</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Processing 3 pages</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Clusters successfully detected and renumbered on 3 pages.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 7 × 8</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   width height     x     y space text      .cluster noise</span>
@@ -120,7 +132,7 @@ assigned to a cluster.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span>    56     14   197    36 FALSE Uitgelicht 0        TRUE </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span>    62     14   322    36 FALSE Verdieping 0        TRUE </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span>    46     14   458    36 FALSE Bijlagen   0        TRUE </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span>   246     59    85   100 FALSE Leeswijzer 1        FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span>   246     59    85   100 FALSE Leeswijzer 0        TRUE </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span>    24     22    84   187 TRUE  De         1        FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span>    83     22   112   187 TRUE  Terugblik  1        FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span>    13     22   199   187 TRUE  is         1        FALSE</span>
@@ -139,28 +151,29 @@ assigned to a cluster.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span>   559    110    85    91 FALSE Voortdurend 1        FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span>    81    110    85   176 TRUE  in          1        FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span>   480    110   186   176 FALSE verbinding  1        FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span>    16     22    84   310 TRUE  In          1        FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span>    32     22   105   310 TRUE  een         1        FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span>   112     22   141   310 TRUE  samenleving 1        FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span>    16     22    84   310 TRUE  In          2        FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span>    32     22   105   310 TRUE  een         2        FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span>   112     22   141   310 TRUE  samenleving 2        FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 216 more rows</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># 3th page with sNNclust algorithm with minPts = 5</span></span></span>
 <span class="r-in"><span><span class="va">npo</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>   <span class="fu">pdf_detect_clusters</span><span class="op">(</span>algorithm <span class="op">=</span> <span class="st">"sNNclust"</span>, minPts <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 226 × 8</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    width height     x     y space text        .cluster noise</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span>    40     14    85    36 FALSE Inhoud      0        TRUE </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span>    58     14   197    36 FALSE Uitgelicht  0        TRUE </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span>    62     14   322    36 FALSE Verdieping  0        TRUE </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span>    46     14   458    36 FALSE Bijlagen    0        TRUE </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span>   559    110    85    91 FALSE Voortdurend 1        FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span>    81    110    85   176 TRUE  in          1        FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span>   480    110   186   176 FALSE verbinding  1        FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span>    16     22    84   310 TRUE  In          1        FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span>    32     22   105   310 TRUE  een         1        FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span>   112     22   141   310 TRUE  samenleving 1        FALSE</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Clusters detected and renumbered: 5 on this page.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 226 × 7</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    width height     x     y space text        .cluster</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span>    40     14    85    36 FALSE Inhoud      1       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span>    58     14   197    36 FALSE Uitgelicht  1       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span>    62     14   322    36 FALSE Verdieping  1       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span>    46     14   458    36 FALSE Bijlagen    1       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span>   559    110    85    91 FALSE Voortdurend 1       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span>    81    110    85   176 TRUE  in          1       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span>   480    110   186   176 FALSE verbinding  1       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span>    16     22    84   310 TRUE  In          1       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span>    32     22   105   310 TRUE  een         1       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span>   112     22   141   310 TRUE  samenleving 1       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 216 more rows</span></span>
 </code></pre></div>
     </div>

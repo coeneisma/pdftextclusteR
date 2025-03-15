@@ -62,7 +62,7 @@
 <!-- badges: start -->
 
 <!-- badges: end -->
-<p>The <a href="https://docs.ropensci.org/pdftools/" class="external-link">pdftools</a> package is available for importing PDF files. However, this package does not work optimally when importing PDF files with multiple columns and text boxes. Since the <code><a href="https://docs.ropensci.org/pdftools/reference/pdftools.html" class="external-link">pdftools::pdf_text()</a></code> function from the <code>pdftools</code> package processes text line by line, it often fails to maintain the context of the text. As a result, the output may contain sentences with unrelated fragments of text from different parts of the page. Words that are not placed in the correct context are unsuitable for text analysis.</p>
+<p>The <a href="https://docs.ropensci.org/pdftools/" class="external-link">pdftools</a> package is available for importing PDF files. However, this package does not work optimally when importing PDF files with multiple columns and text boxes. Since the <code><a href="https://docs.ropensci.org/pdftools//reference/pdftools.html" class="external-link">pdftools::pdf_text()</a></code> function from the <code>pdftools</code> package processes text line by line, it often fails to maintain the context of the text. As a result, the output may contain sentences with unrelated fragments of text from different parts of the page. Words that are not placed in the correct context are unsuitable for text analysis.</p>
 <p>However, the words grouped into clusters by this package using a Density-Based Spatial Clustering algorithm are likely to be contextually related and thus suitable for text analysis. This package directly utilizes the clustering algorithms implemented in the <a href="https://github.com/mhahsler/dbscan" class="external-link">dbscan</a> package.</p>
 <p>See <code><a href="articles/pdftextclusteR.html">vignette("pdftextclusteR")</a></code> for more information on the usage of the package.</p>
 <div class="section level2">
@@ -81,10 +81,10 @@
 <p>This is a basic example of the capabilities of this package.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://coeneisma.github.io/pdftextclusteR/">pdftextclusteR</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/pdftools/" class="external-link">pdftools</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ropensci.r-universe.dev/pdftools" class="external-link">pdftools</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Read a PDF-file with pdftools::pdf_data()</span></span>
-<span><span class="va">ka</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://docs.ropensci.org/pdftools/reference/pdftools.html" class="external-link">pdf_data</a></span><span class="op">(</span><span class="st">"https://www.rijksoverheid.nl/binaries/rijksoverheid/documenten/rapporten/2024/06/10/kwaliteitsagenda-2024-2027-mediacollege-amsterdam/Kwaliteitsagenda+2024-2027+Mediacollege+Amsterdam.pdf"</span><span class="op">)</span></span>
+<span><span class="va">ka</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://docs.ropensci.org/pdftools//reference/pdftools.html" class="external-link">pdf_data</a></span><span class="op">(</span><span class="st">"https://www.rijksoverheid.nl/binaries/rijksoverheid/documenten/rapporten/2024/06/10/kwaliteitsagenda-2024-2027-mediacollege-amsterdam/Kwaliteitsagenda+2024-2027+Mediacollege+Amsterdam.pdf"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Detect clusters on the 7th page</span></span>
 <span><span class="va">ka_clusters</span> <span class="op">&lt;-</span> <span class="va">ka</span><span class="op">[[</span><span class="fl">7</span><span class="op">]</span><span class="op">]</span> <span class="op">|&gt;</span> </span>
