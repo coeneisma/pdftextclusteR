@@ -34,16 +34,52 @@
 #' # 3th page with sNNclust algorithm with minPts = 5
 #' npo[[3]] |>
 #'    pdf_detect_clusters(algorithm = "sNNclust", minPts = 5)
-pdf_detect_clusters <- function(pdf_data, algorithm = "dbscan", ...){
+pdf_detect_clusters <- function(pdf_data, algorithm = "dbscan", ...) {
   # Check if input is a data.frame or list
-  if(!is.data.frame(pdf_data)){
-    purrr::map(pdf_data, ~ pdf_detect_clusters_page(.x, algorith = algorithm, ...))
-  }
-  else{
-    pdf_detect_clusters_page(pdf_data, algorithm = "dbscan", ...)
-  }
+  if (!is.data.frame(pdf_data)) {
 
+    # Count total number of pages
+    total_pages <- length(pdf_data)
+
+    # Process all pages and check if they are empty
+    results <- purrr::map(pdf_data, ~ if (nrow(.x) == 0) NULL else pdf_detect_clusters_page(.x, algorithm, ...))
+
+    # Count successful and failed detections
+    successful_pages <- sum(!purrr::map_lgl(results, is.null))
+    failed_pages <- total_pages - successful_pages
+
+    # CLI messages
+    cli::cli_alert_info("Total pages provided: {total_pages}")
+    cli::cli_alert_success("Clusters successfully detected on {successful_pages} page{?s}.")
+    if (failed_pages > 0) {
+      cli::cli_alert_danger("{failed_pages} page{?s} contain no text and could not be processed.")
+    }
+
+    return(results)
+
+  } else {
+
+    # Check if the single page is empty
+    if (nrow(pdf_data) == 0) {
+      cli::cli_alert_danger("The provided page contains no text. No clusters detected.")
+      return(NULL)
+    }
+
+    # Detect clusters
+    clusters <- pdf_detect_clusters_page(pdf_data, algorithm, ...)
+
+    # Count the number of clusters
+    num_clusters <- length(unique(clusters$.cluster[clusters$.cluster != 0]))
+
+    # CLI message
+    cli::cli_alert_info("Clusters detected: {num_clusters} on this page.")
+
+    return(clusters)
+  }
 }
+
+
+
 
 
 #' Detect Columns and Text Boxes in PDF Document
@@ -80,6 +116,11 @@ pdf_detect_clusters_list <- function(pdf_data, algorithm = "dbscan", ...){
 #' @return a tibble is returned, with each word assigned to a cluster.
 pdf_detect_clusters_page <- function(pdf_data_page, algorithm = "dbscan", ...){
 
+  # Check if pdf_data_page is not empty
+  if (is.null(pdf_data_page) || nrow(pdf_data_page) == 0) {
+    return(tibble::tibble())  # Lege tibble teruggeven als er geen tekst is
+  }
+
   # Check if all required variables are present
   required_vars <- c("width", "height", "x", "y", "space", "text")
   missing_vars <- setdiff(required_vars, colnames(pdf_data_page))
@@ -103,6 +144,12 @@ pdf_detect_clusters_page <- function(pdf_data_page, algorithm = "dbscan", ...){
       y_max = y + height
     )
 
+  # Determine the most common height to use for standard `eps`-value
+  max_n_height <- pdf_data_page |>
+    dplyr::count(height, sort = TRUE) |>
+    dplyr::slice(1) |>
+    dplyr::pull(height)
+
   # Calculate distances between all words/bounding boxes
   word_distances <- tidyr::expand_grid(word1 = coords, word2 = coords) |>
     dplyr::mutate(
@@ -118,13 +165,6 @@ pdf_detect_clusters_page <- function(pdf_data_page, algorithm = "dbscan", ...){
     tidyr::unnest(word1, names_sep = "_") |>
     tidyr::unnest(word2, names_sep = "_") |>
     dplyr::select(word1 = word1_rowid, word2 = word2_rowid, distance)
-
-  # Determine the most common height to use for standard `eps`-value
-  max_n_height <- pdf_data_page |>
-    dplyr::count(height, sort = TRUE) |>
-    dplyr::slice(1) |>
-    dplyr::pull(height)
-
 
   # Generate distance matrix
   distance_matrix <- word_distances  |>

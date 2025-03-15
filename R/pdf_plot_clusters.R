@@ -38,13 +38,39 @@
 pdf_plot_clusters <- function(pdf_data_clusters)
 {
   # Check if input is a data.frame or list
-  if(!is.data.frame(pdf_data_clusters)){
-    purrr::map(pdf_data_clusters, ~ pdf_plot_clusters_page(.x))
-  }
-  else{
-    pdf_plot_clusters_page(pdf_data_clusters)
+  if (!is.data.frame(pdf_data_clusters)) {
+
+    # Count total number of pages
+    total_pages <- length(pdf_data_clusters)
+
+    # Process all pages and check if they are empty
+    plots <- purrr::map(pdf_data_clusters, ~ if (nrow(.x) == 0) NULL else pdf_plot_clusters_page(.x))
+
+    # Count successful and failed plots
+    successful_plots <- sum(!purrr::map_lgl(plots, is.null))
+    failed_plots <- total_pages - successful_plots
+
+    # CLI messages
+    cli::cli_alert_info("Total pages provided: {total_pages}")
+    cli::cli_alert_success("Successfully plotted {successful_plots} page{?s}.")
+    if (failed_plots > 0) {
+      cli::cli_alert_danger("{failed_plots} page{?s} could not be plotted because they contain no text.")
+    }
+
+    return(plots)
+
+  } else {
+
+    # Check if the single page is empty
+    if (nrow(pdf_data_clusters) == 0) {
+      cli::cli_alert_danger("The provided page contains no text and cannot be plotted.")
+      return(NULL)
+    }
+
+    return(pdf_plot_clusters_page(pdf_data_clusters))
   }
 }
+
 
 
 #' Plot one page of the [pdf_detect_clusters()] Object
