@@ -7,5 +7,6 @@
 #' @importFrom pdftools pdf_data
 #' @importFrom stats as.dist
 #' @importFrom utils modifyList
+#' @importFrom utils page
 ## usethis namespace: end
 NULL

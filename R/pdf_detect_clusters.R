@@ -322,4 +322,7 @@ pdf_detect_clusters_page <- function(pdf_data_page, algorithm = "dbscan", ...){
 utils::globalVariables(c(".cluster", "distance", "height", "width",
                          "word1", "word1_rowid", "word2", "word2_rowid",
                          "x", "x_center", "x_dist", "xmax", "xmin",
-                         "y", "y_center", "y_dist", "ymax", "ymin"))
+                         "y", "y_center", "y_dist", "ymax", "ymin",
+                         "word_count", "x_left", "column_approx",
+                         "column_number", "new_cluster", ".cluster_num",
+                         ".cluster_new"))
