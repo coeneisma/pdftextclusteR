@@ -1,6 +1,6 @@
 Package: pdftextclusteR
 Title: Detecting Text Clusters in PDF Documents Using Density-Based Clustering Algorithms
-Version: 0.0.0.9009
+Version: 0.0.0.9010
 Authors@R: 
     person("Coen", "Eisma", , "coeneisma@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0009-0007-9001-2572"))
