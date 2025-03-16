@@ -1,5 +1,5 @@
 ---
-title: "pdftextclusteR: detect text clusters in PDF"
+title: "pdftextclusteR: detect text clusters in PDF files"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Get started with cluster detection}
@@ -18,9 +18,7 @@ The [pdftools](https://docs.ropensci.org/pdftools/) package is available for imp
 
 However, the words grouped into clusters by this package using a Density-Based Spatial Clustering algorithm are likely to be contextually related and thus suitable for text analysis. This package directly utilizes the clustering algorithms implemented in the [dbscan](https://github.com/mhahsler/dbscan) package.
 
-Below is an example of how to import a PDF file using the pdftools package, then detect columns with `pdf_detect_clusters()`, plot the results with `pdf_plot_clusters()` andd finally extract the text with `pdf_extract_clusters()` function.
-
-For this example, the Quality Agenda 2024-2027 Mediacollege Amsterdam was used. More information about this report can be found at [rijksoverheid.nl](https://www.rijksoverheid.nl/documenten/rapporten/2024/06/10/kwaliteitsagenda-2024-2027-mediacollege-amsterdam).
+For the examples in this vignette, the Quality Agenda 2024-2027 Mediacollege Amsterdam was used. More information about this report can be found at [rijksoverheid.nl](https://www.rijksoverheid.nl/documenten/rapporten/2024/06/10/kwaliteitsagenda-2024-2027-mediacollege-amsterdam).
 
 ## Loading Packages
 
@@ -47,8 +45,9 @@ head(ka[[7]], 5)
 
 ## Detecting text clusters
 
-Clusters - usually columns and text boxes - are detected with the `pdf_detect_clusters()` function.
+### Single page clustering
 
+Clusters - usually columns and text boxes - are detected with the `pdf_detect_clusters()` function. When applied to a single page, the function returns a tibble with each word assigned to a cluster.
 
 ```{r}
 ka_clusters <- ka[[7]] |> 
@@ -57,10 +56,26 @@ ka_clusters <- ka[[7]] |>
 head(ka_clusters, 5)
 ```
 
+### Multiple page clustering
+
+One of the key features of `pdftextclusteR` is the ability to process multiple pages at once. This is particularly useful when analyzing entire documents. Let's process the first 3 pages of our example document:
+
+```{r}
+# Process first 10 pages
+multiple_page_clusters <- ka[1:10] |> 
+  pdf_detect_clusters()
+
+# Check the structure of the result
+str(multiple_page_clusters, max.level = 1)
+```
+
+The result is a list of tibbles, where each tibble contains the cluster information for one page. The function automatically displays a progress bar when processing multiple pages and provides a summary of the results.
 
 ## Plotting the Clusters
 
-Using the `pdf_plot_clusters()` function, you can create a visual representation of the detected clusters:
+### Plotting a single page
+
+Using the `pdf_plot_clusters()` function, you can create a visual representation of the detected clusters for a single page:
 
 ```{r pdf_plot_clusters}
 ka_clusters |> 
@@ -71,40 +86,161 @@ If you compare this with the source PDF page, you can see that the package has c
 
 ![](images/example_pdf.png)
 
-## Extract text from clusters
+### Plotting multiple pages
 
-The text of the detected clusters can be extracted with the `pdf_extract_clusters()`. 
+The `pdf_plot_clusters()` function can also be applied to multiple pages:
 
 ```{r}
-ka_clusters_text <- ka[[7]] |> 
-  pdf_detect_clusters() |> 
-  pdf_extract_clusters()
+# Plot the tenth page of the multiple page result
+multiple_page_clusters[[10]] |> 
+  pdf_plot_clusters()
 ```
 
-The text from the first 5 clusters are:
+You can plot all pages at once, which returns a list of ggplot objects:
 
 ```{r}
+# This returns a list of ggplot objects
+all_plots <- multiple_page_clusters |> 
+  pdf_plot_clusters()
+
+# You can access individual plots
+all_plots[[8]]
+```
+
+## Extract text from clusters
+
+### Extracting from a single page
+
+The text of the detected clusters can be extracted with the `pdf_extract_clusters()` function:
+
+```{r}
+ka_clusters_text <- ka_clusters |> 
+  pdf_extract_clusters()
+
+# View the first 5 clusters
 head(ka_clusters_text, 5)
 ```
 
+### Extracting from multiple pages
 
+When extracting from multiple pages, the function returns a list of tibbles:
+
+```{r}
+multiple_page_text <- multiple_page_clusters |> 
+  pdf_extract_clusters()
+
+# Check the structure
+str(multiple_page_text, max.level = 1)
+```
+
+```{r}
+# View the first 5 clusters from the fifth page
+head(multiple_page_text[[5]], 5)
+```
+
+When using the `combine = TRUE` parameter all text is combined in one Tibble with an extra variable `page`:
+
+```{r}
+multiple_page_text_tibble <- multiple_page_clusters |> 
+  pdf_extract_clusters(combine = TRUE)
+
+multiple_page_text_tibble |> 
+  dplyr::filter(page == 5) |> 
+  head(5)
+```
 
 ## Different algorithms
 
 The [dbscan](https://github.com/mhahsler/dbscan) package is used to detect the clusters. This package supports four different algorithms:
 
--   `dbscan`
+-   `dbscan`: The default algorithm, which generally provides good results
 
--   `jpclust`
+-   `jpclust`: Jarvis-Patrick clustering algorithm
 
--   `sNNclust`
+-   `sNNclust`: Shared nearest neighbor clustering
 
--   `hdbscan`
+-   `hdbscan`: Hierarchical DBSCAN
 
-By default, the `dbscan` algorithm is used because it provides good results. However, as a user, you can also choose one of the other algorithms. Below is an example of clustering the same page using the `sNNclust` algorithm:
+Each algorithm has different parameters that can be tuned for optimal results:
 
 ```{r}
+# Example with sNNclust algorithm
 ka[[7]] |> 
-  pdf_detect_clusters(algorithm = "sNNclust") |> 
+  pdf_detect_clusters(algorithm = "sNNclust", k = 5, eps = 2, minPts = 3) |> 
   pdf_plot_clusters()
 ```
+
+```{r}
+# Example with hdbscan algorithm
+ka[[7]] |> 
+  pdf_detect_clusters(algorithm = "hdbscan", minPts = 2) |> 
+  pdf_plot_clusters()
+```
+
+## Complete workflow example
+
+Here's a complete workflow example that processes multiple pages, plots the results, and extracts the text:
+
+```{r}
+# Select pages 5-7
+selected_pages <- ka[5:7]
+
+# Detect clusters across all pages
+clusters <- selected_pages |> 
+  pdf_detect_clusters()
+
+# Plot clusters for visualization (just showing the first page plot)
+clusters[[1]] |> 
+  pdf_plot_clusters()
+# In practice, you'd access individual plots from the resulting list
+# e.g., plots <- clusters |> pdf_plot_clusters(); plots[[1]]
+```
+
+```{r}
+# Extract text from all clusters
+text_data <- clusters |> 
+  pdf_extract_clusters()
+
+# Analyze the first page's text (as an example)
+text_data[[1]] |> 
+  dplyr::arrange(desc(word_count)) |> 
+  head(3)
+```
+
+## Comparing with built-in data
+
+The package includes two example datasets: `npo` and `cibap`. These can be used to experiment with the package functions without downloading external PDFs:
+
+```{r}
+# Using the built-in npo dataset
+npo_clusters <- npo[12] |> 
+  pdf_detect_clusters()
+
+npo_clusters |> 
+  pdf_plot_clusters()
+
+```
+
+```{r}
+npo_clusters |> 
+  pdf_extract_clusters() |> 
+  head(3)
+```
+
+## Conclusion
+
+The `pdftextclusteR` package provides a robust solution for extracting text from PDFs with complex layouts, such as multiple columns and text boxes. By using density-based spatial clustering algorithms, it can accurately identify text blocks that belong together, making it suitable for various text analysis tasks.
+
+Key features:
+
+-   Support for multiple clustering algorithms
+
+-   Processing of single pages or entire documents
+
+-   Visualization of detected clusters
+
+-   Extraction of text from clusters with word count statistics
+
+-   Progress tracking for multi-page documents
+
+For more details on specific functions and parameters, refer to the package documentation.
