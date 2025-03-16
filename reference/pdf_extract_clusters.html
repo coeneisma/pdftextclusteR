@@ -51,7 +51,7 @@ per cluster.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">pdf_extract_clusters</span><span class="op">(</span><span class="va">pdf_data</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">pdf_extract_clusters</span><span class="op">(</span><span class="va">pdf_data</span>, combine <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -62,19 +62,28 @@ per cluster.</p>
 <dd><p>result of the <code><a href="pdf_detect_clusters.html">pdf_detect_clusters()</a></code>-function or a page of
 this result</p></dd>
 
+
+<dt id="arg-combine">combine<a class="anchor" aria-label="anchor" href="#arg-combine"></a></dt>
+<dd><p>logical; if TRUE (default) and input is a list of tibbles, the
+function returns one combined tibble with a page number column added. If
+FALSE, returns a list of tibbles.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>If the input is a list of tibbles, a list-object is returned, where
-each element is a tibble containing the text extracted from each cluster on
-a page. If the input is a single tibble, a tibble is returned directly,
-containing the text extracted from each cluster on that page, including a
-word count per cluster.</p>
+    <p>If the input is a list of tibbles and combine=TRUE (default), a
+single tibble is returned containing the text of all clusters with an added
+page number column. If the input is a list of tibbles and combine=FALSE, a
+list-object is returned, where each element is a tibble containing the text
+extracted from each cluster on a page. If the input is a single tibble, a
+tibble is returned directly, containing the text extracted from each
+cluster on that page, including a word count per cluster.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">npo</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">|&gt;</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Extract text from a single page's clusters</span></span></span>
+<span class="r-in"><span><span class="va">npo</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>   <span class="fu"><a href="pdf_detect_clusters.html">pdf_detect_clusters</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>   <span class="fu">pdf_extract_clusters</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Clusters detected and renumbered: 2 on this page.</span>
@@ -84,6 +93,96 @@ word count per cluster.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 0                 3 <span style="color: #949494;">"</span>Terugblik 2023\n 12\n<span style="color: #949494;">"</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 1                 2 <span style="color: #949494;">"</span>Terugblik 2023\n<span style="color: #949494;">"</span>     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> 2                 2 <span style="color: #949494;">"</span>Ons verhaal\n<span style="color: #949494;">"</span>        </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Extract text from multiple pages as a single combined tibble</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">npo</span>, <span class="fl">3</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>   <span class="fu"><a href="pdf_detect_clusters.html">pdf_detect_clusters</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>   <span class="fu">pdf_extract_clusters</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Processing 3 pages</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Clusters successfully detected and renumbered on 3 pages.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Extracting text from 3 pages</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Text successfully extracted from 3 pages.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 3 × 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .cluster word_count text                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 0                 3 <span style="color: #949494;">"</span>Terugblik 2023\n 12\n<span style="color: #949494;">"</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 1                 2 <span style="color: #949494;">"</span>Terugblik 2023\n<span style="color: #949494;">"</span>     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> 2                 2 <span style="color: #949494;">"</span>Ons verhaal\n<span style="color: #949494;">"</span>        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [[2]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 11 × 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .cluster word_count text                                                     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                                    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> 0                10 <span style="color: #949494;">"</span>Inhoud\n Uitgelicht\n Verdieping\n Bijlagen\n Leeswijze…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> 1                96 <span style="color: #949494;">"</span>De Terugblik is de jaarlijkse rapportage van de NPO ove…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> 2                11 <span style="color: #949494;">"</span>NPO\n De Stichting NPO; het bestuursorgaan van de Neder…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> 3                19 <span style="color: #949494;">"</span>Publieke omroep\n Het geheel van bestuur en omroepen va…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> 4                28 <span style="color: #949494;">"</span>Omroepen\n Alle landelijke publieke omroepen; taakomroe…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> 5                 3 <span style="color: #949494;">"</span>NPO Terugblik 2023\n<span style="color: #949494;">"</span>                                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> 6                 5 <span style="color: #949494;">"</span>Inhoud\n 1. Voortdurend in verbinding\n<span style="color: #949494;">"</span>                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> 7                30 <span style="color: #949494;">"</span>2. \aVerdieping Terugblik 2023\n • Veelkleurig &amp; waarde…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> 9                 3 <span style="color: #949494;">"</span>40\n 45\n 47\n<span style="color: #949494;">"</span>                                         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> 8                29 <span style="color: #949494;">"</span>3. \aBijlagen\n 1 Publieke Waardetoets\n 2 Kwaliteitsto…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">11</span> 10                8 <span style="color: #949494;">"</span>48\n 49\n 52\n 53\n 57\n 72\n 74\n 81\n<span style="color: #949494;">"</span>                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [[3]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 7 × 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .cluster word_count text                                                      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                                     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 0                 5 <span style="color: #949494;">"</span>Inhoud\n Uitgelicht\n Verdieping\n Bijlagen\n 3\n<span style="color: #949494;">"</span>       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 1                 3 <span style="color: #949494;">"</span>Voortdurend\n in verbinding\n<span style="color: #949494;">"</span>                           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> 2                39 <span style="color: #949494;">"</span>In een samenleving die van alle kanten onder druk staat,…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> 3                80 <span style="color: #949494;">"</span>De Nederlandse publieke omroep wil dat baken zijn. Een p…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> 4                34 <span style="color: #949494;">"</span>Dankzij de gepassioneerde inzet van onze makers bereikte…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> 5                62 <span style="color: #949494;">"</span>Ons streven naar verbinding is ook de katalysator voor d…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">7</span> 6                 3 <span style="color: #949494;">"</span>NPO Terugblik 2023\n<span style="color: #949494;">"</span>                                    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Extract text from multiple pages as a list of tibbles</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">npo</span>, <span class="fl">3</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>   <span class="fu"><a href="pdf_detect_clusters.html">pdf_detect_clusters</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>   <span class="fu">pdf_extract_clusters</span><span class="op">(</span>combine <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Processing 3 pages</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Clusters successfully detected and renumbered on 3 pages.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Extracting text from 3 pages</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Text successfully extracted from 3 pages.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 3 × 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .cluster word_count text                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 0                 3 <span style="color: #949494;">"</span>Terugblik 2023\n 12\n<span style="color: #949494;">"</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 1                 2 <span style="color: #949494;">"</span>Terugblik 2023\n<span style="color: #949494;">"</span>     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> 2                 2 <span style="color: #949494;">"</span>Ons verhaal\n<span style="color: #949494;">"</span>        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [[2]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 11 × 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .cluster word_count text                                                     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                                    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> 0                10 <span style="color: #949494;">"</span>Inhoud\n Uitgelicht\n Verdieping\n Bijlagen\n Leeswijze…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> 1                96 <span style="color: #949494;">"</span>De Terugblik is de jaarlijkse rapportage van de NPO ove…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> 2                11 <span style="color: #949494;">"</span>NPO\n De Stichting NPO; het bestuursorgaan van de Neder…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> 3                19 <span style="color: #949494;">"</span>Publieke omroep\n Het geheel van bestuur en omroepen va…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> 4                28 <span style="color: #949494;">"</span>Omroepen\n Alle landelijke publieke omroepen; taakomroe…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> 5                 3 <span style="color: #949494;">"</span>NPO Terugblik 2023\n<span style="color: #949494;">"</span>                                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> 6                 5 <span style="color: #949494;">"</span>Inhoud\n 1. Voortdurend in verbinding\n<span style="color: #949494;">"</span>                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> 7                30 <span style="color: #949494;">"</span>2. \aVerdieping Terugblik 2023\n • Veelkleurig &amp; waarde…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> 9                 3 <span style="color: #949494;">"</span>40\n 45\n 47\n<span style="color: #949494;">"</span>                                         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> 8                29 <span style="color: #949494;">"</span>3. \aBijlagen\n 1 Publieke Waardetoets\n 2 Kwaliteitsto…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">11</span> 10                8 <span style="color: #949494;">"</span>48\n 49\n 52\n 53\n 57\n 72\n 74\n 81\n<span style="color: #949494;">"</span>                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [[3]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 7 × 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .cluster word_count text                                                      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                                     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 0                 5 <span style="color: #949494;">"</span>Inhoud\n Uitgelicht\n Verdieping\n Bijlagen\n 3\n<span style="color: #949494;">"</span>       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 1                 3 <span style="color: #949494;">"</span>Voortdurend\n in verbinding\n<span style="color: #949494;">"</span>                           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> 2                39 <span style="color: #949494;">"</span>In een samenleving die van alle kanten onder druk staat,…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> 3                80 <span style="color: #949494;">"</span>De Nederlandse publieke omroep wil dat baken zijn. Een p…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> 4                34 <span style="color: #949494;">"</span>Dankzij de gepassioneerde inzet van onze makers bereikte…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> 5                62 <span style="color: #949494;">"</span>Ons streven naar verbinding is ook de katalysator voor d…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">7</span> 6                 3 <span style="color: #949494;">"</span>NPO Terugblik 2023\n<span style="color: #949494;">"</span>                                    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
