@@ -5,28 +5,28 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>pdftextclusteR: detect text clusters in PDF • pdftextclusteR</title>
+<title>pdftextclusteR: detect text clusters in PDF files • pdftextclusteR</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
 <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="pdftextclusteR: detect text clusters in PDF">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="pdftextclusteR: detect text clusters in PDF files">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">pdftextclusteR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9010</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,14 @@
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/coeneisma/pdftextclusteR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-lightswitch">
+<li><button class="dropdown-item" data-bs-theme-value="light"><span class="fa fa-sun"></span> Light</button></li>
+    <li><button class="dropdown-item" data-bs-theme-value="dark"><span class="fa fa-moon"></span> Dark</button></li>
+    <li><button class="dropdown-item" data-bs-theme-value="auto"><span class="fa fa-adjust"></span> Auto</button></li>
+  </ul>
+</li>
       </ul>
 </div>
 
@@ -56,7 +64,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.svg" class="logo" alt=""><h1>pdftextclusteR: detect text clusters in PDF</h1>
+      <img src="../logo.svg" class="logo" alt=""><h1>pdftextclusteR: detect text clusters in PDF files</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/coeneisma/pdftextclusteR/blob/main/vignettes/pdftextclusteR.Rmd" class="external-link"><code>vignettes/pdftextclusteR.Rmd</code></a></small>
@@ -78,12 +86,9 @@ unsuitable for text analysis.</p>
 Density-Based Spatial Clustering algorithm are likely to be contextually
 related and thus suitable for text analysis. This package directly
 utilizes the clustering algorithms implemented in the <a href="https://github.com/mhahsler/dbscan" class="external-link">dbscan</a> package.</p>
-<p>Below is an example of how to import a PDF file using the pdftools
-package, then detect columns with <code><a href="../reference/pdf_detect_clusters.html">pdf_detect_clusters()</a></code>,
-plot the results with <code><a href="../reference/pdf_plot_clusters.html">pdf_plot_clusters()</a></code> andd finally
-extract the text with <code><a href="../reference/pdf_extract_clusters.html">pdf_extract_clusters()</a></code> function.</p>
-<p>For this example, the Quality Agenda 2024-2027 Mediacollege Amsterdam
-was used. More information about this report can be found at <a href="https://www.rijksoverheid.nl/documenten/rapporten/2024/06/10/kwaliteitsagenda-2024-2027-mediacollege-amsterdam" class="external-link">rijksoverheid.nl</a>.</p>
+<p>For the examples in this vignette, the Quality Agenda 2024-2027
+Mediacollege Amsterdam was used. More information about this report can
+be found at <a href="https://www.rijksoverheid.nl/documenten/rapporten/2024/06/10/kwaliteitsagenda-2024-2027-mediacollege-amsterdam" class="external-link">rijksoverheid.nl</a>.</p>
 <div class="section level2">
 <h2 id="loading-packages">Loading Packages<a class="anchor" aria-label="anchor" href="#loading-packages"></a>
 </h2>
@@ -114,8 +119,13 @@ data.</p>
 <div class="section level2">
 <h2 id="detecting-text-clusters">Detecting text clusters<a class="anchor" aria-label="anchor" href="#detecting-text-clusters"></a>
 </h2>
+<div class="section level3">
+<h3 id="single-page-clustering">Single page clustering<a class="anchor" aria-label="anchor" href="#single-page-clustering"></a>
+</h3>
 <p>Clusters - usually columns and text boxes - are detected with the
-<code><a href="../reference/pdf_detect_clusters.html">pdf_detect_clusters()</a></code> function.</p>
+<code><a href="../reference/pdf_detect_clusters.html">pdf_detect_clusters()</a></code> function. When applied to a single
+page, the function returns a tibble with each word assigned to a
+cluster.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ka_clusters</span> <span class="op">&lt;-</span> <span class="va">ka</span><span class="op">[[</span><span class="fl">7</span><span class="op">]</span><span class="op">]</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/pdf_detect_clusters.html">pdf_detect_clusters</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -131,12 +141,48 @@ data.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>    11     14    89   119 TRUE  de            1        FALSE</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>    63     14   103   119 TRUE  belangrijkste 1        FALSE</span></span></code></pre></div>
 </div>
+<div class="section level3">
+<h3 id="multiple-page-clustering">Multiple page clustering<a class="anchor" aria-label="anchor" href="#multiple-page-clustering"></a>
+</h3>
+<p>One of the key features of <code>pdftextclusteR</code> is the ability
+to process multiple pages at once. This is particularly useful when
+analyzing entire documents. Let’s process the first 3 pages of our
+example document:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Process first 10 pages</span></span>
+<span><span class="va">multiple_page_clusters</span> <span class="op">&lt;-</span> <span class="va">ka</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/pdf_detect_clusters.html">pdf_detect_clusters</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Processing 10 pages</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Clusters successfully detected and renumbered on 10 pages.</span></span>
+<span></span>
+<span><span class="co"># Check the structure of the result</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">multiple_page_clusters</span>, max.level <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; List of 10</span></span>
+<span><span class="co">#&gt;  $ : tibble [9 × 8] (S3: tbl_df/tbl/data.frame)</span></span>
+<span><span class="co">#&gt;  $ : tibble [117 × 8] (S3: tbl_df/tbl/data.frame)</span></span>
+<span><span class="co">#&gt;  $ : tibble [113 × 8] (S3: tbl_df/tbl/data.frame)</span></span>
+<span><span class="co">#&gt;  $ : tibble [311 × 8] (S3: tbl_df/tbl/data.frame)</span></span>
+<span><span class="co">#&gt;  $ : tibble [418 × 8] (S3: tbl_df/tbl/data.frame)</span></span>
+<span><span class="co">#&gt;  $ : tibble [130 × 8] (S3: tbl_df/tbl/data.frame)</span></span>
+<span><span class="co">#&gt;  $ : tibble [388 × 8] (S3: tbl_df/tbl/data.frame)</span></span>
+<span><span class="co">#&gt;  $ : tibble [133 × 8] (S3: tbl_df/tbl/data.frame)</span></span>
+<span><span class="co">#&gt;  $ : tibble [4 × 8] (S3: tbl_df/tbl/data.frame)</span></span>
+<span><span class="co">#&gt;  $ : tibble [433 × 8] (S3: tbl_df/tbl/data.frame)</span></span></code></pre></div>
+<p>The result is a list of tibbles, where each tibble contains the
+cluster information for one page. The function automatically displays a
+progress bar when processing multiple pages and provides a summary of
+the results.</p>
+</div>
+</div>
 <div class="section level2">
 <h2 id="plotting-the-clusters">Plotting the Clusters<a class="anchor" aria-label="anchor" href="#plotting-the-clusters"></a>
 </h2>
+<div class="section level3">
+<h3 id="plotting-a-single-page">Plotting a single page<a class="anchor" aria-label="anchor" href="#plotting-a-single-page"></a>
+</h3>
 <p>Using the <code><a href="../reference/pdf_plot_clusters.html">pdf_plot_clusters()</a></code> function, you can create a
-visual representation of the detected clusters:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+visual representation of the detected clusters for a single page:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ka_clusters</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/pdf_plot_clusters.html">pdf_plot_clusters</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="pdftextclusteR_files/figure-html/pdf_plot_clusters-1.png" width="700"></p>
@@ -144,19 +190,44 @@ visual representation of the detected clusters:</p>
 package has clustered the text quite accurately in this case:</p>
 <p><img src="images%2Fexample_pdf.png"></p>
 </div>
+<div class="section level3">
+<h3 id="plotting-multiple-pages">Plotting multiple pages<a class="anchor" aria-label="anchor" href="#plotting-multiple-pages"></a>
+</h3>
+<p>The <code><a href="../reference/pdf_plot_clusters.html">pdf_plot_clusters()</a></code> function can also be applied to
+multiple pages:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Plot the tenth page of the multiple page result</span></span>
+<span><span class="va">multiple_page_clusters</span><span class="op">[[</span><span class="fl">10</span><span class="op">]</span><span class="op">]</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/pdf_plot_clusters.html">pdf_plot_clusters</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="pdftextclusteR_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
+<p>You can plot all pages at once, which returns a list of ggplot
+objects:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># This returns a list of ggplot objects</span></span>
+<span><span class="va">all_plots</span> <span class="op">&lt;-</span> <span class="va">multiple_page_clusters</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/pdf_plot_clusters.html">pdf_plot_clusters</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Total pages provided: 10</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Successfully plotted 10 pages.</span></span>
+<span></span>
+<span><span class="co"># You can access individual plots</span></span>
+<span><span class="va">all_plots</span><span class="op">[[</span><span class="fl">8</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
+<p><img src="pdftextclusteR_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
+</div>
+</div>
 <div class="section level2">
 <h2 id="extract-text-from-clusters">Extract text from clusters<a class="anchor" aria-label="anchor" href="#extract-text-from-clusters"></a>
 </h2>
+<div class="section level3">
+<h3 id="extracting-from-a-single-page">Extracting from a single page<a class="anchor" aria-label="anchor" href="#extracting-from-a-single-page"></a>
+</h3>
 <p>The text of the detected clusters can be extracted with the
-<code><a href="../reference/pdf_extract_clusters.html">pdf_extract_clusters()</a></code>.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ka_clusters_text</span> <span class="op">&lt;-</span> <span class="va">ka</span><span class="op">[[</span><span class="fl">7</span><span class="op">]</span><span class="op">]</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="../reference/pdf_detect_clusters.html">pdf_detect_clusters</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<code><a href="../reference/pdf_extract_clusters.html">pdf_extract_clusters()</a></code> function:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ka_clusters_text</span> <span class="op">&lt;-</span> <span class="va">ka_clusters</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/pdf_extract_clusters.html">pdf_extract_clusters</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Clusters detected and renumbered: 6 on this page.</span></span></code></pre></div>
-<p>The text from the first 5 clusters are:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ka_clusters_text</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># View the first 5 clusters</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ka_clusters_text</span>, <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 3</span></span></span>
 <span><span class="co">#&gt;   .cluster word_count text                                                      </span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                                     </span></span>
@@ -166,6 +237,62 @@ package has clustered the text quite accurately in this case:</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 3                 3 <span style="color: #949494;">"</span>Kwaliteitsagenda 2024-2027\n<span style="color: #949494;">"</span>                            </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 4                63 <span style="color: #949494;">"</span>We bouwen voort op de doelstellingen uit de\n Kwaliteits…</span></span></code></pre></div>
 </div>
+<div class="section level3">
+<h3 id="extracting-from-multiple-pages">Extracting from multiple pages<a class="anchor" aria-label="anchor" href="#extracting-from-multiple-pages"></a>
+</h3>
+<p>When extracting from multiple pages, the function returns a list of
+tibbles:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">multiple_page_text</span> <span class="op">&lt;-</span> <span class="va">multiple_page_clusters</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/pdf_extract_clusters.html">pdf_extract_clusters</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Extracting text from 10 pages</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Text successfully extracted from 10 pages.</span></span>
+<span></span>
+<span><span class="co"># Check the structure</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">multiple_page_text</span>, max.level <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; List of 10</span></span>
+<span><span class="co">#&gt;  $ : tibble [3 × 3] (S3: tbl_df/tbl/data.frame)</span></span>
+<span><span class="co">#&gt;  $ : tibble [4 × 3] (S3: tbl_df/tbl/data.frame)</span></span>
+<span><span class="co">#&gt;  $ : tibble [4 × 3] (S3: tbl_df/tbl/data.frame)</span></span>
+<span><span class="co">#&gt;  $ : tibble [14 × 3] (S3: tbl_df/tbl/data.frame)</span></span>
+<span><span class="co">#&gt;  $ : tibble [19 × 3] (S3: tbl_df/tbl/data.frame)</span></span>
+<span><span class="co">#&gt;  $ : tibble [3 × 3] (S3: tbl_df/tbl/data.frame)</span></span>
+<span><span class="co">#&gt;  $ : tibble [7 × 3] (S3: tbl_df/tbl/data.frame)</span></span>
+<span><span class="co">#&gt;  $ : tibble [9 × 3] (S3: tbl_df/tbl/data.frame)</span></span>
+<span><span class="co">#&gt;  $ : tibble [2 × 3] (S3: tbl_df/tbl/data.frame)</span></span>
+<span><span class="co">#&gt;  $ : tibble [9 × 3] (S3: tbl_df/tbl/data.frame)</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># View the first 5 clusters from the fifth page</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">multiple_page_text</span><span class="op">[[</span><span class="fl">5</span><span class="op">]</span><span class="op">]</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 3</span></span></span>
+<span><span class="co">#&gt;   .cluster word_count text                                                      </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                                     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 1               109 <span style="color: #949494;">"</span>MA Visie\n We halen buiten naar binnen en brengen binnen…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 4                27 <span style="color: #949494;">"</span>Verdeling onderwijsgevenden, Staf en College van Bestuur…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2                68 <span style="color: #949494;">"</span>Personeel\n MA heeft in 2022 in totaal 391 personeelsled…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 3                 3 <span style="color: #949494;">"</span>Kwaliteitsagenda 2024-2027\n<span style="color: #949494;">"</span>                            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 11                5 <span style="color: #949494;">"</span>aantal\n 2\n 208\n 86\n 296\n<span style="color: #949494;">"</span></span></span></code></pre></div>
+<p>When using the <code>combine = TRUE</code> parameter all text is
+combined in one Tibble with an extra variable <code>page</code>:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">multiple_page_text_tibble</span> <span class="op">&lt;-</span> <span class="va">multiple_page_clusters</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/pdf_extract_clusters.html">pdf_extract_clusters</a></span><span class="op">(</span>combine <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Extracting text from 10 pages</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Combined text from 10 pages into a single tibble.</span></span>
+<span></span>
+<span><span class="va">multiple_page_text_tibble</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">page</span> <span class="op">==</span> <span class="fl">5</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 4</span></span></span>
+<span><span class="co">#&gt;    page .cluster word_count text                                                </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                               </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>     5 1               109 <span style="color: #949494;">"</span>MA Visie\n We halen buiten naar binnen en brengen …</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>     5 4                27 <span style="color: #949494;">"</span>Verdeling onderwijsgevenden, Staf en College van B…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>     5 2                68 <span style="color: #949494;">"</span>Personeel\n MA heeft in 2022 in totaal 391 persone…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>     5 3                 3 <span style="color: #949494;">"</span>Kwaliteitsagenda 2024-2027\n<span style="color: #949494;">"</span>                      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>     5 11                5 <span style="color: #949494;">"</span>aantal\n 2\n 208\n 86\n 296\n<span style="color: #949494;">"</span></span></span></code></pre></div>
+</div>
+</div>
 <div class="section level2">
 <h2 id="different-algorithms">Different algorithms<a class="anchor" aria-label="anchor" href="#different-algorithms"></a>
 </h2>
@@ -173,21 +300,129 @@ package has clustered the text quite accurately in this case:</p>
 is used to detect the clusters. This package supports four different
 algorithms:</p>
 <ul>
-<li><p><code>dbscan</code></p></li>
-<li><p><code>jpclust</code></p></li>
-<li><p><code>sNNclust</code></p></li>
-<li><p><code>hdbscan</code></p></li>
+<li><p><code>dbscan</code>: The default algorithm, which generally
+provides good results</p></li>
+<li><p><code>jpclust</code>: Jarvis-Patrick clustering
+algorithm</p></li>
+<li><p><code>sNNclust</code>: Shared nearest neighbor
+clustering</p></li>
+<li><p><code>hdbscan</code>: Hierarchical DBSCAN</p></li>
 </ul>
-<p>By default, the <code>dbscan</code> algorithm is used because it
-provides good results. However, as a user, you can also choose one of
-the other algorithms. Below is an example of clustering the same page
-using the <code>sNNclust</code> algorithm:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ka</span><span class="op">[[</span><span class="fl">7</span><span class="op">]</span><span class="op">]</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="../reference/pdf_detect_clusters.html">pdf_detect_clusters</a></span><span class="op">(</span>algorithm <span class="op">=</span> <span class="st">"sNNclust"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<p>Each algorithm has different parameters that can be tuned for optimal
+results:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Example with sNNclust algorithm</span></span>
+<span><span class="va">ka</span><span class="op">[[</span><span class="fl">7</span><span class="op">]</span><span class="op">]</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/pdf_detect_clusters.html">pdf_detect_clusters</a></span><span class="op">(</span>algorithm <span class="op">=</span> <span class="st">"sNNclust"</span>, k <span class="op">=</span> <span class="fl">5</span>, eps <span class="op">=</span> <span class="fl">2</span>, minPts <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/pdf_plot_clusters.html">pdf_plot_clusters</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Clusters detected and renumbered: 5 on this page.</span></span></code></pre></div>
-<p><img src="pdftextclusteR_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
+<p><img src="pdftextclusteR_files/figure-html/unnamed-chunk-12-1.png" width="700"></p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Example with hdbscan algorithm</span></span>
+<span><span class="va">ka</span><span class="op">[[</span><span class="fl">7</span><span class="op">]</span><span class="op">]</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/pdf_detect_clusters.html">pdf_detect_clusters</a></span><span class="op">(</span>algorithm <span class="op">=</span> <span class="st">"hdbscan"</span>, minPts <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/pdf_plot_clusters.html">pdf_plot_clusters</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Clusters detected and renumbered: 6 on this page.</span></span></code></pre></div>
+<p><img src="pdftextclusteR_files/figure-html/unnamed-chunk-13-1.png" width="700"></p>
+</div>
+<div class="section level2">
+<h2 id="complete-workflow-example">Complete workflow example<a class="anchor" aria-label="anchor" href="#complete-workflow-example"></a>
+</h2>
+<p>Here’s a complete workflow example that processes multiple pages,
+plots the results, and extracts the text:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Select pages 5-7</span></span>
+<span><span class="va">selected_pages</span> <span class="op">&lt;-</span> <span class="va">ka</span><span class="op">[</span><span class="fl">5</span><span class="op">:</span><span class="fl">7</span><span class="op">]</span></span>
+<span></span>
+<span><span class="co"># Detect clusters across all pages</span></span>
+<span><span class="va">clusters</span> <span class="op">&lt;-</span> <span class="va">selected_pages</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/pdf_detect_clusters.html">pdf_detect_clusters</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Processing 3 pages</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Clusters successfully detected and renumbered on 3 pages.</span></span>
+<span></span>
+<span><span class="co"># Plot clusters for visualization (just showing the first page plot)</span></span>
+<span><span class="va">clusters</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/pdf_plot_clusters.html">pdf_plot_clusters</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="pdftextclusteR_files/figure-html/unnamed-chunk-14-1.png" width="700"></p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># In practice, you'd access individual plots from the resulting list</span></span>
+<span><span class="co"># e.g., plots &lt;- clusters |&gt; pdf_plot_clusters(); plots[[1]]</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Extract text from all clusters</span></span>
+<span><span class="va">text_data</span> <span class="op">&lt;-</span> <span class="va">clusters</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/pdf_extract_clusters.html">pdf_extract_clusters</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Extracting text from 3 pages</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Text successfully extracted from 3 pages.</span></span>
+<span></span>
+<span><span class="co"># Analyze the first page's text (as an example)</span></span>
+<span><span class="va">text_data</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu">desc</span><span class="op">(</span><span class="va">word_count</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 3</span></span></span>
+<span><span class="co">#&gt;   .cluster word_count text                                                      </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                                     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 1               109 <span style="color: #949494;">"</span>MA Visie\n We halen buiten naar binnen en brengen binnen…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 13               98 <span style="color: #949494;">"</span>Dynamische MA Community\n We staan voor de uitdaging om …</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2                68 <span style="color: #949494;">"</span>Personeel\n MA heeft in 2022 in totaal 391 personeelsled…</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="comparing-with-built-in-data">Comparing with built-in data<a class="anchor" aria-label="anchor" href="#comparing-with-built-in-data"></a>
+</h2>
+<p>The package includes two example datasets: <code>npo</code> and
+<code>cibap</code>. These can be used to experiment with the package
+functions without downloading external PDFs:</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Using the built-in npo dataset</span></span>
+<span><span class="va">npo_clusters</span> <span class="op">&lt;-</span> <span class="va">npo</span><span class="op">[</span><span class="fl">12</span><span class="op">]</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/pdf_detect_clusters.html">pdf_detect_clusters</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Clusters successfully detected and renumbered on 1 page.</span></span>
+<span></span>
+<span><span class="va">npo_clusters</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/pdf_plot_clusters.html">pdf_plot_clusters</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Total pages provided: 1</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Successfully plotted 1 page.</span></span>
+<span><span class="co">#&gt; [[1]]</span></span></code></pre></div>
+<p><img src="pdftextclusteR_files/figure-html/unnamed-chunk-16-1.png" width="700"></p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">npo_clusters</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/pdf_extract_clusters.html">pdf_extract_clusters</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Text successfully extracted from 1 page.</span></span>
+<span><span class="co">#&gt; [[1]]</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 11 × 3</span></span></span>
+<span><span class="co">#&gt;    .cluster word_count text                                                     </span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                                    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 0                 5 <span style="color: #949494;">"</span>Inhoud\n Uitgelicht\n Verdieping\n Bijlagen\n 12\n<span style="color: #949494;">"</span>     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 1                 3 <span style="color: #949494;">"</span>Springplank\n voor talent\n<span style="color: #949494;">"</span>                            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 2                80 <span style="color: #949494;">"</span>Nieuw talent is van vitaal belang voor de publieke omro…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 3                77 <span style="color: #949494;">"</span>Nieuwe ingang\n Talenten vinden bij de NPO en de omroep…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 6                 6 <span style="color: #949494;">"</span>61\n Programmatitels\n specifiek gericht\n op talentont…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 7                 6 <span style="color: #949494;">"</span>€7\n mln\n Uitgegeven specifiek\n aan talentontwikkelin…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 8                 5 <span style="color: #949494;">"</span>Een goed jaar\n 3voor12 (VPRO)\n<span style="color: #949494;">"</span>                       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 9                89 <span style="color: #949494;">"</span>Popplatform 3voor12 (VPRO) heeft een naam\n hoog te hou…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 10               13 <span style="color: #949494;">"</span>Kijk voor meer impactvolle cases\n van onze maatschappe…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 4                19 <span style="color: #949494;">"</span>“\a\a\aIk heb geleerd dat mijn ideeën niet\n altijd de …</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> 5                 3 <span style="color: #949494;">"</span>NPO Terugblik 2023\n<span style="color: #949494;">"</span></span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="conclusion">Conclusion<a class="anchor" aria-label="anchor" href="#conclusion"></a>
+</h2>
+<p>The <code>pdftextclusteR</code> package provides a robust solution
+for extracting text from PDFs with complex layouts, such as multiple
+columns and text boxes. By using density-based spatial clustering
+algorithms, it can accurately identify text blocks that belong together,
+making it suitable for various text analysis tasks.</p>
+<p>Key features:</p>
+<ul>
+<li><p>Support for multiple clustering algorithms</p></li>
+<li><p>Processing of single pages or entire documents</p></li>
+<li><p>Visualization of detected clusters</p></li>
+<li><p>Extraction of text from clusters with word count
+statistics</p></li>
+<li><p>Progress tracking for multi-page documents</p></li>
+</ul>
+<p>For more details on specific functions and parameters, refer to the
+package documentation.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
