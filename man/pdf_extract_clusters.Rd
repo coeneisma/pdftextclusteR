@@ -4,18 +4,24 @@
 \alias{pdf_extract_clusters}
 \title{Extract the Text Per Cluster from the \code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}} object}
 \usage{
-pdf_extract_clusters(pdf_data)
+pdf_extract_clusters(pdf_data, combine = FALSE)
 }
 \arguments{
 \item{pdf_data}{result of the \code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}}-function or a page of
 this result}
+
+\item{combine}{logical; if TRUE (default) and input is a list of tibbles, the
+function returns one combined tibble with a page number column added. If
+FALSE, returns a list of tibbles.}
 }
 \value{
-If the input is a list of tibbles, a list-object is returned, where
-each element is a tibble containing the text extracted from each cluster on
-a page. If the input is a single tibble, a tibble is returned directly,
-containing the text extracted from each cluster on that page, including a
-word count per cluster.
+If the input is a list of tibbles and combine=TRUE (default), a
+single tibble is returned containing the text of all clusters with an added
+page number column. If the input is a list of tibbles and combine=FALSE, a
+list-object is returned, where each element is a tibble containing the text
+extracted from each cluster on a page. If the input is a single tibble, a
+tibble is returned directly, containing the text extracted from each
+cluster on that page, including a word count per cluster.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
@@ -26,7 +32,18 @@ into a character string and places it in a Tibble. A word count is added
 per cluster.
 }
 \examples{
+# Extract text from a single page's clusters
 npo[[1]] |>
    pdf_detect_clusters() |>
    pdf_extract_clusters()
+
+# Extract text from multiple pages as a single combined tibble
+head(npo, 3) |>
+   pdf_detect_clusters() |>
+   pdf_extract_clusters()
+
+# Extract text from multiple pages as a list of tibbles
+head(npo, 3) |>
+   pdf_detect_clusters() |>
+   pdf_extract_clusters(combine = FALSE)
 }
