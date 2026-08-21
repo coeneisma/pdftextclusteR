@@ -1,4 +1,4 @@
-^pdftoolscolumndetection\.Rproj$
+^pdftextclusteR\.Rproj$
 ^\.Rproj\.user$
 ^data-raw$
 ^README\.Rmd$
@@ -9,3 +9,6 @@
 ^Meta$
 ^LICENSE\.md$
 ^\.github$
+^\.temp$
+^\.test$
+^\.Rhistory$

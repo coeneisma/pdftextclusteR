@@ -12,7 +12,7 @@ pdf_detect_clusters(
 )
 }
 \arguments{
-\item{pdf_data}{result of the \code{\link[pdftools:pdftools]{pdftools::pdf_data()}}-function or a page of
+\item{pdf_data}{result of the \code{\link[pdftools:pdf_data]{pdftools::pdf_data()}}-function or a page of
 this result.}
 
 \item{algorithm}{the algorithm to be used to detect text columns or text
@@ -33,16 +33,16 @@ assigned to a cluster.
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
 This function detects columns and text boxes in a PDF file. To do this, you
-first need to read the file using the \code{\link[pdftools:pdftools]{pdftools::pdf_data()}}-function from
-the \link{pdftools} package.
+first need to read the file using the \code{\link[pdftools:pdf_data]{pdftools::pdf_data()}}-function from
+the \link[pdftools:pdftools]{pdftools} package.
 
 The function works on both a list of pages, as returned by the
-\code{\link[pdftools:pdftools]{pdftools::pdf_data()}} function, and individual pages extracted from that
+\code{\link[pdftools:pdf_data]{pdftools::pdf_data()}} function, and individual pages extracted from that
 list. This makes it flexible for use on either the entire document or
 specific pages within it.
 
 This package directly utilizes the clustering algorithms implemented in the
-\link{dbscan} package. For this a \code{\link[stats:dist]{stats::dist()}} object is created.
+\link[dbscan:dbscan]{dbscan} package. For this a \code{\link[stats:dist]{stats::dist()}} object is created.
 }
 \examples{
 # First 3 pages

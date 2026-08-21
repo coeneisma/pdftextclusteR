@@ -4,7 +4,7 @@
 \alias{pdf_extract_clusters}
 \title{Extract the Text Per Cluster from the \code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}} object}
 \usage{
-pdf_extract_clusters(pdf_data, combine = FALSE)
+pdf_extract_clusters(pdf_data, combine = TRUE)
 }
 \arguments{
 \item{pdf_data}{result of the \code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}}-function or a page of

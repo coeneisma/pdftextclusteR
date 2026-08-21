@@ -12,14 +12,13 @@ Description: Detect and extract text clusters, such as columns and text boxes,
 License: MIT + file LICENSE
 URL: https://coeneisma.github.io/pdftextclusteR/, https://github.com/coeneisma/pdftextclusteR
 Depends: 
-    R (>= 2.10)
+    R (>= 4.1)
 Imports: 
     broom,
     cli,
     dbscan,
     dplyr,
     ggplot2,
-    graphics,
     lifecycle,
     pdftools,
     purrr,
@@ -31,7 +30,6 @@ Imports:
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
 Suggests: 
     knitr,
     rmarkdown,
@@ -39,3 +37,4 @@ Suggests:
 VignetteBuilder: knitr
 BugReports: https://github.com/coeneisma/pdftextclusteR/issues
 Config/testthat/edition: 3
+Config/roxygen2/version: 8.1.0
