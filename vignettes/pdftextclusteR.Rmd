@@ -121,6 +121,13 @@ cibap_clusters |>
 
 `plot()` and `ggplot2::autoplot()` are available as aliases: `plot(cibap_clusters)` gives the same result.
 
+The cluster numbers indicate the reading order: the order in which `pdf_extract_clusters()` will return the text. Use `show_order = TRUE` to draw arrows between the clusters and verify that order at a glance:
+
+```{r, fig.width = 7, fig.height = 5}
+cibap_clusters |>
+  pdf_plot_clusters(show_order = TRUE)
+```
+
 For a clustered page, `summary()` gives a per-cluster overview with a text preview:
 
 ```{r}

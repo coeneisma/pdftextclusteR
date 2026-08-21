@@ -15,6 +15,15 @@
 #' @param include_noise logical; if `FALSE` (default), words that were not
 #'   assigned to any cluster (noise, `.cluster == 0`) are excluded from the
 #'   output. Set to `TRUE` to include them as cluster 0.
+#' @param dehyphenate logical; if `TRUE`, words that are hyphenated across
+#'   a line break are merged (a word ending in `-` at the end of a line is
+#'   joined with the next word when that word starts with a lowercase
+#'   letter). Default `FALSE`.
+
+#' @details The text of each cluster is built in visual reading order:
+#'   words are grouped into lines from top to bottom, and read from left
+#'   to right within each line. Lines are separated by a newline
+#'   character.
 #' @param verbose logical; if `FALSE`, progress bars and informational
 #'   messages are suppressed. Defaults to the package option
 #'   `pdftextclusteR.verbose`, or `TRUE` when that option is not set.
@@ -37,21 +46,22 @@
 #'   pdf_extract_clusters()
 pdf_extract_clusters <- S7::new_generic(
   "pdf_extract_clusters", "x",
-  function(x, combine = TRUE, include_noise = FALSE,
+  function(x, combine = TRUE, include_noise = FALSE, dehyphenate = FALSE,
            verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
     S7::S7_dispatch()
   }
 )
 
 S7::method(pdf_extract_clusters, PdfClusters) <- function(
-    x, combine = TRUE, include_noise = FALSE,
+    x, combine = TRUE, include_noise = FALSE, dehyphenate = FALSE,
     verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
   pdf_extract_clusters_text_page(x@words, include_noise = include_noise,
+                                 dehyphenate = dehyphenate,
                                  verbose = verbose)
 }
 
 S7::method(pdf_extract_clusters, PdfDocument) <- function(
-    x, combine = TRUE, include_noise = FALSE,
+    x, combine = TRUE, include_noise = FALSE, dehyphenate = FALSE,
     verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
 
   if (!all(vapply(x@pages, S7::S7_inherits, logical(1), class = PdfClusters))) {
@@ -68,7 +78,8 @@ S7::method(pdf_extract_clusters, PdfDocument) <- function(
   results <- vector("list", total_pages)
   for (i in seq_len(total_pages)) {
     results[[i]] <- pdf_extract_clusters_text_page(
-      x@pages[[i]]@words, include_noise = include_noise, verbose = FALSE)
+      x@pages[[i]]@words, include_noise = include_noise,
+      dehyphenate = dehyphenate, verbose = FALSE)
     if (show_progress) cli::cli_progress_update()
   }
   if (show_progress) cli::cli_progress_done()
@@ -109,6 +120,7 @@ S7::method(pdf_extract_clusters, PdfDocument) <- function(
 #'   clusters on the page
 #' @noRd
 pdf_extract_clusters_text_page <- function(pdf_data, include_noise = FALSE,
+                                           dehyphenate = FALSE,
                                            verbose = TRUE){
   # Return empty tibble if input is empty or NULL
   if(is.null(pdf_data) || nrow(pdf_data) == 0) {
@@ -129,14 +141,13 @@ pdf_extract_clusters_text_page <- function(pdf_data, include_noise = FALSE,
   word_count <- NA
 
   clusters_text <- pdf_data |>
-    dplyr::mutate(text = dplyr::case_when(space == FALSE ~ paste0(text, "\n"),
-                                          TRUE ~ text)) |>
     dplyr::group_by(.cluster) |>
-    dplyr::mutate(text = paste0(text, collapse = " ")) |>
-    dplyr::select(.cluster, text) |>
-    dplyr::distinct() |>
+    dplyr::summarise(
+      text = cluster_text(dplyr::pick(dplyr::everything()),
+                          dehyphenate = dehyphenate),
+      .groups = "drop"
+    ) |>
     dplyr::mutate(word_count = stringr::str_count(text, "\\b\\w+\\b")) |>
-    dplyr::ungroup() |>
     dplyr::select(.cluster, word_count, text)
 
   return(clusters_text)

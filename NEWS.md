@@ -13,6 +13,19 @@
 * The `npo` and `cibap` datasets are now `PdfDocument` objects, read with
   font information and page dimensions.
 
+## Reading order
+
+* Clusters are numbered in reading order using a recursive XY-cut over
+  the cluster bounding boxes: groups separated by whitespace are read top
+  to bottom, columns within a group left to right. The `tolerance_factor`
+  argument is deprecated in favour of `min_gap_factor` and `prefer`.
+* The text of each cluster is built in visual reading order (lines top to
+  bottom, words left to right within a line), independent of the word
+  order in the PDF. An optional `dehyphenate` argument merges words
+  hyphenated across line breaks.
+* `pdf_plot_clusters(show_order = TRUE)` draws arrows between clusters in
+  reading order.
+
 ## Other changes
 
 * Implemented cluster algorithm, plot function and text extraction
