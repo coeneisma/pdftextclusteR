@@ -232,45 +232,24 @@ pdf_detect_clusters_page <- function(pdf_data_page, algorithm = "dbscan", ...){
     )
   }
 
-  # Calculate the coordinates of the bounding box of each word
-  coords <- pdf_data_page |>
-    tibble::rowid_to_column() |>
-    dplyr::mutate(
-      x_min = x,
-      x_max = x + width,
-      y_min = y,
-      y_max = y + height
-    )
-
   # Determine the most common height to use for standard `eps`-value
   max_n_height <- pdf_data_page |>
     dplyr::count(height, sort = TRUE) |>
     dplyr::slice(1) |>
     dplyr::pull(height)
 
-  # Calculate distances between all words/bounding boxes
-  word_distances <- tidyr::expand_grid(word1 = coords, word2 = coords) |>
-    dplyr::mutate(
-      # Calculate horizontal distance
-      x_dist = pmax(0, pmax(word1$x_min - word2$x_max,
-                            word2$x_min - word1$x_max)),
-      # Calculate vertical distance
-      y_dist = pmax(0, pmax(word1$y_min - word2$y_max,
-                            word2$y_min - word1$y_max)),
-      # Total minimum distance
-      distance = sqrt(x_dist^2 + y_dist^2)
-    ) |>
-    tidyr::unnest(word1, names_sep = "_") |>
-    tidyr::unnest(word2, names_sep = "_") |>
-    dplyr::select(word1 = word1_rowid, word2 = word2_rowid, distance)
+  # Bounding box of each word
+  x_min <- pdf_data_page$x
+  x_max <- pdf_data_page$x + pdf_data_page$width
+  y_min <- pdf_data_page$y
+  y_max <- pdf_data_page$y + pdf_data_page$height
 
-  # Generate distance matrix
-  distance_matrix <- word_distances  |>
-    tidyr::pivot_wider(names_from = word2,
-                       values_from = distance,
-                       values_fill = Inf) |>
-    tibble::column_to_rownames(var = "word1") |>
-    stats::as.dist()
+  # Gap distance between all bounding boxes: the horizontal and vertical
+  # gap between two boxes is 0 when they overlap on that axis
+  x_gap <- pmax(outer(x_min, x_max, "-"), t(outer(x_min, x_max, "-")), 0)
+  y_gap <- pmax(outer(y_min, y_max, "-"), t(outer(y_min, y_max, "-")), 0)
+
+  distance_matrix <- stats::as.dist(sqrt(x_gap^2 + y_gap^2))
 
   # Determine default values for arguments
   default_args <- switch(
@@ -300,11 +279,10 @@ pdf_detect_clusters_page <- function(pdf_data_page, algorithm = "dbscan", ...){
   return(broom::augment(cluster, pdf_data_page))
 }
 
-utils::globalVariables(c(".cluster", "distance", "height", "width",
+utils::globalVariables(c(".cluster", "height", "width",
                          "page", "text",
-                         "word1", "word1_rowid", "word2", "word2_rowid",
-                         "x", "x_center", "x_dist", "xmax", "xmin",
-                         "y", "y_center", "y_dist", "ymax", "ymin",
+                         "x", "x_center", "xmax", "xmin",
+                         "y", "y_center", "ymax", "ymin",
                          "word_count", "x_left", "column_approx",
                          "column_number", "new_cluster", ".cluster_num",
                          ".cluster_new"))
