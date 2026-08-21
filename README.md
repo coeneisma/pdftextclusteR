@@ -42,7 +42,7 @@ The latest version can be found on the development branch. You can
 install it using the function:
 
 ``` r
-devtools::install_github("coeneisma/pdftextclusteR")
+devtools::install_github("coeneisma/pdftextclusteR",
   ref = "development")
 ```
 
@@ -50,42 +50,56 @@ devtools::install_github("coeneisma/pdftextclusteR")
 
 This is a basic example of the capabilities of this package.
 
+This example uses the bundled `cibap` dataset: the report
+*Kwaliteitsagenda 2024-2027 Cibap*, read with `pdftools::pdf_data()`. To
+use your own document, read it the same way:
+`my_document <- pdftools::pdf_data("path/to/document.pdf")`.
+
 ``` r
 library(pdftextclusteR)
-library(pdftools)
 
-# Read a PDF-file with pdftools::pdf_data()
-ka <- pdf_data("https://www.rijksoverheid.nl/binaries/rijksoverheid/documenten/rapporten/2024/06/10/kwaliteitsagenda-2024-2027-mediacollege-amsterdam/Kwaliteitsagenda+2024-2027+Mediacollege+Amsterdam.pdf")
-
-# Detect clusters on the 7th page
-ka_clusters <- ka[[7]] |> 
+# Detect clusters on page 18
+cibap_clusters <- cibap[[18]] |> 
   pdf_detect_clusters()
 
-# Plot clusters on the first page
-ka_clusters |> 
+# Plot the detected clusters
+cibap_clusters |> 
   pdf_plot_clusters()
 ```
 
-<img src="man/figures/README-example-1.png" width="100%" />
+<img src="man/figures/README-example-1.png" alt="" width="100%" />
 
-Compared with the orriginal document it is quite acurate.
+Compared with the original document it is quite accurate.
 
-![](vignettes/images/example_pdf.png) Text can be extracted to do
-further analysis:
+![](vignettes/images/example_pdf.png)
+
+Text can be extracted to do further analysis:
 
 ``` r
-ka_clusters_text <- ka_clusters |> 
+cibap_clusters_text <- cibap_clusters |> 
   pdf_extract_clusters()
 
-ka_clusters_text
-#> # A tibble: 7 × 3
-#>   .cluster word_count text                                                      
-#>   <fct>         <int> <chr>                                                     
-#> 1 0                 2 "Inleiding\n 7\n"                                         
-#> 2 1                89 "Waar liggen de belangrijkste ontwikkelopgaven voor onze …
-#> 3 2                89 "Met deze Kwaliteitsagenda 2024-2027 wil MA haar\n ambiti…
-#> 4 3                 3 "Kwaliteitsagenda 2024-2027\n"                            
-#> 5 4                63 "We bouwen voort op de doelstellingen uit de\n Kwaliteits…
-#> 6 5                53 "De strategie en daarmee de prioriteiten voor de MA\n Kwa…
-#> 7 6                93 "Ook het werkveld is binnen verschillende overleggen\n en…
+cibap_clusters_text
+#> # A tibble: 19 × 3
+#>    .cluster word_count text                                                     
+#>    <fct>         <int> <chr>                                                    
+#>  1 2                 4 "Facts and figures Cibap\n"                              
+#>  2 16                7 "niveau 3\n • Filmmaker (AV)\n • Mediamaker (dtp)\n • Si…
+#>  3 3                 3 "Circa\n 1650\n studenten\n"                             
+#>  4 17               16 "niveau 4\n • Mediavormgever\n • Ruimtelijk Vormgever\n …
+#>  5 6                 8 "7,6\n Beoordeling\n studenten\n job-monitor\n onderzoek…
+#>  6 4                 5 "Meer dan\n 65 jaar\n ervaring\n"                        
+#>  7 18                6 "excellentietrajecten\n • Restauratieschilder\n • Intern…
+#>  8 5                 2 "Herkomst studenten\n"                                   
+#>  9 10                4 "Aantal studenten per opleiding\n"                       
+#> 10 7                 2 "Ruimtelijk vormgever\n"                                 
+#> 11 11                2 "Creatief vakman\n"                                      
+#> 12 8                 2 "Specialist Schilder\n"                                  
+#> 13 12                2 "Media Maker\n"                                          
+#> 14 19                2 "106\n 96\n"                                             
+#> 15 9                 2 "Opleiding kort\n"                                       
+#> 16 1                 5 "18 | Cibap werkagenda 2024-2027\n"                      
+#> 17 14                2 "Social Design\n"                                        
+#> 18 13                2 "19\n 8\n"                                               
+#> 19 15                3 "0\n Aantal studenten\n"
 ```
