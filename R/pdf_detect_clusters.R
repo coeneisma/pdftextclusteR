@@ -68,7 +68,7 @@ pdf_detect_clusters <- function(pdf_data, algorithm = "dbscan",
       page_data <- pdf_data[[i]]
 
       if (nrow(page_data) == 0) {
-        results[[i]] <- NULL
+        results[i] <- list(NULL)
       } else {
         # Detect clusters
         clusters <- pdf_detect_clusters_page(page_data, algorithm, ...)
@@ -199,26 +199,6 @@ pdf_renumber_clusters_page <- function(pdf_page_clusters, tolerance_factor = 0.1
   return(renumbered_clusters)
 }
 
-#' Detect Columns and Text Boxes in PDF Document
-#'
-#' `r lifecycle::badge('experimental')` This function detects columns and text
-#' boxes in a PDF file. To do this, you first need to read the file using the
-#' [pdftools::pdf_data()]-function from the [pdftools] package.
-#'
-#' In the background, the function [pdf_detect_clusters_page()] is used
-#'
-#' @param pdf_data result of the [pdftools::pdf_data()]-function
-#' @param algorithm the algorithm to be used to detect text columns or text
-#'   boxes
-#' @param ... algorithm-specific arguments
-#' @noRd
-#' @return A list-object, where each page contains a tibble and each word is
-#'   assigned to a cluster.
-pdf_detect_clusters_list <- function(pdf_data, algorithm = "dbscan", ...){
-  purrr::map(pdf_data, ~ pdf_detect_clusters_page(.x, algorithm = algorithm, ...))
-}
-
-
 #' Detect Columns and Text Boxes in PDF Page
 #'
 #' `r lifecycle::badge('experimental')` This function detects columns and text
@@ -320,6 +300,7 @@ pdf_detect_clusters_page <- function(pdf_data_page, algorithm = "dbscan", ...){
 }
 
 utils::globalVariables(c(".cluster", "distance", "height", "width",
+                         "page", "text",
                          "word1", "word1_rowid", "word2", "word2_rowid",
                          "x", "x_center", "x_dist", "xmax", "xmin",
                          "y", "y_center", "y_dist", "ymax", "ymin",

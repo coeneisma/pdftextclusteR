@@ -37,7 +37,7 @@
 #' head(npo, 3) |>
 #'    pdf_detect_clusters() |>
 #'    pdf_extract_clusters(combine = FALSE)
-pdf_extract_clusters <- function(pdf_data, combine = FALSE){
+pdf_extract_clusters <- function(pdf_data, combine = TRUE){
   if(!is.data.frame(pdf_data)){
     # Count total number of pages
     total_pages <- length(pdf_data)

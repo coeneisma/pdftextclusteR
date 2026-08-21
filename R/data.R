@@ -8,10 +8,10 @@
 #' columns and different layouts.
 #'
 #' @format ## `npo`
-#' A large list object with 73 elements. Each element contains a tibble with 6 columns and one record for each word on the page.
+#' A large list object with 99 elements. Each element contains a tibble with 6 columns and one record for each word on the page.
 #' \describe{
 #'   \item{width, height}{Width and height of a word}
-#'   \item{x, y}{The x and y coordinates of a word. The x-coordinate is measured from the top.}
+#'   \item{x, y}{The x and y coordinates of a word. The y-coordinate is measured from the top of the page.}
 #'   \item{space}{Indicates whether there is a space after the word. This indicates a line break.}
 #'   \item{text}{The word that the metadata refers to.}
 #' }
@@ -32,7 +32,7 @@
 #' A large list object with 73 elements. Each element contains a tibble with 6 columns and one record for each word on the page.
 #' \describe{
 #'   \item{width, height}{Width and height of a word}
-#'   \item{x, y}{The x and y coordinates of a word. The x-coordinate is measured from the top.}
+#'   \item{x, y}{The x and y coordinates of a word. The y-coordinate is measured from the top of the page.}
 #'   \item{space}{Indicates whether there is a space after the word. This indicates a line break.}
 #'   \item{text}{The word that the metadata refers to.}
 #' }

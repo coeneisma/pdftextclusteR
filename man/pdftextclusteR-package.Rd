@@ -6,7 +6,7 @@
 \alias{pdftextclusteR-package}
 \title{pdftextclusteR: Detecting Text Clusters in PDF Documents Using Density-Based Clustering Algorithms}
 \description{
-\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+\if{html}{\figure{logo.svg}{options: style='float: right' alt='logo' width='120'}}
 
 Detect and extract text clusters, such as columns and text boxes, from PDF documents. Utilizes the 'pdftools' package for PDF import and applies density-based clustering algorithms from the 'dbscan' package to accurately group related text elements, facilitating improved text analysis and extraction from complex PDF layouts.
 }
@@ -21,6 +21,11 @@ Useful links:
 }
 \author{
 \strong{Maintainer}: Coen Eisma \email{coeneisma@gmail.com} (\href{https://orcid.org/0009-0007-9001-2572}{ORCID})
+
+Authors:
+\itemize{
+  \item Coen Eisma \email{coeneisma@gmail.com} (\href{https://orcid.org/0009-0007-9001-2572}{ORCID})
+}
 
 }
 \keyword{internal}
