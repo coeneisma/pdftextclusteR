@@ -50,31 +50,30 @@ devtools::install_github("coeneisma/pdftextclusteR",
 
 This is a basic example of the capabilities of this package.
 
-```{r example}
+This example uses the bundled `cibap` dataset: the report *Kwaliteitsagenda 2024-2027 Cibap*, read with `pdftools::pdf_data()`. To use your own document, read it the same way: `my_document <- pdftools::pdf_data("path/to/document.pdf")`.
+
+```{r example, fig.width = 7, fig.height = 5}
 library(pdftextclusteR)
-library(pdftools)
 
-# Read a PDF-file with pdftools::pdf_data()
-ka <- pdf_data("https://www.rijksoverheid.nl/binaries/rijksoverheid/documenten/rapporten/2024/06/10/kwaliteitsagenda-2024-2027-mediacollege-amsterdam/Kwaliteitsagenda+2024-2027+Mediacollege+Amsterdam.pdf")
-
-# Detect clusters on the 7th page
-ka_clusters <- ka[[7]] |> 
+# Detect clusters on page 18
+cibap_clusters <- cibap[[18]] |> 
   pdf_detect_clusters()
 
-# Plot clusters on the first page
-ka_clusters |> 
+# Plot the detected clusters
+cibap_clusters |> 
   pdf_plot_clusters()
 ```
 
-Compared with the orriginal document it is quite acurate.
+Compared with the original document it is quite accurate.
 
 ![](vignettes/images/example_pdf.png)
+
 Text can be extracted to do further analysis:
 
 ```{r}
-ka_clusters_text <- ka_clusters |> 
+cibap_clusters_text <- cibap_clusters |> 
   pdf_extract_clusters()
 
-ka_clusters_text
+cibap_clusters_text
 ```
 

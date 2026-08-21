@@ -18,29 +18,27 @@ The [pdftools](https://docs.ropensci.org/pdftools/) package is available for imp
 
 However, the words grouped into clusters by this package using a Density-Based Spatial Clustering algorithm are likely to be contextually related and thus suitable for text analysis. This package directly utilizes the clustering algorithms implemented in the [dbscan](https://github.com/mhahsler/dbscan) package.
 
-For the examples in this vignette, the Quality Agenda 2024-2027 Mediacollege Amsterdam was used. More information about this report can be found at [rijksoverheid.nl](https://www.rijksoverheid.nl/documenten/rapporten/2024/06/10/kwaliteitsagenda-2024-2027-mediacollege-amsterdam).
-
 ## Loading Packages
 
 ```{r setup}
-library(pdftools)
 library(pdftextclusteR)
 ```
 
-## Loading Data
+## Example Data
 
-Data is loaded using the `pdftools::pdf_data()` function. The result is a list object with a tibble for each page containing the data.
+The examples in this vignette use the `cibap` dataset that is bundled with the package: the report *Kwaliteitsagenda 2024-2027 Cibap*, published on [rijksoverheid.nl](https://www.rijksoverheid.nl/documenten/rapporten/2024/09/16/kwaliteitsagenda-2024-2027-cibap). This document was chosen because it contains several pages with columns, text boxes and different layouts. The package also bundles a second, similar dataset: `npo`.
 
-```{r error=FALSE, warning=FALSE, message=FALSE}
-#' Reading a PDF document with `pdftools`
-ka <- pdf_data("https://www.rijksoverheid.nl/binaries/rijksoverheid/documenten/rapporten/2024/06/10/kwaliteitsagenda-2024-2027-mediacollege-amsterdam/Kwaliteitsagenda+2024-2027+Mediacollege+Amsterdam.pdf")
+Both datasets are the unmodified result of reading the PDF file with `pdftools::pdf_data()`. To apply the same workflow to your own documents, read them the same way:
 
+```{r, eval = FALSE}
+library(pdftools)
+my_document <- pdf_data("path/to/document.pdf")
 ```
 
-The metadata for the first 5 words on page 7 are, for example:
+The result is a list with a tibble for each page, containing one row per word with its position and size on the page. The metadata for the first 5 words on page 18 of the `cibap` dataset are, for example:
 
 ```{r}
-head(ka[[7]], 5)
+head(cibap[[18]], 5)
 ```
 
 ## Detecting text clusters
@@ -50,19 +48,18 @@ head(ka[[7]], 5)
 Clusters - usually columns and text boxes - are detected with the `pdf_detect_clusters()` function. When applied to a single page, the function returns a tibble with each word assigned to a cluster.
 
 ```{r}
-ka_clusters <- ka[[7]] |> 
+cibap_clusters <- cibap[[18]] |>
   pdf_detect_clusters()
 
-head(ka_clusters, 5)
+head(cibap_clusters, 5)
 ```
 
 ### Multiple page clustering
 
-One of the key features of `pdftextclusteR` is the ability to process multiple pages at once. This is particularly useful when analyzing entire documents. Let's process the first 3 pages of our example document:
+One of the key features of `pdftextclusteR` is the ability to process multiple pages at once. This is particularly useful when analyzing entire documents. Let's process the first 10 pages of the example document:
 
 ```{r}
-# Process first 10 pages
-multiple_page_clusters <- ka[1:10] |> 
+multiple_page_clusters <- cibap[1:10] |>
   pdf_detect_clusters()
 
 # Check the structure of the result
@@ -71,18 +68,25 @@ str(multiple_page_clusters, max.level = 1)
 
 The result is a list of tibbles, where each tibble contains the cluster information for one page. The function automatically displays a progress bar when processing multiple pages and provides a summary of the results.
 
+Progress bars and messages can be suppressed with the `verbose` argument, or globally with `options(pdftextclusteR.verbose = FALSE)`:
+
+```{r, eval = FALSE}
+cibap[1:10] |>
+  pdf_detect_clusters(verbose = FALSE)
+```
+
 ## Plotting the Clusters
 
 ### Plotting a single page
 
 Using the `pdf_plot_clusters()` function, you can create a visual representation of the detected clusters for a single page:
 
-```{r pdf_plot_clusters}
-ka_clusters |> 
+```{r pdf_plot_clusters, fig.width = 7, fig.height = 5}
+cibap_clusters |>
   pdf_plot_clusters()
 ```
 
-If you compare this with the source PDF page, you can see that the package has clustered the text quite accurately in this case:
+If you compare this with the original PDF page, you can see that the package has clustered the text quite accurately in this case:
 
 ![](images/example_pdf.png)
 
@@ -90,17 +94,17 @@ If you compare this with the source PDF page, you can see that the package has c
 
 The `pdf_plot_clusters()` function can also be applied to multiple pages:
 
-```{r}
+```{r, fig.width = 7, fig.height = 5}
 # Plot the tenth page of the multiple page result
-multiple_page_clusters[[10]] |> 
+multiple_page_clusters[[10]] |>
   pdf_plot_clusters()
 ```
 
 You can plot all pages at once, which returns a list of ggplot objects:
 
-```{r}
+```{r, fig.width = 7, fig.height = 5}
 # This returns a list of ggplot objects
-all_plots <- multiple_page_clusters |> 
+all_plots <- multiple_page_clusters |>
   pdf_plot_clusters()
 
 # You can access individual plots
@@ -114,39 +118,49 @@ all_plots[[8]]
 The text of the detected clusters can be extracted with the `pdf_extract_clusters()` function:
 
 ```{r}
-ka_clusters_text <- ka_clusters |> 
+cibap_clusters_text <- cibap_clusters |>
   pdf_extract_clusters()
 
 # View the first 5 clusters
-head(ka_clusters_text, 5)
+head(cibap_clusters_text, 5)
 ```
+
+Words that could not be assigned to any cluster (noise) are excluded from the extraction by default. Use `include_noise = TRUE` to include them as cluster 0.
+
+### Filtering out chart and figure text
+
+Note the bottom-right area of the example page: it contains a map and a bar chart. The words there are chart labels — category names, numbers, axis labels. The clustering is purely geometric, so labels that happen to sit close together are grouped into clusters, but these fragments are not running text and are usually meaningless for text analysis.
+
+Such fragments are easy to recognize in the output: they form clusters with very few words. The `word_count` column can be used to filter them out:
+
+```{r}
+cibap_clusters_text |>
+  dplyr::filter(word_count >= 10)
+```
+
+The threshold depends on your document; `pdf_plot_clusters()` is a convenient way to check which clusters you are keeping.
 
 ### Extracting from multiple pages
 
-When extracting from multiple pages, the function returns a list of tibbles:
+When extracting from multiple pages, the function returns a single tibble with an extra `page` column:
 
 ```{r}
-multiple_page_text <- multiple_page_clusters |> 
+multiple_page_text <- multiple_page_clusters |>
   pdf_extract_clusters()
 
-# Check the structure
-str(multiple_page_text, max.level = 1)
-```
-
-```{r}
-# View the first 5 clusters from the fifth page
-head(multiple_page_text[[5]], 5)
-```
-
-When using the `combine = TRUE` parameter all text is combined in one Tibble with an extra variable `page`:
-
-```{r}
-multiple_page_text_tibble <- multiple_page_clusters |> 
-  pdf_extract_clusters(combine = TRUE)
-
-multiple_page_text_tibble |> 
-  dplyr::filter(page == 5) |> 
+multiple_page_text |>
+  dplyr::filter(page == 5) |>
   head(5)
+```
+
+If you prefer a list with a separate tibble for each page, use `combine = FALSE`:
+
+```{r}
+multiple_page_text_list <- multiple_page_clusters |>
+  pdf_extract_clusters(combine = FALSE)
+
+# View the first 5 clusters from the fifth page
+head(multiple_page_text_list[[5]], 5)
 ```
 
 ## Different algorithms
@@ -163,17 +177,17 @@ The [dbscan](https://github.com/mhahsler/dbscan) package is used to detect the c
 
 Each algorithm has different parameters that can be tuned for optimal results:
 
-```{r}
+```{r, fig.width = 7, fig.height = 5}
 # Example with sNNclust algorithm
-ka[[7]] |> 
-  pdf_detect_clusters(algorithm = "sNNclust", k = 5, eps = 2, minPts = 3) |> 
+cibap[[18]] |>
+  pdf_detect_clusters(algorithm = "sNNclust", k = 5, eps = 2, minPts = 3) |>
   pdf_plot_clusters()
 ```
 
-```{r}
+```{r, fig.width = 7, fig.height = 5}
 # Example with hdbscan algorithm
-ka[[7]] |> 
-  pdf_detect_clusters(algorithm = "hdbscan", minPts = 2) |> 
+cibap[[18]] |>
+  pdf_detect_clusters(algorithm = "hdbscan", minPts = 2) |>
   pdf_plot_clusters()
 ```
 
@@ -181,49 +195,28 @@ ka[[7]] |>
 
 Here's a complete workflow example that processes multiple pages, plots the results, and extracts the text:
 
-```{r}
+```{r, fig.width = 7, fig.height = 5}
 # Select pages 5-7
-selected_pages <- ka[5:7]
+selected_pages <- cibap[5:7]
 
 # Detect clusters across all pages
-clusters <- selected_pages |> 
+clusters <- selected_pages |>
   pdf_detect_clusters()
 
 # Plot clusters for visualization (just showing the first page plot)
-clusters[[1]] |> 
+plots <- clusters |>
   pdf_plot_clusters()
-# In practice, you'd access individual plots from the resulting list
-# e.g., plots <- clusters |> pdf_plot_clusters(); plots[[1]]
+plots[[1]]
 ```
 
 ```{r}
 # Extract text from all clusters
-text_data <- clusters |> 
+text_data <- clusters |>
   pdf_extract_clusters()
 
-# Analyze the first page's text (as an example)
-text_data[[1]] |> 
-  dplyr::arrange(desc(word_count)) |> 
-  head(3)
-```
-
-## Comparing with built-in data
-
-The package includes two example datasets: `npo` and `cibap`. These can be used to experiment with the package functions without downloading external PDFs:
-
-```{r}
-# Using the built-in npo dataset
-npo_clusters <- npo[12] |> 
-  pdf_detect_clusters()
-
-npo_clusters |> 
-  pdf_plot_clusters()
-
-```
-
-```{r}
-npo_clusters |> 
-  pdf_extract_clusters() |> 
+# The largest clusters in the selection
+text_data |>
+  dplyr::arrange(dplyr::desc(word_count)) |>
   head(3)
 ```
 
