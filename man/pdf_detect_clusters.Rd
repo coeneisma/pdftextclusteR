@@ -8,6 +8,7 @@ pdf_detect_clusters(
   pdf_data,
   algorithm = "dbscan",
   tolerance_factor = 0.1,
+  verbose = getOption("pdftextclusteR.verbose", TRUE),
   ...
 )
 }
@@ -20,6 +21,10 @@ boxes}
 
 \item{tolerance_factor}{numeric; factor used for column detection when renumbering.
 Higher values allow more variation in x-coordinates. Default is 0.1 (10\% of page width).}
+
+\item{verbose}{logical; if \code{FALSE}, progress bars and informational
+messages are suppressed. Defaults to the package option
+\code{pdftextclusteR.verbose}, or \code{TRUE} when that option is not set.}
 
 \item{...}{algorithm-specific arguments. See \code{\link[dbscan:dbscan]{dbscan::dbscan()}}, \code{\link[dbscan:jpclust]{dbscan::jpclust()}}, \code{\link[dbscan:sNNclust]{dbscan::sNNclust()}} and \code{\link[dbscan:hdbscan]{dbscan::hdbscan()}} for more information}
 }
