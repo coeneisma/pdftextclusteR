@@ -4,7 +4,12 @@
 \alias{pdf_extract_clusters}
 \title{Extract the Text Per Cluster from the \code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}} object}
 \usage{
-pdf_extract_clusters(pdf_data, combine = TRUE)
+pdf_extract_clusters(
+  pdf_data,
+  combine = TRUE,
+  include_noise = FALSE,
+  verbose = getOption("pdftextclusteR.verbose", TRUE)
+)
 }
 \arguments{
 \item{pdf_data}{result of the \code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}}-function or a page of
@@ -13,6 +18,14 @@ this result}
 \item{combine}{logical; if TRUE (default) and input is a list of tibbles, the
 function returns one combined tibble with a page number column added. If
 FALSE, returns a list of tibbles.}
+
+\item{include_noise}{logical; if \code{FALSE} (default), words that were not
+assigned to any cluster (noise, \code{.cluster == 0}) are excluded from the
+output. Set to \code{TRUE} to include them as cluster 0.}
+
+\item{verbose}{logical; if \code{FALSE}, progress bars and informational
+messages are suppressed. Defaults to the package option
+\code{pdftextclusteR.verbose}, or \code{TRUE} when that option is not set.}
 }
 \value{
 If the input is a list of tibbles and combine=TRUE (default), a

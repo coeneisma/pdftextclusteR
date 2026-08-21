@@ -19,6 +19,9 @@
 #' @param pdf_data_clusters A single list item from the result of
 #'   [pdf_detect_clusters()], or the full list of pages returned by
 #'   [pdf_detect_clusters()].
+#' @param verbose logical; if `FALSE`, informational messages are
+#'   suppressed. Defaults to the package option `pdftextclusteR.verbose`,
+#'   or `TRUE` when that option is not set.
 #'
 #' @return A ggplot2 rectangle plot when applied to a single page. When applied
 #'   to a list of pages, a list of ggplot2 rectangle plots is returned.
@@ -35,7 +38,8 @@
 #'   head(3) |>
 #'   pdf_detect_clusters() |>
 #'   pdf_plot_clusters()
-pdf_plot_clusters <- function(pdf_data_clusters)
+pdf_plot_clusters <- function(pdf_data_clusters,
+                              verbose = getOption("pdftextclusteR.verbose", TRUE))
 {
   # Check if input is a list or single data.frame
   if (!is.data.frame(pdf_data_clusters)) {
@@ -57,10 +61,12 @@ pdf_plot_clusters <- function(pdf_data_clusters)
     failed_plots <- total_pages - successful_plots
 
     # CLI messages
-    cli::cli_alert_info("Total pages provided: {total_pages}")
-    cli::cli_alert_success("Successfully plotted {successful_plots} page{?s}.")
-    if (failed_plots > 0) {
-      cli::cli_alert_danger("{failed_plots} page{?s} could not be plotted because they contain no text.")
+    if (verbose) {
+      cli::cli_alert_info("Total pages provided: {total_pages}")
+      cli::cli_alert_success("Successfully plotted {successful_plots} page{?s}.")
+      if (failed_plots > 0) {
+        cli::cli_alert_danger("{failed_plots} page{?s} could not be plotted because they contain no text.")
+      }
     }
 
     return(plots)

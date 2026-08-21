@@ -20,6 +20,9 @@
 #'   boxes
 #' @param tolerance_factor numeric; factor used for column detection when renumbering.
 #'   Higher values allow more variation in x-coordinates. Default is 0.1 (10% of page width).
+#' @param verbose logical; if `FALSE`, progress bars and informational
+#'   messages are suppressed. Defaults to the package option
+#'   `pdftextclusteR.verbose`, or `TRUE` when that option is not set.
 #' @param ... algorithm-specific arguments. See [dbscan::dbscan()], [dbscan::jpclust()], [dbscan::sNNclust()] and [dbscan::hdbscan()] for more information
 #'
 #' @return If the input is a list of pages, a list-object is returned, where
@@ -37,7 +40,9 @@
 #' npo[[3]] |>
 #'    pdf_detect_clusters(algorithm = "sNNclust", minPts = 5)
 pdf_detect_clusters <- function(pdf_data, algorithm = "dbscan",
-                                tolerance_factor = 0.1, ...) {
+                                tolerance_factor = 0.1,
+                                verbose = getOption("pdftextclusteR.verbose", TRUE),
+                                ...) {
   # Check if input is a data.frame or list
   if (!is.data.frame(pdf_data)) {
 
@@ -45,20 +50,10 @@ pdf_detect_clusters <- function(pdf_data, algorithm = "dbscan",
     total_pages <- length(pdf_data)
 
     # Create progress bar for multiple pages
-    if (total_pages > 1) {
+    show_progress <- verbose && total_pages > 1
+    if (show_progress) {
       cli::cli_alert_info("Processing {total_pages} pages")
-
-      # Create a horizontal progress bar with ETA
-      cli::cli_progress_bar(
-        format = paste0(
-          "Processing: ",
-          "{cli::pb_spin} [{cli::pb_current}/{cli::pb_total}] ",
-          "[{cli::pb_bar}] {cli::pb_percent}% ",
-          "ETA: {cli::pb_eta}"
-        ),
-        total = total_pages,
-        clear = FALSE
-      )
+      pdf_progress_bar("Processing", total_pages)
     }
 
     # Process all pages and check if they are empty
@@ -82,13 +77,13 @@ pdf_detect_clusters <- function(pdf_data, algorithm = "dbscan",
       }
 
       # Update progress after each page is fully processed
-      if (total_pages > 1) {
+      if (show_progress) {
         cli::cli_progress_update()
       }
     }
 
     # Close progress bar
-    if (total_pages > 1) {
+    if (show_progress) {
       cli::cli_progress_done()
     }
 
@@ -97,9 +92,11 @@ pdf_detect_clusters <- function(pdf_data, algorithm = "dbscan",
     failed_pages <- total_pages - successful_pages
 
     # CLI message
-    cli::cli_alert_success("Clusters successfully detected and renumbered on {successful_pages} page{?s}.")
-    if (failed_pages > 0) {
-      cli::cli_alert_danger("{failed_pages} page{?s} contain no text and could not be processed.")
+    if (verbose) {
+      cli::cli_alert_success("Clusters successfully detected and renumbered on {successful_pages} page{?s}.")
+      if (failed_pages > 0) {
+        cli::cli_alert_danger("{failed_pages} page{?s} contain no text and could not be processed.")
+      }
     }
 
     return(results)
@@ -108,7 +105,9 @@ pdf_detect_clusters <- function(pdf_data, algorithm = "dbscan",
 
     # Check if the single page is empty
     if (nrow(pdf_data) == 0) {
-      cli::cli_alert_danger("The provided page contains no text. No clusters detected.")
+      if (verbose) {
+        cli::cli_alert_danger("The provided page contains no text. No clusters detected.")
+      }
       return(NULL)
     }
 
@@ -122,7 +121,9 @@ pdf_detect_clusters <- function(pdf_data, algorithm = "dbscan",
     num_clusters <- length(unique(clusters$.cluster[clusters$.cluster != 0]))
 
     # CLI message
-    cli::cli_alert_info("Clusters detected and renumbered: {num_clusters} on this page.")
+    if (verbose) {
+      cli::cli_alert_info("Clusters detected and renumbered: {num_clusters} on this page.")
+    }
 
     return(clusters)
   }

@@ -4,12 +4,19 @@
 \alias{pdf_plot_clusters}
 \title{Plot the \code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}} Object}
 \usage{
-pdf_plot_clusters(pdf_data_clusters)
+pdf_plot_clusters(
+  pdf_data_clusters,
+  verbose = getOption("pdftextclusteR.verbose", TRUE)
+)
 }
 \arguments{
 \item{pdf_data_clusters}{A single list item from the result of
 \code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}}, or the full list of pages returned by
 \code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}}.}
+
+\item{verbose}{logical; if \code{FALSE}, informational messages are
+suppressed. Defaults to the package option \code{pdftextclusteR.verbose},
+or \code{TRUE} when that option is not set.}
 }
 \value{
 A ggplot2 rectangle plot when applied to a single page. When applied
