@@ -2,131 +2,118 @@
 #'
 #' @description `r lifecycle::badge('experimental')`
 #'
-#' This function detects columns and text boxes in a PDF file. To do this, you
-#' first need to read the file using the [pdftools::pdf_data()]-function from
-#' the [pdftools] package.
+#' Detects columns and text boxes by clustering words based on the distance
+#' between their bounding boxes. Accepts a [PdfDocument] (as returned by
+#' [pdf_read()]), a single [PdfPage], or a path/URL to a PDF file (which is
+#' read with [pdf_read()] first).
 #'
-#' The function works on both a list of pages, as returned by the
-#' [pdftools::pdf_data()] function, and individual pages extracted from that
-#' list. This makes it flexible for use on either the entire document or
-#' specific pages within it.
+#' This package directly utilizes the clustering algorithms implemented in
+#' the [dbscan] package. Detected clusters are renumbered in reading order:
+#' column by column, top to bottom.
 #'
-#' This package directly utilizes the clustering algorithms implemented in the
-#' [dbscan] package. For this a [stats::dist()] object is created.
-#'
-#' @param pdf_data result of the [pdftools::pdf_data()]-function or a page of
-#'   this result.
-#' @param algorithm the algorithm to be used to detect text columns or text
-#'   boxes
-#' @param tolerance_factor numeric; factor used for column detection when renumbering.
-#'   Higher values allow more variation in x-coordinates. Default is 0.1 (10% of page width).
+#' @param x a [PdfDocument], a [PdfPage], or a path/URL to a PDF file.
+#' @param algorithm the algorithm used to detect text columns or text
+#'   boxes: `"dbscan"` (default), `"jpclust"`, `"sNNclust"` or `"hdbscan"`.
+#' @param tolerance_factor numeric; factor used for column detection when
+#'   renumbering. Higher values allow more variation in x-coordinates.
+#'   Default is 0.1 (10% of page width).
 #' @param verbose logical; if `FALSE`, progress bars and informational
 #'   messages are suppressed. Defaults to the package option
 #'   `pdftextclusteR.verbose`, or `TRUE` when that option is not set.
-#' @param ... algorithm-specific arguments. See [dbscan::dbscan()], [dbscan::jpclust()], [dbscan::sNNclust()] and [dbscan::hdbscan()] for more information
+#' @param ... algorithm-specific arguments. See [dbscan::dbscan()],
+#'   [dbscan::jpclust()], [dbscan::sNNclust()] and [dbscan::hdbscan()].
 #'
-#' @return If the input is a list of pages, a list-object is returned, where
-#'   each page contains a tibble and each word is assigned to a cluster. If the
-#'   input is a single page, a tibble is returned directly, with each word
-#'   assigned to a cluster.
+#' @return A [PdfDocument] whose pages are [PdfClusters] objects when the
+#'   input is a document or path; a single [PdfClusters] object when the
+#'   input is a [PdfPage].
 #' @export
 #'
 #' @examples
-#' # First 3 pages
-#' head(npo, 3) |>
-#'    pdf_detect_clusters()
-#'
-#' # 3th page with sNNclust algorithm with minPts = 5
+#' # A single page
 #' npo[[3]] |>
-#'    pdf_detect_clusters(algorithm = "sNNclust", minPts = 5)
-pdf_detect_clusters <- function(pdf_data, algorithm = "dbscan",
-                                tolerance_factor = 0.1,
-                                verbose = getOption("pdftextclusteR.verbose", TRUE),
-                                ...) {
-  # Check if input is a data.frame or list
-  if (!is.data.frame(pdf_data)) {
+#'   pdf_detect_clusters()
+#'
+#' # The first 3 pages, with the sNNclust algorithm
+#' npo[1:3] |>
+#'   pdf_detect_clusters(algorithm = "sNNclust", minPts = 5)
+pdf_detect_clusters <- S7::new_generic(
+  "pdf_detect_clusters", "x",
+  function(x, algorithm = "dbscan", tolerance_factor = 0.1,
+           verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
+    S7::S7_dispatch()
+  }
+)
 
-    # Count total number of pages
-    total_pages <- length(pdf_data)
+S7::method(pdf_detect_clusters, S7::class_character) <- function(
+    x, algorithm = "dbscan", tolerance_factor = 0.1,
+    verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
+  pdf_detect_clusters(pdf_read(x), algorithm = algorithm,
+                      tolerance_factor = tolerance_factor,
+                      verbose = verbose, ...)
+}
 
-    # Create progress bar for multiple pages
-    show_progress <- verbose && total_pages > 1
-    if (show_progress) {
-      cli::cli_alert_info("Processing {total_pages} pages")
-      pdf_progress_bar("Processing", total_pages)
+S7::method(pdf_detect_clusters, PdfDocument) <- function(
+    x, algorithm = "dbscan", tolerance_factor = 0.1,
+    verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
+
+  total_pages <- length(x@pages)
+  show_progress <- verbose && total_pages > 1
+  if (show_progress) {
+    cli::cli_alert_info("Processing {total_pages} pages")
+    pdf_progress_bar("Processing", total_pages)
+  }
+
+  pages <- vector("list", total_pages)
+  for (i in seq_len(total_pages)) {
+    pages[[i]] <- detect_clusters_on_page(x@pages[[i]], algorithm,
+                                          tolerance_factor, ...)
+    if (show_progress) cli::cli_progress_update()
+  }
+  if (show_progress) cli::cli_progress_done()
+
+  successful_pages <- sum(vapply(pages, function(p) nrow(p@words) > 0, logical(1)))
+  failed_pages <- total_pages - successful_pages
+  if (verbose) {
+    cli::cli_alert_success("Clusters successfully detected and renumbered on {successful_pages} page{?s}.")
+    if (failed_pages > 0) {
+      cli::cli_alert_danger("{failed_pages} page{?s} contain no text and could not be processed.")
     }
+  }
 
-    # Process all pages and check if they are empty
-    results <- vector("list", total_pages)
+  PdfDocument(pages = pages, source = x@source)
+}
 
-    for (i in seq_len(total_pages)) {
-      page_data <- pdf_data[[i]]
+S7::method(pdf_detect_clusters, PdfPage) <- function(
+    x, algorithm = "dbscan", tolerance_factor = 0.1,
+    verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
 
-      if (nrow(page_data) == 0) {
-        results[i] <- list(NULL)
-      } else {
-        # Detect clusters
-        clusters <- pdf_detect_clusters_page(page_data, algorithm, ...)
-
-        # Always renumber clusters
-        if (!is.null(clusters)) {
-          clusters <- pdf_renumber_clusters_page(clusters, tolerance_factor)
-        }
-
-        results[[i]] <- clusters
-      }
-
-      # Update progress after each page is fully processed
-      if (show_progress) {
-        cli::cli_progress_update()
-      }
-    }
-
-    # Close progress bar
-    if (show_progress) {
-      cli::cli_progress_done()
-    }
-
-    # Count successful and failed detections
-    successful_pages <- sum(!purrr::map_lgl(results, is.null))
-    failed_pages <- total_pages - successful_pages
-
-    # CLI message
-    if (verbose) {
-      cli::cli_alert_success("Clusters successfully detected and renumbered on {successful_pages} page{?s}.")
-      if (failed_pages > 0) {
-        cli::cli_alert_danger("{failed_pages} page{?s} contain no text and could not be processed.")
-      }
-    }
-
-    return(results)
-
-  } else {
-
-    # Check if the single page is empty
-    if (nrow(pdf_data) == 0) {
-      if (verbose) {
-        cli::cli_alert_danger("The provided page contains no text. No clusters detected.")
-      }
-      return(NULL)
-    }
-
-    # Detect clusters
-    clusters <- pdf_detect_clusters_page(pdf_data, algorithm, ...)
-
-    # Always renumber clusters
-    clusters <- pdf_renumber_clusters_page(clusters, tolerance_factor)
-
-    # Count the number of clusters
-    num_clusters <- length(unique(clusters$.cluster[clusters$.cluster != 0]))
-
-    # CLI message
-    if (verbose) {
+  result <- detect_clusters_on_page(x, algorithm, tolerance_factor, ...)
+  if (verbose) {
+    if (nrow(x@words) == 0) {
+      cli::cli_alert_danger("The provided page contains no text. No clusters detected.")
+    } else {
+      num_clusters <- n_clusters(result)
       cli::cli_alert_info("Clusters detected and renumbered: {num_clusters} on this page.")
     }
-
-    return(clusters)
   }
+  result
+}
+
+#' Detect and renumber clusters on one page, wrapping the result
+#'
+#' @param page a PdfPage
+#' @noRd
+detect_clusters_on_page <- function(page, algorithm, tolerance_factor, ...) {
+  words <- page@words
+  if (nrow(words) > 0) {
+    words <- pdf_detect_clusters_page(words, algorithm, ...)
+    words <- pdf_renumber_clusters_page(words, tolerance_factor)
+  }
+  PdfClusters(
+    words = words, number = page@number,
+    width = page@width, height = page@height,
+    algorithm = algorithm, params = list(...)
+  )
 }
 
 #' Renumber clusters in logical reading order
@@ -279,7 +266,7 @@ pdf_detect_clusters_page <- function(pdf_data_page, algorithm = "dbscan", ...){
   return(broom::augment(cluster, pdf_data_page))
 }
 
-utils::globalVariables(c(".cluster", "height", "width",
+utils::globalVariables(c(".cluster", "height", "width", "font_name", "words",
                          "page", "text",
                          "x", "x_center", "xmax", "xmin",
                          "y", "y_center", "ymax", "ymin",

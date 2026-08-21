@@ -1,87 +1,70 @@
-#' Plot the [pdf_detect_clusters()] Object
+#' Plot Detected Clusters
 #'
 #' @description
 #' `r lifecycle::badge('experimental')`
 #'
-#' This function plots the clusters that are detected using the
-#' [pdf_detect_clusters()] function. Each cluster is assigned a unique color and
-#' number, making them easy to visually detect and compare with the original
-#' PDF.
+#' Plots the clusters detected with [pdf_detect_clusters()]. Each cluster
+#' is assigned a unique color and number, making it easy to visually
+#' compare the result with the original PDF.
 #'
-#' The function works on both a single page (as a list item from the result of
-#' [pdf_detect_clusters()]) and a list of pages (the entire output of
-#' [pdf_detect_clusters()]). When applied to a list of pages, the function
-#' returns a list of ggplot2 objects, one for each page.
-#'
-#' This flexibility allows users to visualize clusters for specific pages or for
-#' the entire document.
-#'
-#' @param pdf_data_clusters A single list item from the result of
-#'   [pdf_detect_clusters()], or the full list of pages returned by
-#'   [pdf_detect_clusters()].
+#' @param x a [PdfDocument] whose pages have been clustered with
+#'   [pdf_detect_clusters()], or a single [PdfClusters] page.
 #' @param verbose logical; if `FALSE`, informational messages are
 #'   suppressed. Defaults to the package option `pdftextclusteR.verbose`,
 #'   or `TRUE` when that option is not set.
+#' @param ... not used.
 #'
-#' @return A ggplot2 rectangle plot when applied to a single page. When applied
-#'   to a list of pages, a list of ggplot2 rectangle plots is returned.
+#' @return A ggplot2 plot for a single page; a list of ggplot2 plots (one
+#'   per page, `NULL` for pages without text) for a document.
 #' @export
 #'
 #' @examples
-#' # Example for a single page
+#' # A single page
 #' npo[[12]] |>
 #'   pdf_detect_clusters() |>
 #'   pdf_plot_clusters()
 #'
-#' # Example for a list of pages
-#' npo |>
-#'   head(3) |>
+#' # A list of pages
+#' npo[1:3] |>
 #'   pdf_detect_clusters() |>
 #'   pdf_plot_clusters()
-pdf_plot_clusters <- function(pdf_data_clusters,
-                              verbose = getOption("pdftextclusteR.verbose", TRUE))
-{
-  # Check if input is a list or single data.frame
-  if (!is.data.frame(pdf_data_clusters)) {
-
-    # Count total number of pages
-    total_pages <- length(pdf_data_clusters)
-
-    # Process all pages safely
-    plots <- purrr::map(pdf_data_clusters, function(page_data) {
-      if (is.null(page_data) || !is.data.frame(page_data) || nrow(page_data) == 0) {
-        return(NULL)  # Return NULL for empty pages
-      } else {
-        return(pdf_plot_clusters_page(page_data))
-      }
-    })
-
-    # Count successful and failed plots
-    successful_plots <- sum(!purrr::map_lgl(plots, is.null))
-    failed_plots <- total_pages - successful_plots
-
-    # CLI messages
-    if (verbose) {
-      cli::cli_alert_info("Total pages provided: {total_pages}")
-      cli::cli_alert_success("Successfully plotted {successful_plots} page{?s}.")
-      if (failed_plots > 0) {
-        cli::cli_alert_danger("{failed_plots} page{?s} could not be plotted because they contain no text.")
-      }
-    }
-
-    return(plots)
-
-  } else {
-
-    # Check if the single page is empty or NULL
-    if (is.null(pdf_data_clusters) || nrow(pdf_data_clusters) == 0) {
-      cli::cli_abort("The provided page contains no text and cannot be plotted.")
-    }
-
-    return(pdf_plot_clusters_page(pdf_data_clusters))
+pdf_plot_clusters <- S7::new_generic(
+  "pdf_plot_clusters", "x",
+  function(x, verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
+    S7::S7_dispatch()
   }
+)
+
+S7::method(pdf_plot_clusters, PdfClusters) <- function(
+    x, verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
+  if (nrow(x@words) == 0) {
+    cli::cli_abort("The provided page contains no text and cannot be plotted.")
+  }
+  pdf_plot_clusters_page(x@words, number = x@number)
 }
 
+S7::method(pdf_plot_clusters, PdfDocument) <- function(
+    x, verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
+
+  if (!all(vapply(x@pages, S7::S7_inherits, logical(1), class = PdfClusters))) {
+    cli::cli_abort("No clusters detected yet. Run {.fn pdf_detect_clusters} first.")
+  }
+
+  total_pages <- length(x@pages)
+  plots <- lapply(x@pages, function(page) {
+    if (nrow(page@words) == 0) NULL else pdf_plot_clusters_page(page@words, number = page@number)
+  })
+
+  successful_plots <- sum(!vapply(plots, is.null, logical(1)))
+  failed_plots <- total_pages - successful_plots
+  if (verbose) {
+    cli::cli_alert_success("Successfully plotted {successful_plots} page{?s}.")
+    if (failed_plots > 0) {
+      cli::cli_alert_danger("{failed_plots} page{?s} could not be plotted because they contain no text.")
+    }
+  }
+  plots
+}
 
 #' Plot one page of the [pdf_detect_clusters()] Object
 #'
@@ -103,13 +86,16 @@ pdf_plot_clusters <- function(pdf_data_clusters,
 #' npo[[12]] |>
 #'   pdf_detect_clusters() |>
 #'   pdf_plot_clusters()
-pdf_plot_clusters_page <- function(pdf_data_page_clusters){
+pdf_plot_clusters_page <- function(pdf_data_page_clusters, number = NA){
 
   # Check if the page is empty
   if (nrow(pdf_data_page_clusters) == 0) {
     cli::cli_alert_danger("This page contains no text and cannot be plotted.")
     return(NULL)
   }
+
+  plot_title <- if (is.na(number)) "Detected clusters on page" else
+    sprintf("Detected clusters on page %s", number)
 
   # Data for outlines
   merged_data <- pdf_data_page_clusters |>
@@ -171,6 +157,6 @@ pdf_plot_clusters_page <- function(pdf_data_page_clusters){
     ) +
     ggplot2::labs(x = "X-axis",
                   y = "Y-axis",
-                  title = "Detected clusters on page") +
+                  title = plot_title) +
     ggplot2::theme_bw()
 }

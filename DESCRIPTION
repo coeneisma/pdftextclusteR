@@ -15,13 +15,13 @@ Depends:
     R (>= 4.1)
 Imports: 
     broom,
+    S7,
     cli,
     dbscan,
     dplyr,
     ggplot2,
     lifecycle,
     pdftools,
-    purrr,
     stats,
     stringr,
     tibble,

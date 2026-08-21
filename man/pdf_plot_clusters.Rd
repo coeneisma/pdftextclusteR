@@ -2,51 +2,39 @@
 % Please edit documentation in R/pdf_plot_clusters.R
 \name{pdf_plot_clusters}
 \alias{pdf_plot_clusters}
-\title{Plot the \code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}} Object}
+\title{Plot Detected Clusters}
 \usage{
-pdf_plot_clusters(
-  pdf_data_clusters,
-  verbose = getOption("pdftextclusteR.verbose", TRUE)
-)
+pdf_plot_clusters(x, verbose = getOption("pdftextclusteR.verbose", TRUE), ...)
 }
 \arguments{
-\item{pdf_data_clusters}{A single list item from the result of
-\code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}}, or the full list of pages returned by
-\code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}}.}
+\item{x}{a \link{PdfDocument} whose pages have been clustered with
+\code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}}, or a single \link{PdfClusters} page.}
 
 \item{verbose}{logical; if \code{FALSE}, informational messages are
 suppressed. Defaults to the package option \code{pdftextclusteR.verbose},
 or \code{TRUE} when that option is not set.}
+
+\item{...}{not used.}
 }
 \value{
-A ggplot2 rectangle plot when applied to a single page. When applied
-to a list of pages, a list of ggplot2 rectangle plots is returned.
+A ggplot2 plot for a single page; a list of ggplot2 plots (one
+per page, \code{NULL} for pages without text) for a document.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-This function plots the clusters that are detected using the
-\code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}} function. Each cluster is assigned a unique color and
-number, making them easy to visually detect and compare with the original
-PDF.
-
-The function works on both a single page (as a list item from the result of
-\code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}}) and a list of pages (the entire output of
-\code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}}). When applied to a list of pages, the function
-returns a list of ggplot2 objects, one for each page.
-
-This flexibility allows users to visualize clusters for specific pages or for
-the entire document.
+Plots the clusters detected with \code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}}. Each cluster
+is assigned a unique color and number, making it easy to visually
+compare the result with the original PDF.
 }
 \examples{
-# Example for a single page
+# A single page
 npo[[12]] |>
   pdf_detect_clusters() |>
   pdf_plot_clusters()
 
-# Example for a list of pages
-npo |>
-  head(3) |>
+# A list of pages
+npo[1:3] |>
   pdf_detect_clusters() |>
   pdf_plot_clusters()
 }

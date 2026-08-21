@@ -2,22 +2,23 @@
 % Please edit documentation in R/pdf_extract_clusters.R
 \name{pdf_extract_clusters}
 \alias{pdf_extract_clusters}
-\title{Extract the Text Per Cluster from the \code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}} object}
+\title{Extract the Text Per Cluster}
 \usage{
 pdf_extract_clusters(
-  pdf_data,
+  x,
   combine = TRUE,
   include_noise = FALSE,
-  verbose = getOption("pdftextclusteR.verbose", TRUE)
+  verbose = getOption("pdftextclusteR.verbose", TRUE),
+  ...
 )
 }
 \arguments{
-\item{pdf_data}{result of the \code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}}-function or a page of
-this result}
+\item{x}{a \link{PdfDocument} whose pages have been clustered with
+\code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}}, or a single \link{PdfClusters} page.}
 
-\item{combine}{logical; if TRUE (default) and input is a list of tibbles, the
-function returns one combined tibble with a page number column added. If
-FALSE, returns a list of tibbles.}
+\item{combine}{logical; if \code{TRUE} (default) and the input is a document,
+one combined tibble is returned with a \code{page} column. If \code{FALSE}, a
+list of tibbles is returned, one per page.}
 
 \item{include_noise}{logical; if \code{FALSE} (default), words that were not
 assigned to any cluster (noise, \code{.cluster == 0}) are excluded from the
@@ -26,37 +27,30 @@ output. Set to \code{TRUE} to include them as cluster 0.}
 \item{verbose}{logical; if \code{FALSE}, progress bars and informational
 messages are suppressed. Defaults to the package option
 \code{pdftextclusteR.verbose}, or \code{TRUE} when that option is not set.}
+
+\item{...}{not used.}
 }
 \value{
-If the input is a list of tibbles and combine=TRUE (default), a
-single tibble is returned containing the text of all clusters with an added
-page number column. If the input is a list of tibbles and combine=FALSE, a
-list-object is returned, where each element is a tibble containing the text
-extracted from each cluster on a page. If the input is a single tibble, a
-tibble is returned directly, containing the text extracted from each
-cluster on that page, including a word count per cluster.
+A tibble with one row per cluster (\code{.cluster}, \code{word_count},
+\code{text}), for a document preceded by a \code{page} column. With
+\code{combine = FALSE} a list of such tibbles, one per page.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-As an end user, you mainly want to work with the text from the different
-detected text clusters. This function combines the text from each cluster
-into a character string and places it in a Tibble. A word count is added
-per cluster.
+As an end user, you mainly want to work with the text from the
+different detected text clusters. This function combines the text from
+each cluster into a character string and places it in a tibble, with a
+word count per cluster.
 }
 \examples{
-# Extract text from a single page's clusters
+# A single page
 npo[[1]] |>
-   pdf_detect_clusters() |>
-   pdf_extract_clusters()
+  pdf_detect_clusters() |>
+  pdf_extract_clusters()
 
-# Extract text from multiple pages as a single combined tibble
-head(npo, 3) |>
-   pdf_detect_clusters() |>
-   pdf_extract_clusters()
-
-# Extract text from multiple pages as a list of tibbles
-head(npo, 3) |>
-   pdf_detect_clusters() |>
-   pdf_extract_clusters(combine = FALSE)
+# Multiple pages combined into one tibble
+npo[1:3] |>
+  pdf_detect_clusters() |>
+  pdf_extract_clusters()
 }

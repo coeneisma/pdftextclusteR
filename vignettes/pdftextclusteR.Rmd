@@ -2,7 +2,7 @@
 title: "pdftextclusteR: detect text clusters in PDF files"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Get started with cluster detection}
+  %\VignetteIndexEntry{pdftextclusteR: detect text clusters in PDF files}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -28,17 +28,45 @@ library(pdftextclusteR)
 
 The examples in this vignette use the `cibap` dataset that is bundled with the package: the report *Kwaliteitsagenda 2024-2027 Cibap*, published on [rijksoverheid.nl](https://www.rijksoverheid.nl/documenten/rapporten/2024/09/16/kwaliteitsagenda-2024-2027-cibap). This document was chosen because it contains several pages with columns, text boxes and different layouts. The package also bundles a second, similar dataset: `npo`.
 
-Both datasets are the unmodified result of reading the PDF file with `pdftools::pdf_data()`. To apply the same workflow to your own documents, read them the same way:
+Both datasets are `PdfDocument` objects, created by reading the PDF file with `pdf_read()`. To apply the same workflow to your own documents, read them the same way (or simply pass the path directly to `pdf_detect_clusters()`):
 
 ```{r, eval = FALSE}
-library(pdftools)
-my_document <- pdf_data("path/to/document.pdf")
+my_document <- pdf_read("path/to/document.pdf")
 ```
 
-The result is a list with a tibble for each page, containing one row per word with its position and size on the page. The metadata for the first 5 words on page 18 of the `cibap` dataset are, for example:
+A `PdfDocument` contains one `PdfPage` per page: a tibble of words with their position, size and font, plus the page number and page dimensions. Pages are accessed with `[[`, subsets with `[`:
 
 ```{r}
-head(cibap[[18]], 5)
+cibap
+cibap[[18]]
+```
+
+The underlying word data of a page (or a whole document) is available via `as_tibble()`:
+
+```{r}
+head(tibble::as_tibble(cibap[[18]]), 5)
+```
+
+## Inspecting the objects
+
+All three object types have a compact `print()` and a `summary()` method. For a document, `summary()` returns a tibble with the number of words (and, once clustered, clusters) per page — convenient for spotting problem pages:
+
+```{r}
+overview <- summary(cibap)
+head(overview, 3)
+```
+
+For a single page, `summary()` shows which fonts are used — a quick way to understand the structure of a page:
+
+```{r}
+summary(cibap[[18]])
+```
+
+Object properties are accessed with `@`:
+
+```{r}
+cibap[[18]]@number
+cibap[[18]]@width
 ```
 
 ## Detecting text clusters
@@ -51,7 +79,13 @@ Clusters - usually columns and text boxes - are detected with the `pdf_detect_cl
 cibap_clusters <- cibap[[18]] |>
   pdf_detect_clusters()
 
-head(cibap_clusters, 5)
+cibap_clusters
+```
+
+The result is a `PdfClusters` object: the same page, with each word assigned to a cluster (column `.cluster`; cluster 0 is noise):
+
+```{r}
+head(tibble::as_tibble(cibap_clusters), 5)
 ```
 
 ### Multiple page clustering
@@ -62,11 +96,10 @@ One of the key features of `pdftextclusteR` is the ability to process multiple p
 multiple_page_clusters <- cibap[1:10] |>
   pdf_detect_clusters()
 
-# Check the structure of the result
-str(multiple_page_clusters, max.level = 1)
+multiple_page_clusters
 ```
 
-The result is a list of tibbles, where each tibble contains the cluster information for one page. The function automatically displays a progress bar when processing multiple pages and provides a summary of the results.
+The result is a `PdfDocument` whose pages now are `PdfClusters` objects. The function automatically displays a progress bar when processing multiple pages and provides a summary of the results.
 
 Progress bars and messages can be suppressed with the `verbose` argument, or globally with `options(pdftextclusteR.verbose = FALSE)`:
 
@@ -86,9 +119,17 @@ cibap_clusters |>
   pdf_plot_clusters()
 ```
 
+`plot()` and `ggplot2::autoplot()` are available as aliases: `plot(cibap_clusters)` gives the same result.
+
+For a clustered page, `summary()` gives a per-cluster overview with a text preview:
+
+```{r}
+summary(cibap_clusters)
+```
+
 If you compare this with the original PDF page, you can see that the package has clustered the text quite accurately in this case:
 
-![](images/example_pdf.png)
+![Page 18 of the original cibap report](images/example_pdf.png)
 
 ### Plotting multiple pages
 
@@ -142,7 +183,7 @@ The threshold depends on your document; `pdf_plot_clusters()` is a convenient wa
 
 ### Extracting from multiple pages
 
-When extracting from multiple pages, the function returns a single tibble with an extra `page` column:
+When extracting from multiple pages, the function returns a single tibble with an extra `page` column containing the real page numbers:
 
 ```{r}
 multiple_page_text <- multiple_page_clusters |>
