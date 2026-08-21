@@ -5,7 +5,7 @@
 \title{Detect Columns and Text Boxes in PDF Document}
 \usage{
 pdf_detect_clusters(
-  pdf_data,
+  x,
   algorithm = "dbscan",
   tolerance_factor = 0.1,
   verbose = getOption("pdftextclusteR.verbose", TRUE),
@@ -13,48 +13,45 @@ pdf_detect_clusters(
 )
 }
 \arguments{
-\item{pdf_data}{result of the \code{\link[pdftools:pdf_data]{pdftools::pdf_data()}}-function or a page of
-this result.}
+\item{x}{a \link{PdfDocument}, a \link{PdfPage}, or a path/URL to a PDF file.}
 
-\item{algorithm}{the algorithm to be used to detect text columns or text
-boxes}
+\item{algorithm}{the algorithm used to detect text columns or text
+boxes: \code{"dbscan"} (default), \code{"jpclust"}, \code{"sNNclust"} or \code{"hdbscan"}.}
 
-\item{tolerance_factor}{numeric; factor used for column detection when renumbering.
-Higher values allow more variation in x-coordinates. Default is 0.1 (10\% of page width).}
+\item{tolerance_factor}{numeric; factor used for column detection when
+renumbering. Higher values allow more variation in x-coordinates.
+Default is 0.1 (10\% of page width).}
 
 \item{verbose}{logical; if \code{FALSE}, progress bars and informational
 messages are suppressed. Defaults to the package option
 \code{pdftextclusteR.verbose}, or \code{TRUE} when that option is not set.}
 
-\item{...}{algorithm-specific arguments. See \code{\link[dbscan:dbscan]{dbscan::dbscan()}}, \code{\link[dbscan:jpclust]{dbscan::jpclust()}}, \code{\link[dbscan:sNNclust]{dbscan::sNNclust()}} and \code{\link[dbscan:hdbscan]{dbscan::hdbscan()}} for more information}
+\item{...}{algorithm-specific arguments. See \code{\link[dbscan:dbscan]{dbscan::dbscan()}},
+\code{\link[dbscan:jpclust]{dbscan::jpclust()}}, \code{\link[dbscan:sNNclust]{dbscan::sNNclust()}} and \code{\link[dbscan:hdbscan]{dbscan::hdbscan()}}.}
 }
 \value{
-If the input is a list of pages, a list-object is returned, where
-each page contains a tibble and each word is assigned to a cluster. If the
-input is a single page, a tibble is returned directly, with each word
-assigned to a cluster.
+A \link{PdfDocument} whose pages are \link{PdfClusters} objects when the
+input is a document or path; a single \link{PdfClusters} object when the
+input is a \link{PdfPage}.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-This function detects columns and text boxes in a PDF file. To do this, you
-first need to read the file using the \code{\link[pdftools:pdf_data]{pdftools::pdf_data()}}-function from
-the \link[pdftools:pdftools]{pdftools} package.
+Detects columns and text boxes by clustering words based on the distance
+between their bounding boxes. Accepts a \link{PdfDocument} (as returned by
+\code{\link[=pdf_read]{pdf_read()}}), a single \link{PdfPage}, or a path/URL to a PDF file (which is
+read with \code{\link[=pdf_read]{pdf_read()}} first).
 
-The function works on both a list of pages, as returned by the
-\code{\link[pdftools:pdf_data]{pdftools::pdf_data()}} function, and individual pages extracted from that
-list. This makes it flexible for use on either the entire document or
-specific pages within it.
-
-This package directly utilizes the clustering algorithms implemented in the
-\link[dbscan:dbscan]{dbscan} package. For this a \code{\link[stats:dist]{stats::dist()}} object is created.
+This package directly utilizes the clustering algorithms implemented in
+the \link[dbscan:dbscan]{dbscan} package. Detected clusters are renumbered in reading order:
+column by column, top to bottom.
 }
 \examples{
-# First 3 pages
-head(npo, 3) |>
-   pdf_detect_clusters()
-
-# 3th page with sNNclust algorithm with minPts = 5
+# A single page
 npo[[3]] |>
-   pdf_detect_clusters(algorithm = "sNNclust", minPts = 5)
+  pdf_detect_clusters()
+
+# The first 3 pages, with the sNNclust algorithm
+npo[1:3] |>
+  pdf_detect_clusters(algorithm = "sNNclust", minPts = 5)
 }

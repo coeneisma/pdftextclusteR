@@ -7,28 +7,29 @@
 \format{
 \subsection{\code{npo}}{
 
-A large list object with 99 elements. Each element contains a tibble with 6 columns and one record for each word on the page.
+A \link{PdfDocument} with 99 pages. Each page is a \link{PdfPage} whose \code{words}
+tibble contains one row per word:
 \describe{
 \item{width, height}{Width and height of a word}
 \item{x, y}{The x and y coordinates of a word. The y-coordinate is measured from the top of the page.}
 \item{space}{Indicates whether there is a space after the word. This indicates a line break.}
 \item{text}{The word that the metadata refers to.}
+\item{font_name, font_size}{The font name and font size of the word.}
 }
 }
 }
 \source{
 \url{https://www.rijksoverheid.nl/documenten/rapporten/2024/11/20/bijlage-3-npo-terugblik-2023}
+(retrieved via the Internet Archive; the original download link is no
+longer available)
 }
 \usage{
 npo
 }
 \description{
-This dataset is the result of reading the report
-\verb{NPO Terugblik 2023}, which was posted on the Rijksoverheid website
-on November 20, 2024, as an annex to the Media Budget 2025.
-}
-\details{
-This document was chosen because it contains several pages with
-columns and different layouts.
+This dataset is the result of reading the report \verb{NPO Terugblik 2023}
+with \code{\link[=pdf_read]{pdf_read()}}. The report was posted on the Rijksoverheid website on
+November 20, 2024, as an annex to the Media Budget 2025. It was chosen
+because it contains several pages with columns and different layouts.
 }
 \keyword{datasets}

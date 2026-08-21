@@ -27,11 +27,12 @@ test_that("extraction of cibap page 5 is stable", {
 })
 
 test_that("an empty page in the middle of a document is handled", {
-  pages <- list(npo[[7]], npo[[7]][0, ], npo[[12]])
-  detected <- suppressMessages(pdf_detect_clusters(pages, verbose = FALSE))
+  empty <- PdfPage(words = npo[[7]]@words[0, ], number = 2L)
+  doc <- PdfDocument(pages = list(npo[[7]], empty, npo[[12]]))
+  detected <- suppressMessages(pdf_detect_clusters(doc, verbose = FALSE))
   expect_length(detected, 3)
-  expect_null(detected[[2]])
+  expect_equal(nrow(detected[[2]]@words), 0)
 
   extracted <- suppressMessages(pdf_extract_clusters(detected, verbose = FALSE))
-  expect_setequal(unique(extracted$page), c(1, 3))
+  expect_setequal(unique(extracted$page), c(7, 12))
 })

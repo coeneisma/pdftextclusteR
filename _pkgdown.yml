@@ -5,9 +5,15 @@ template:
 reference:
   - title: Functions
   - contents:
+    - pdf_read
     - pdf_detect_clusters
     - pdf_plot_clusters
     - pdf_extract_clusters
+  - title: Classes
+  - contents:
+    - PdfDocument
+    - PdfPage
+    - PdfClusters
   - title: Datasets
   - contents:
     - npo
