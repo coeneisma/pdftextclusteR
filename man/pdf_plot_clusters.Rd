@@ -4,11 +4,20 @@
 \alias{pdf_plot_clusters}
 \title{Plot Detected Clusters}
 \usage{
-pdf_plot_clusters(x, verbose = getOption("pdftextclusteR.verbose", TRUE), ...)
+pdf_plot_clusters(
+  x,
+  show_order = FALSE,
+  verbose = getOption("pdftextclusteR.verbose", TRUE),
+  ...
+)
 }
 \arguments{
 \item{x}{a \link{PdfDocument} whose pages have been clustered with
 \code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}}, or a single \link{PdfClusters} page.}
+
+\item{show_order}{logical; if \code{TRUE}, arrows are drawn between the
+clusters in reading order, making it easy to verify the order in
+which \code{\link[=pdf_extract_clusters]{pdf_extract_clusters()}} will return the text.}
 
 \item{verbose}{logical; if \code{FALSE}, informational messages are
 suppressed. Defaults to the package option \code{pdftextclusteR.verbose},

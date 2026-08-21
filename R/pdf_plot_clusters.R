@@ -9,6 +9,9 @@
 #'
 #' @param x a [PdfDocument] whose pages have been clustered with
 #'   [pdf_detect_clusters()], or a single [PdfClusters] page.
+#' @param show_order logical; if `TRUE`, arrows are drawn between the
+#'   clusters in reading order, making it easy to verify the order in
+#'   which [pdf_extract_clusters()] will return the text.
 #' @param verbose logical; if `FALSE`, informational messages are
 #'   suppressed. Defaults to the package option `pdftextclusteR.verbose`,
 #'   or `TRUE` when that option is not set.
@@ -30,21 +33,24 @@
 #'   pdf_plot_clusters()
 pdf_plot_clusters <- S7::new_generic(
   "pdf_plot_clusters", "x",
-  function(x, verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
+  function(x, show_order = FALSE,
+           verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
     S7::S7_dispatch()
   }
 )
 
 S7::method(pdf_plot_clusters, PdfClusters) <- function(
-    x, verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
+    x, show_order = FALSE,
+    verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
   if (nrow(x@words) == 0) {
     cli::cli_abort("The provided page contains no text and cannot be plotted.")
   }
-  pdf_plot_clusters_page(x@words, number = x@number)
+  pdf_plot_clusters_page(x@words, number = x@number, show_order = show_order)
 }
 
 S7::method(pdf_plot_clusters, PdfDocument) <- function(
-    x, verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
+    x, show_order = FALSE,
+    verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
 
   if (!all(vapply(x@pages, S7::S7_inherits, logical(1), class = PdfClusters))) {
     cli::cli_abort("No clusters detected yet. Run {.fn pdf_detect_clusters} first.")
@@ -52,7 +58,9 @@ S7::method(pdf_plot_clusters, PdfDocument) <- function(
 
   total_pages <- length(x@pages)
   plots <- lapply(x@pages, function(page) {
-    if (nrow(page@words) == 0) NULL else pdf_plot_clusters_page(page@words, number = page@number)
+    if (nrow(page@words) == 0) NULL else
+      pdf_plot_clusters_page(page@words, number = page@number,
+                             show_order = show_order)
   })
 
   successful_plots <- sum(!vapply(plots, is.null, logical(1)))
@@ -86,7 +94,8 @@ S7::method(pdf_plot_clusters, PdfDocument) <- function(
 #' npo[[12]] |>
 #'   pdf_detect_clusters() |>
 #'   pdf_plot_clusters()
-pdf_plot_clusters_page <- function(pdf_data_page_clusters, number = NA){
+pdf_plot_clusters_page <- function(pdf_data_page_clusters, number = NA,
+                                   show_order = FALSE){
 
   # Check if the page is empty
   if (nrow(pdf_data_page_clusters) == 0) {
@@ -142,9 +151,40 @@ pdf_plot_clusters_page <- function(pdf_data_page_clusters, number = NA){
       ),
       colour = "black"
     ) +
-    # Cluster numbers
     ggplot2::scale_y_reverse() +
     ggplot2::coord_fixed() +
+    # Reading order arrows (drawn beneath the cluster numbers); one
+    # segment per step so every step gets its own arrowhead
+    { if (show_order) {
+        order_path <- merged_data |>
+          dplyr::filter(.cluster != 0) |>
+          dplyr::arrange(as.integer(as.character(.cluster)))
+        if (nrow(order_path) > 1) {
+          n <- nrow(order_path)
+          segments <- data.frame(
+            x = order_path$x_center[-n], y = order_path$y_center[-n],
+            xend = order_path$x_center[-1], yend = order_path$y_center[-1]
+          )
+          segments$xmid <- (segments$x + segments$xend) / 2
+          segments$ymid <- (segments$y + segments$yend) / 2
+          # full line, plus a half segment whose arrowhead lands midway
+          list(
+            ggplot2::geom_segment(
+              data = segments,
+              ggplot2::aes(x = x, y = y, xend = xend, yend = yend),
+              color = "blue", linewidth = 0.7, alpha = 0.5
+            ),
+            ggplot2::geom_segment(
+              data = segments,
+              ggplot2::aes(x = x, y = y, xend = xmid, yend = ymid),
+              arrow = ggplot2::arrow(length = ggplot2::unit(3, "mm"),
+                                     type = "closed"),
+              color = "blue", linewidth = 0, alpha = 0.5
+            )
+          )
+        }
+      } } +
+    # Cluster numbers
     ggplot2::geom_text(
       data = merged_data |>
         dplyr::filter(.cluster != 0),

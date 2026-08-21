@@ -7,8 +7,10 @@
 pdf_detect_clusters(
   x,
   algorithm = "dbscan",
-  tolerance_factor = 0.1,
+  min_gap_factor = 1,
+  prefer = "rows",
   verbose = getOption("pdftextclusteR.verbose", TRUE),
+  tolerance_factor = lifecycle::deprecated(),
   ...
 )
 }
@@ -18,13 +20,22 @@ pdf_detect_clusters(
 \item{algorithm}{the algorithm used to detect text columns or text
 boxes: \code{"dbscan"} (default), \code{"jpclust"}, \code{"sNNclust"} or \code{"hdbscan"}.}
 
-\item{tolerance_factor}{numeric; factor used for column detection when
-renumbering. Higher values allow more variation in x-coordinates.
-Default is 0.1 (10\% of page width).}
+\item{min_gap_factor}{numeric; the minimal whitespace band used to
+separate groups of clusters when ordering them in reading order,
+expressed as a multiple of the most common word height on the page.
+Default 1.}
+
+\item{prefer}{\code{"rows"} (default) or \code{"columns"}: when a group of
+clusters can be split both horizontally and vertically, which cut
+direction wins. With \code{"rows"}, a full-width element above two columns
+is read before those columns.}
 
 \item{verbose}{logical; if \code{FALSE}, progress bars and informational
 messages are suppressed. Defaults to the package option
 \code{pdftextclusteR.verbose}, or \code{TRUE} when that option is not set.}
+
+\item{tolerance_factor}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} ignored; use
+\code{min_gap_factor} and \code{prefer} instead.}
 
 \item{...}{algorithm-specific arguments. See \code{\link[dbscan:dbscan]{dbscan::dbscan()}},
 \code{\link[dbscan:jpclust]{dbscan::jpclust()}}, \code{\link[dbscan:sNNclust]{dbscan::sNNclust()}} and \code{\link[dbscan:hdbscan]{dbscan::hdbscan()}}.}
@@ -43,8 +54,10 @@ between their bounding boxes. Accepts a \link{PdfDocument} (as returned by
 read with \code{\link[=pdf_read]{pdf_read()}} first).
 
 This package directly utilizes the clustering algorithms implemented in
-the \link[dbscan:dbscan]{dbscan} package. Detected clusters are renumbered in reading order:
-column by column, top to bottom.
+the \link[dbscan:dbscan]{dbscan} package. Detected clusters are renumbered in reading
+order using a recursive XY-cut: groups of clusters separated by
+whitespace are read top to bottom, and columns within such a group left
+to right.
 }
 \examples{
 # A single page

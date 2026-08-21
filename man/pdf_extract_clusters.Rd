@@ -8,6 +8,7 @@ pdf_extract_clusters(
   x,
   combine = TRUE,
   include_noise = FALSE,
+  dehyphenate = FALSE,
   verbose = getOption("pdftextclusteR.verbose", TRUE),
   ...
 )
@@ -23,6 +24,11 @@ list of tibbles is returned, one per page.}
 \item{include_noise}{logical; if \code{FALSE} (default), words that were not
 assigned to any cluster (noise, \code{.cluster == 0}) are excluded from the
 output. Set to \code{TRUE} to include them as cluster 0.}
+
+\item{dehyphenate}{logical; if \code{TRUE}, words that are hyphenated across
+a line break are merged (a word ending in \code{-} at the end of a line is
+joined with the next word when that word starts with a lowercase
+letter). Default \code{FALSE}.}
 
 \item{verbose}{logical; if \code{FALSE}, progress bars and informational
 messages are suppressed. Defaults to the package option
@@ -42,6 +48,12 @@ As an end user, you mainly want to work with the text from the
 different detected text clusters. This function combines the text from
 each cluster into a character string and places it in a tibble, with a
 word count per cluster.
+}
+\details{
+The text of each cluster is built in visual reading order:
+words are grouped into lines from top to bottom, and read from left
+to right within each line. Lines are separated by a newline
+character.
 }
 \examples{
 # A single page

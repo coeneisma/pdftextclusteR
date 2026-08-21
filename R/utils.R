@@ -16,3 +16,14 @@ pdf_progress_bar <- function(action, total) {
     .envir = parent.frame()
   )
 }
+
+#' Warn once when the deprecated tolerance_factor argument is supplied
+#' @noRd
+warn_tolerance_factor <- function(tolerance_factor) {
+  if (lifecycle::is_present(tolerance_factor)) {
+    lifecycle::deprecate_warn(
+      "0.1.0", "pdf_detect_clusters(tolerance_factor)",
+      details = "Cluster ordering now uses a recursive XY-cut; see `min_gap_factor` and `prefer`."
+    )
+  }
+}

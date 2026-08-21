@@ -8,15 +8,24 @@
 #' read with [pdf_read()] first).
 #'
 #' This package directly utilizes the clustering algorithms implemented in
-#' the [dbscan] package. Detected clusters are renumbered in reading order:
-#' column by column, top to bottom.
+#' the [dbscan] package. Detected clusters are renumbered in reading
+#' order using a recursive XY-cut: groups of clusters separated by
+#' whitespace are read top to bottom, and columns within such a group left
+#' to right.
 #'
 #' @param x a [PdfDocument], a [PdfPage], or a path/URL to a PDF file.
 #' @param algorithm the algorithm used to detect text columns or text
 #'   boxes: `"dbscan"` (default), `"jpclust"`, `"sNNclust"` or `"hdbscan"`.
-#' @param tolerance_factor numeric; factor used for column detection when
-#'   renumbering. Higher values allow more variation in x-coordinates.
-#'   Default is 0.1 (10% of page width).
+#' @param min_gap_factor numeric; the minimal whitespace band used to
+#'   separate groups of clusters when ordering them in reading order,
+#'   expressed as a multiple of the most common word height on the page.
+#'   Default 1.
+#' @param prefer `"rows"` (default) or `"columns"`: when a group of
+#'   clusters can be split both horizontally and vertically, which cut
+#'   direction wins. With `"rows"`, a full-width element above two columns
+#'   is read before those columns.
+#' @param tolerance_factor `r lifecycle::badge('deprecated')` ignored; use
+#'   `min_gap_factor` and `prefer` instead.
 #' @param verbose logical; if `FALSE`, progress bars and informational
 #'   messages are suppressed. Defaults to the package option
 #'   `pdftextclusteR.verbose`, or `TRUE` when that option is not set.
@@ -38,23 +47,28 @@
 #'   pdf_detect_clusters(algorithm = "sNNclust", minPts = 5)
 pdf_detect_clusters <- S7::new_generic(
   "pdf_detect_clusters", "x",
-  function(x, algorithm = "dbscan", tolerance_factor = 0.1,
-           verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
+  function(x, algorithm = "dbscan", min_gap_factor = 1, prefer = "rows",
+           verbose = getOption("pdftextclusteR.verbose", TRUE),
+           tolerance_factor = lifecycle::deprecated(), ...) {
     S7::S7_dispatch()
   }
 )
 
 S7::method(pdf_detect_clusters, S7::class_character) <- function(
-    x, algorithm = "dbscan", tolerance_factor = 0.1,
-    verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
+    x, algorithm = "dbscan", min_gap_factor = 1, prefer = "rows",
+    verbose = getOption("pdftextclusteR.verbose", TRUE),
+    tolerance_factor = lifecycle::deprecated(), ...) {
   pdf_detect_clusters(pdf_read(x), algorithm = algorithm,
-                      tolerance_factor = tolerance_factor,
-                      verbose = verbose, ...)
+                      min_gap_factor = min_gap_factor, prefer = prefer,
+                      verbose = verbose,
+                      tolerance_factor = tolerance_factor, ...)
 }
 
 S7::method(pdf_detect_clusters, PdfDocument) <- function(
-    x, algorithm = "dbscan", tolerance_factor = 0.1,
-    verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
+    x, algorithm = "dbscan", min_gap_factor = 1, prefer = "rows",
+    verbose = getOption("pdftextclusteR.verbose", TRUE),
+    tolerance_factor = lifecycle::deprecated(), ...) {
+  warn_tolerance_factor(tolerance_factor)
 
   total_pages <- length(x@pages)
   show_progress <- verbose && total_pages > 1
@@ -66,7 +80,7 @@ S7::method(pdf_detect_clusters, PdfDocument) <- function(
   pages <- vector("list", total_pages)
   for (i in seq_len(total_pages)) {
     pages[[i]] <- detect_clusters_on_page(x@pages[[i]], algorithm,
-                                          tolerance_factor, ...)
+                                          min_gap_factor, prefer, ...)
     if (show_progress) cli::cli_progress_update()
   }
   if (show_progress) cli::cli_progress_done()
@@ -84,10 +98,11 @@ S7::method(pdf_detect_clusters, PdfDocument) <- function(
 }
 
 S7::method(pdf_detect_clusters, PdfPage) <- function(
-    x, algorithm = "dbscan", tolerance_factor = 0.1,
-    verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
-
-  result <- detect_clusters_on_page(x, algorithm, tolerance_factor, ...)
+    x, algorithm = "dbscan", min_gap_factor = 1, prefer = "rows",
+    verbose = getOption("pdftextclusteR.verbose", TRUE),
+    tolerance_factor = lifecycle::deprecated(), ...) {
+  warn_tolerance_factor(tolerance_factor)
+  result <- detect_clusters_on_page(x, algorithm, min_gap_factor, prefer, ...)
   if (verbose) {
     if (nrow(x@words) == 0) {
       cli::cli_alert_danger("The provided page contains no text. No clusters detected.")
@@ -103,88 +118,18 @@ S7::method(pdf_detect_clusters, PdfPage) <- function(
 #'
 #' @param page a PdfPage
 #' @noRd
-detect_clusters_on_page <- function(page, algorithm, tolerance_factor, ...) {
+detect_clusters_on_page <- function(page, algorithm, min_gap_factor, prefer, ...) {
   words <- page@words
   if (nrow(words) > 0) {
     words <- pdf_detect_clusters_page(words, algorithm, ...)
-    words <- pdf_renumber_clusters_page(words, tolerance_factor)
+    words <- order_clusters_page(words, min_gap_factor = min_gap_factor,
+                                 prefer = prefer)
   }
   PdfClusters(
     words = words, number = page@number,
     width = page@width, height = page@height,
     algorithm = algorithm, params = list(...)
   )
-}
-
-#' Renumber clusters in logical reading order
-#'
-#' @param pdf_page_clusters a tibble with clusters from pdf_detect_clusters_page
-#' @param tolerance_factor tolerance factor for column detection
-#' @noRd
-#' @return a tibble with renumbered clusters
-pdf_renumber_clusters_page <- function(pdf_page_clusters, tolerance_factor = 0.1) {
-  # Check if there are clusters to renumber
-  if (length(unique(pdf_page_clusters$.cluster)) <= 1) {
-    return(pdf_page_clusters)  # No clusters to renumber
-  }
-
-  # Calculate the left edge and vertical center of each cluster
-  cluster_positions <- pdf_page_clusters |>
-    dplyr::group_by(.cluster) |>
-    dplyr::summarise(
-      x_left = min(x),  # Left edge of the cluster
-      y_center = (min(y) + max(y + height)) / 2,  # Vertical center for ordering within columns
-      .groups = 'drop'
-    ) |>
-    dplyr::filter(.cluster != 0)  # Ignore noise (cluster 0)
-
-  # Determine page properties
-  page_width <- max(pdf_page_clusters$x + pdf_page_clusters$width) - min(pdf_page_clusters$x)
-  tolerance <- page_width * tolerance_factor
-
-  # Detect columns (group by x-coordinate with tolerance)
-  cluster_columns <- cluster_positions |>
-    dplyr::mutate(
-      # Round x_left to nearest multiple of tolerance to group into columns
-      column_approx = round(x_left / tolerance) * tolerance
-    ) |>
-    dplyr::arrange(column_approx, y_center) |>
-    dplyr::group_by(column_approx) |>
-    dplyr::mutate(column_number = dplyr::cur_group_id()) |>
-    dplyr::ungroup() |>
-    dplyr::arrange(column_number, y_center) |>
-    dplyr::mutate(new_cluster = dplyr::row_number())
-
-  # Create mapping from old to new cluster numbers
-  cluster_mapping <- cluster_columns |>
-    dplyr::select(.cluster, new_cluster) |>
-    tibble::deframe()
-
-  # First, convert to numeric for the mapping operations
-  numeric_clusters <- pdf_page_clusters |>
-    dplyr::mutate(.cluster_num = as.numeric(as.character(.cluster)))
-
-  # Apply mapping to get new numeric cluster values
-  mapped_clusters <- numeric_clusters |>
-    dplyr::mutate(
-      .cluster_new = dplyr::if_else(
-        .cluster_num == 0,
-        0,
-        as.numeric(cluster_mapping[as.character(.cluster_num)])
-      )
-    )
-
-  # Convert back to factor with the same levels structure as original
-  max_cluster <- max(mapped_clusters$.cluster_new)
-  renumbered_clusters <- mapped_clusters |>
-    dplyr::mutate(
-      .cluster = factor(.cluster_new, levels = 0:max_cluster),
-      # Remove temporary columns
-      .cluster_num = NULL,
-      .cluster_new = NULL
-    )
-
-  return(renumbered_clusters)
 }
 
 #' Detect Columns and Text Boxes in PDF Page
@@ -270,6 +215,4 @@ utils::globalVariables(c(".cluster", "height", "width", "font_name", "words",
                          "page", "text",
                          "x", "x_center", "xmax", "xmin",
                          "y", "y_center", "ymax", "ymin",
-                         "word_count", "x_left", "column_approx",
-                         "column_number", "new_cluster", ".cluster_num",
-                         ".cluster_new"))
+                         "word_count"))
