@@ -1,0 +1,58 @@
+# Runs covr to measure test coverage and fails when coverage drops below
+# the threshold. Self-contained: no external coverage service involved.
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+name: test-coverage.yaml
+
+permissions: read-all
+
+jobs:
+  test-coverage:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      COVERAGE_THRESHOLD: 80
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::covr
+          needs: coverage
+
+      - name: Test coverage
+        run: |
+          cov <- covr::package_coverage(
+            quiet = FALSE,
+            clean = FALSE,
+            install_path = file.path(normalizePath(Sys.getenv("RUNNER_TEMP"), winslash = "/"), "package")
+          )
+          print(cov)
+          pct <- covr::percent_coverage(cov)
+          threshold <- as.numeric(Sys.getenv("COVERAGE_THRESHOLD", "80"))
+          message(sprintf("Coverage: %.2f%% (threshold: %.0f%%)", pct, threshold))
+          if (pct < threshold) {
+            stop(sprintf("Coverage %.2f%% is below the threshold of %.0f%%", pct, threshold))
+          }
+        shell: Rscript {0}
+
+      - name: Show testthat output
+        if: always()
+        run: |
+          find '${{ runner.temp }}/package' -name 'testthat.Rout*' -exec cat '{}' \; || true
+        shell: bash
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-test-failures
+          path: ${{ runner.temp }}/package
