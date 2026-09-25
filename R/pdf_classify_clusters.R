@@ -72,10 +72,11 @@ pdf_types <- c("body", "heading", "caption", "figure_text",
 #' @noRd
 cluster_features_page <- function(page, rules) {
   all_words <- page@words
-  words <- dplyr::filter(all_words, .cluster != 0)
-  if (nrow(all_words) == 0) {
+  # Pages without text have no .cluster column at all
+  if (nrow(all_words) == 0 || !".cluster" %in% names(all_words)) {
     return(NULL)
   }
+  words <- dplyr::filter(all_words, .cluster != 0)
   has_font <- all(c("font_name", "font_size") %in% names(all_words))
   page_height <- if (!is.na(page@height)) page@height else
     max(all_words$y + all_words$height)

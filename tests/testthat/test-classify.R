@@ -191,3 +191,14 @@ test_that("isolated page numbers (noise words) are detected and promoted", {
   text <- pdf_extract_text(doc, verbose = FALSE)
   expect_false(any(text$text == "2"))
 })
+
+test_that("classification handles pages without text", {
+  empty <- PdfClusters(words = npo[[7]]@words[0, ], number = 2L,
+                       algorithm = "dbscan", params = list())
+  doc <- pdf_detect_clusters(npo[7:8], verbose = FALSE)
+  doc@pages <- append(doc@pages, list(empty), after = 1)
+
+  classified <- pdf_classify_clusters(doc, verbose = FALSE)
+  expect_length(classified, 3)
+  expect_equal(nrow(classified[[2]]@words), 0)
+})

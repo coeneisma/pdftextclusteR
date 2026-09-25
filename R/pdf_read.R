@@ -78,10 +78,21 @@ pdf_read <- function(path, font_info = TRUE,
       if (verbose) {
         cli::cli_alert_info("Running OCR on {sum(need_ocr)} page{?s} (language: {ocr_language}).")
       }
-      ocr_result <- pdftools::pdf_ocr_data(
-        path, pages = which(need_ocr),
-        language = ocr_language, dpi = ocr_dpi)
-      words_list[need_ocr] <- lapply(ocr_result, ocr_to_words, dpi = ocr_dpi)
+      ocr_result <- tryCatch(
+        pdftools::pdf_ocr_data(path, pages = which(need_ocr),
+                               language = ocr_language, dpi = ocr_dpi),
+        error = function(e) {
+          n_ocr <- sum(need_ocr)
+          cli::cli_warn(c(
+            "OCR failed; {n_ocr} page{?s} {?is/are} read without a text layer.",
+            x = conditionMessage(e),
+            i = "Is the {.val {ocr_language}} training data installed? See {.fn tesseract::tesseract_download}."
+          ))
+          NULL
+        })
+      if (!is.null(ocr_result)) {
+        words_list[need_ocr] <- lapply(ocr_result, ocr_to_words, dpi = ocr_dpi)
+      }
     }
   }
 
