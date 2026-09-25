@@ -4,13 +4,35 @@
 \alias{pdf_read}
 \title{Read a PDF Document}
 \usage{
-pdf_read(path, font_info = TRUE)
+pdf_read(
+  path,
+  font_info = TRUE,
+  ocr = c("auto", "never", "always"),
+  ocr_language = "eng",
+  ocr_dpi = 300,
+  verbose = getOption("pdftextclusteR.verbose", TRUE)
+)
 }
 \arguments{
 \item{path}{path or URL of the PDF file.}
 
 \item{font_info}{logical; include the font name and font size of each
 word. Defaults to \code{TRUE}.}
+
+\item{ocr}{\code{"auto"} (default): OCR pages that have no text layer;
+\code{"never"}: no OCR; \code{"always"}: OCR every page, ignoring an existing
+text layer (useful when a PDF carries a bad text layer).}
+
+\item{ocr_language}{language passed to the OCR engine, e.g. \code{"eng"} or
+\code{"nld"}. The corresponding tesseract training data must be
+installed; see \code{\link[tesseract:tesseract_download]{tesseract::tesseract_download()}}.}
+
+\item{ocr_dpi}{resolution at which pages are rendered for OCR. Higher
+is more accurate but slower.}
+
+\item{verbose}{logical; if \code{FALSE}, informational messages are
+suppressed. Defaults to the package option \code{pdftextclusteR.verbose},
+or \code{TRUE} when that option is not set.}
 }
 \value{
 A \link{PdfDocument}.
@@ -22,6 +44,22 @@ Reads a PDF file into a \link{PdfDocument}: one \link{PdfPage} per page with the
 word data from \code{\link[pdftools:pdf_data]{pdftools::pdf_data()}} (including font information when
 available) and the page dimensions from \code{\link[pdftools:pdf_pagesize]{pdftools::pdf_pagesize()}}.
 }
+\section{Scanned pages and OCR}{
+
+
+Scanned PDFs contain images of text and no text layer, so
+\code{\link[pdftools:pdf_data]{pdftools::pdf_data()}} finds no words. By default (\code{ocr = "auto"}),
+pages without a text layer are run through OCR with
+\code{\link[pdftools:pdf_ocr_data]{pdftools::pdf_ocr_data()}}. This requires the \code{tesseract} package
+(listed under Suggests); when it is not installed, the affected pages
+stay empty and a warning explains how to install it.
+
+OCR-ed words have the same geometry columns as regular words (in
+points), plus an \code{ocr_confidence} column (0-100). Font information is
+not available for OCR-ed pages, so font-based classification rules do
+not apply there.
+}
+
 \examples{
 \dontrun{
 doc <- pdf_read("path/to/document.pdf")
