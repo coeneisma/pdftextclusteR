@@ -31,6 +31,7 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 Suggests: 
     knitr,
+    tesseract,
     rmarkdown,
     testthat (>= 3.0.0)
 VignetteBuilder: knitr

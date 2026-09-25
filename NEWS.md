@@ -47,6 +47,12 @@
 
 ## Other changes
 
+* Scanned pages (no text layer) are read through OCR when the
+  `tesseract` package is installed (`pdf_read(ocr = "auto")`, the
+  default); without it, a warning explains how to install it. OCR-ed
+  words carry an `ocr_confidence` column and flow through the rest of
+  the pipeline unchanged.
+
 * Implemented cluster algorithm, plot function and text extraction
   function; project and pkgdown-website deployed.
 * `pdf_extract_clusters()` returns one combined tibble by default
