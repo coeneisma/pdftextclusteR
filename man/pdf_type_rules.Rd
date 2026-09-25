@@ -5,8 +5,10 @@
 \title{Rules for Text Type Classification}
 \usage{
 pdf_type_rules(
+  margins = c("auto", "fixed"),
   top_margin = 0.15,
   bottom_margin = 0.12,
+  position_tolerance = 0.02,
   repeat_min_share = 0.3,
   repeat_min_pages = 3,
   heading_min_size_ratio = 1.15,
@@ -21,9 +23,19 @@ pdf_type_rules(
 )
 }
 \arguments{
+\item{margins}{\code{"auto"} (default) or \code{"fixed"}. With \code{"auto"}, page
+headers/footers are searched in wide bands (top and bottom 30\% of
+the page) and must additionally sit at a \emph{stable position} across
+pages (see \code{position_tolerance}) — this adapts to each document's
+actual margins. With \code{"fixed"}, the bands are exactly \code{top_margin}
+and \code{bottom_margin} and no positional stability is required.}
+
 \item{top_margin, bottom_margin}{fraction of the page height that counts
-as the top/bottom band in which page headers, footers and page
-numbers live.}
+as the top/bottom band when \code{margins = "fixed"}.}
+
+\item{position_tolerance}{maximal variation (as a fraction of the page
+height) in the vertical position of a repeated text across pages for
+it to count as a page header/footer when \code{margins = "auto"}.}
 
 \item{repeat_min_share}{minimal fraction of pages on which a
 (digit-masked) text must repeat in the same band to count as a page

@@ -112,9 +112,17 @@ classified[[18]] |>
 All thresholds live in a rules object. Pass a modified copy to
 `pdf_classify_clusters()`:
 
+By default the margins are adaptive (`margins = "auto"`): headers and
+footers are searched in wide bands (top and bottom 30% of the page), and
+a repeated text only qualifies when it sits at a *stable vertical
+position* across pages. This adapts to each document's actual margins —
+important when you process many documents with different layouts. With
+`margins = "fixed"` the bands are exactly `top_margin`/`bottom_margin`
+and no stability is required.
+
 ```{r}
-# A document with tall page headers: widen the top band
-rules <- pdf_type_rules(top_margin = 0.2)
+# Force narrow, fixed bands instead of the adaptive default
+rules <- pdf_type_rules(margins = "fixed", top_margin = 0.1)
 
 cibap[15:20] |>
   pdf_detect_clusters(verbose = FALSE) |>

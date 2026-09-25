@@ -5,9 +5,17 @@
 #' The thresholds used by [pdf_classify_clusters()]. Pass a modified copy
 #' to tune the classification without changing code.
 #'
+#' @param margins `"auto"` (default) or `"fixed"`. With `"auto"`, page
+#'   headers/footers are searched in wide bands (top and bottom 30% of
+#'   the page) and must additionally sit at a *stable position* across
+#'   pages (see `position_tolerance`) — this adapts to each document's
+#'   actual margins. With `"fixed"`, the bands are exactly `top_margin`
+#'   and `bottom_margin` and no positional stability is required.
 #' @param top_margin,bottom_margin fraction of the page height that counts
-#'   as the top/bottom band in which page headers, footers and page
-#'   numbers live.
+#'   as the top/bottom band when `margins = "fixed"`.
+#' @param position_tolerance maximal variation (as a fraction of the page
+#'   height) in the vertical position of a repeated text across pages for
+#'   it to count as a page header/footer when `margins = "auto"`.
 #' @param repeat_min_share minimal fraction of pages on which a
 #'   (digit-masked) text must repeat in the same band to count as a page
 #'   header/footer.
@@ -34,8 +42,10 @@
 #' @examples
 #' # Wider top band for documents with tall headers
 #' rules <- pdf_type_rules(top_margin = 0.2)
-pdf_type_rules <- function(top_margin = 0.15,
+pdf_type_rules <- function(margins = c("auto", "fixed"),
+                           top_margin = 0.15,
                            bottom_margin = 0.12,
+                           position_tolerance = 0.02,
                            repeat_min_share = 0.3,
                            repeat_min_pages = 3,
                            heading_min_size_ratio = 1.15,
@@ -47,7 +57,9 @@ pdf_type_rules <- function(top_margin = 0.15,
                            figure_numeric_share = 0.5,
                            figure_max_size_ratio = 0.85,
                            bold_pattern = "bold|black|heavy|semibold|[-_][789]00") {
-  as.list(environment())
+  rules <- as.list(environment())
+  rules$margins <- match.arg(margins)
+  rules
 }
 
 pdf_types <- c("body", "heading", "caption", "figure_text",
@@ -66,6 +78,10 @@ cluster_features_page <- function(page, rules) {
   has_font <- all(c("font_name", "font_size") %in% names(words))
   page_height <- if (!is.na(page@height)) page@height else
     max(words$y + words$height)
+
+  auto <- identical(rules$margins, "auto")
+  top_m <- if (auto) 0.30 else rules$top_margin
+  bottom_m <- if (auto) 0.30 else rules$bottom_margin
 
   words |>
     dplyr::group_by(.cluster) |>
@@ -89,8 +105,9 @@ cluster_features_page <- function(page, rules) {
     dplyr::ungroup() |>
     dplyr::mutate(
       page = page@number,
-      in_top = y_max <= rules$top_margin * page_height,
-      in_bottom = y_min >= (1 - rules$bottom_margin) * page_height,
+      page_height = page_height,
+      in_top = y_max <= top_m * page_height,
+      in_bottom = y_min >= (1 - bottom_m) * page_height,
       masked_text = gsub("[0-9]+", "#", text)
     )
 }
@@ -206,15 +223,26 @@ classify_types <- function(features, rules, n_pages) {
   # Page headers/footers: digit-masked text repeating in the same band.
   # Purely numeric clusters are exempt: they are page-number candidates
   # (their masks would be identical on every page by construction).
+  # With margins = "auto" the repeated text must also sit at a stable
+  # vertical position across pages, so wide bands stay safe.
+  auto <- identical(rules$margins, "auto")
   has_letters <- grepl("[[:alpha:]]", features$masked_text)
+  min_pages <- max(rules$repeat_min_pages, rules$repeat_min_share * n_pages)
   for (band in c("in_top", "in_bottom")) {
     in_band <- features[[band]] & has_letters
     if (!any(in_band)) next
+    sub <- features[in_band, , drop = FALSE]
     repeats <- stats::aggregate(
-      page ~ masked_text, data = features[in_band, , drop = FALSE],
-      FUN = function(p) length(unique(p)))
-    recurring <- repeats$masked_text[
-      repeats$page >= max(rules$repeat_min_pages, rules$repeat_min_share * n_pages)]
+      cbind(pages = page, spread = y_min, height = page_height) ~ masked_text,
+      data = data.frame(masked_text = sub$masked_text, page = sub$page,
+                        y_min = sub$y_min, page_height = sub$page_height),
+      FUN = identity, simplify = FALSE)
+    n_unique <- vapply(repeats$pages, function(p) length(unique(p)), numeric(1))
+    spread <- vapply(repeats$spread, function(y) diff(range(y)), numeric(1))
+    mean_height <- vapply(repeats$height, mean, numeric(1))
+    ok <- n_unique >= min_pages &
+      (!auto | spread <= rules$position_tolerance * mean_height)
+    recurring <- repeats$masked_text[ok]
     hit <- in_band & features$masked_text %in% recurring
     type[hit] <- if (band == "in_top") "page_header" else "page_footer"
   }

@@ -7,13 +7,13 @@ make_typed_page <- function(n) {
   }
   body_words <- dplyr::bind_rows(lapply(1:30, function(i) {
     word_row(3, paste0("woord", i),
-             x = 50 + (i %% 6) * 80, y = 200 + (i %/% 6) * 20)
+             x = 50 + (i %% 6) * 80, y = 340 + (i %/% 6) * 20)
   }))
   words <- dplyr::bind_rows(
     word_row(1, "Jaarrapport", 50, 20),
     word_row(1, "Testdocument", 120, 20),
-    word_row(2, "Sectie", 50, 150, size = 20, font = "Test-Bold"),
-    word_row(2, as.character(n), 130, 150, size = 20, font = "Test-Bold"),
+    word_row(2, "Sectie", 50, 300, size = 20, font = "Test-Bold"),
+    word_row(2, as.character(n), 130, 300, size = 20, font = "Test-Bold"),
     body_words,
     word_row(4, as.character(n), 300, 780)
   )
@@ -96,6 +96,60 @@ test_that("pdf_extract_text runs the whole pipeline", {
   expect_s3_class(res, "tbl_df")
   expect_true(all(c("page", ".cluster", ".type", "word_count", "text") %in% names(res)))
   expect_false(any(res$.type %in% c("page_header", "page_footer", "page_number")))
+})
+
+test_that("auto margins find footers outside the fixed bands", {
+  # Footer at 81% of the page height: outside the fixed bottom band
+  # (12%), inside the wide auto band (30%) at a stable position
+  add_footer <- function(page, n) {
+    footer <- tibble::tibble(width = 60, height = 10, x = 50, y = 650,
+                             space = TRUE, text = c("Rapportage", "vergezicht"),
+                             font_name = "Test-Regular", font_size = 10,
+                             .cluster = factor(5, levels = 0:5))
+    words <- dplyr::bind_rows(dplyr::mutate(page@words,
+                                            .cluster = factor(.cluster, levels = 0:5)),
+                              footer)
+    PdfClusters(words = words, number = page@number, width = 600, height = 800,
+                algorithm = "dbscan", params = list())
+  }
+  doc <- make_typed_doc()
+  doc@pages <- lapply(seq_along(doc@pages),
+                      function(i) add_footer(doc@pages[[i]], i))
+
+  auto <- pdf_classify_clusters(doc, verbose = FALSE)
+  w <- auto[[1]]@words
+  expect_equal(as.character(w$.type[w$text == "Rapportage"][1]), "page_footer")
+
+  fixed <- pdf_classify_clusters(doc, rules = pdf_type_rules(margins = "fixed"),
+                                 verbose = FALSE)
+  w <- fixed[[1]]@words
+  expect_equal(as.character(w$.type[w$text == "Rapportage"][1]), "body")
+})
+
+test_that("auto margins ignore repeated text at unstable positions", {
+  # The same masked text recurs in the top band, but at a different
+  # height on every page: not furniture
+  make_wandering_page <- function(n) {
+    words <- dplyr::bind_rows(
+      tibble::tibble(width = 60, height = 20, x = 50, y = 60 + n * 30,
+                     space = TRUE, text = c("Sectie", as.character(n)),
+                     font_name = "Test-Bold", font_size = 20,
+                     .cluster = factor(1, levels = 0:2)),
+      dplyr::bind_rows(lapply(1:20, function(i) {
+        tibble::tibble(width = 40, height = 10,
+                       x = 50 + (i %% 5) * 80, y = 400 + (i %/% 5) * 20,
+                       space = TRUE, text = paste0("woord", i),
+                       font_name = "Test-Regular", font_size = 10,
+                       .cluster = factor(2, levels = 0:2))
+      }))
+    )
+    PdfClusters(words = words, number = as.integer(n), width = 600,
+                height = 800, algorithm = "dbscan", params = list())
+  }
+  doc <- PdfDocument(pages = lapply(1:5, make_wandering_page))
+  classified <- pdf_classify_clusters(doc, verbose = FALSE)
+  w <- classified[[3]]@words
+  expect_equal(as.character(w$.type[w$text == "Sectie"][1]), "heading")
 })
 
 test_that("custom rules are respected", {
