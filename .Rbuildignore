@@ -12,3 +12,4 @@
 ^\.temp$
 ^\.test$
 ^\.Rhistory$
+^vignettes/articles$

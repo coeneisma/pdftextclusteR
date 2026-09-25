@@ -116,25 +116,36 @@ xy_cut <- function(boxes, min_gap, prefer = "rows") {
 #' @param prefer `"rows"` or `"columns"`: which cut direction wins when
 #'   both are possible
 #' @noRd
-order_clusters_page <- function(words, min_gap_factor = 1, prefer = "rows") {
-  ids <- unique(words$.cluster[words$.cluster != 0])
-  if (length(ids) <= 1) {
-    mapping <- stats::setNames(seq_along(ids), as.character(ids))
+order_clusters_page <- function(words, min_gap_factor = 1, prefer = "rows",
+                                exclude = NULL) {
+  boxes_all <- words |>
+    dplyr::filter(.cluster != 0) |>
+    dplyr::group_by(.cluster) |>
+    dplyr::summarise(
+      x_min = min(x), x_max = max(x + width),
+      y_min = min(y), y_max = max(y + height),
+      .groups = "drop"
+    )
+  exclude <- as.character(exclude)
+  boxes <- boxes_all[!as.character(boxes_all$.cluster) %in% exclude, , drop = FALSE]
+
+  ordered_ids <- if (nrow(boxes) <= 1) {
+    boxes$.cluster
   } else {
-    boxes <- words |>
-      dplyr::filter(.cluster != 0) |>
-      dplyr::group_by(.cluster) |>
-      dplyr::summarise(
-        x_min = min(x), x_max = max(x + width),
-        y_min = min(y), y_max = max(y + height),
-        .groups = "drop"
-      )
     heights <- table(words$height)
     modal_height <- as.numeric(names(heights)[which.max(heights)])
-    ordered_ids <- xy_cut(boxes, min_gap = modal_height * min_gap_factor,
-                          prefer = prefer)
-    mapping <- stats::setNames(seq_along(ordered_ids), as.character(ordered_ids))
+    xy_cut(boxes, min_gap = modal_height * min_gap_factor, prefer = prefer)
   }
+
+  # excluded clusters (e.g. headers/footers) come after the reading flow,
+  # top to bottom
+  excluded_boxes <- boxes_all[as.character(boxes_all$.cluster) %in% exclude, ,
+                              drop = FALSE]
+  ordered_ids <- c(ordered_ids,
+                   excluded_boxes$.cluster[order(excluded_boxes$y_min,
+                                                 excluded_boxes$x_min)])
+
+  mapping <- stats::setNames(seq_along(ordered_ids), as.character(ordered_ids))
   old <- as.character(words$.cluster)
   new <- ifelse(old == "0", 0L, mapping[old])
   words$.cluster <- factor(new, levels = 0:length(mapping))

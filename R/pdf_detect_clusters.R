@@ -211,7 +211,10 @@ pdf_detect_clusters_page <- function(pdf_data_page, algorithm = "dbscan", ...){
   return(broom::augment(cluster, pdf_data_page))
 }
 
-utils::globalVariables(c(".cluster", "height", "width", "font_name", "words",
+utils::globalVariables(c(".cluster", ".type", ".type_level", ".data",
+                         "x_min", "x_max", "y_min", "y_max",
+                         "xend", "yend", "xmid", "ymid",
+                         "height", "width", "font_name", "words",
                          "page", "text",
                          "x", "x_center", "xmax", "xmin",
                          "y", "y_center", "ymax", "ymin",

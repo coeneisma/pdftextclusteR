@@ -211,6 +211,47 @@ multiple_page_text_list <- multiple_page_clusters |>
 head(multiple_page_text_list[[5]], 5)
 ```
 
+## Classifying text types
+
+Not every cluster is running text: pages contain headings, page headers and footers, page numbers and chart labels. `pdf_classify_clusters()` assigns a type to every cluster. It works on document level, because the strongest signals span pages: headers and footers repeat in the same position, and page numbers increase in step with the page index.
+
+```{r}
+classified <- cibap |>
+  pdf_detect_clusters(verbose = FALSE) |>
+  pdf_classify_clusters()
+```
+
+The types are visible in the plot with `color_by = ".type"`:
+
+```{r, fig.width = 7, fig.height = 5}
+classified[[18]] |>
+  pdf_plot_clusters(color_by = ".type")
+```
+
+Classification also improves the reading order: page furniture (headers, footers, page numbers) is moved to the end of the cluster order, out of the reading flow.
+
+After classification, the extraction gains `.type` and `.type_level` columns, and unwanted types can be excluded:
+
+```{r}
+classified[[18]] |>
+  pdf_extract_clusters(exclude = c("page_footer", "figure_text")) |>
+  head(5)
+```
+
+The thresholds are bundled in a rules object that can be tuned. See the article [Text types and reading order](https://coeneisma.github.io/pdftextclusteR/articles/text-types.html) for how the classification works, how it interacts with the reading order, and how to tune it.
+
+## The one-step pipeline
+
+For the common case — clean text, no page furniture — `pdf_extract_text()` runs the whole pipeline (read, detect, classify, order, extract) with sensible defaults:
+
+```{r}
+cibap[15:20] |>
+  pdf_extract_text(verbose = FALSE) |>
+  head(5)
+```
+
+It also accepts a file path directly: `pdf_extract_text("path/to/document.pdf")`.
+
 ## Different algorithms
 
 The [dbscan](https://github.com/mhahsler/dbscan) package is used to detect the clusters. This package supports four different algorithms:

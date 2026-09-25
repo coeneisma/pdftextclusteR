@@ -1,0 +1,109 @@
+# Synthetic 5-page document with header, heading, body and page number
+make_typed_page <- function(n) {
+  word_row <- function(cluster, text, x, y, size = 10, font = "Test-Regular") {
+    tibble::tibble(width = nchar(text) * size * 0.5, height = size,
+                   x = x, y = y, space = TRUE, text = text,
+                   font_name = font, font_size = size, .cluster = cluster)
+  }
+  body_words <- dplyr::bind_rows(lapply(1:30, function(i) {
+    word_row(3, paste0("woord", i),
+             x = 50 + (i %% 6) * 80, y = 200 + (i %/% 6) * 20)
+  }))
+  words <- dplyr::bind_rows(
+    word_row(1, "Jaarrapport", 50, 20),
+    word_row(1, "Testdocument", 120, 20),
+    word_row(2, "Sectie", 50, 150, size = 20, font = "Test-Bold"),
+    word_row(2, as.character(n), 130, 150, size = 20, font = "Test-Bold"),
+    body_words,
+    word_row(4, as.character(n), 300, 780)
+  )
+  words$.cluster <- factor(words$.cluster, levels = 0:4)
+  PdfClusters(words = words, number = as.integer(n), width = 600, height = 800,
+              algorithm = "dbscan", params = list())
+}
+
+make_typed_doc <- function(n_pages = 5) {
+  PdfDocument(pages = lapply(seq_len(n_pages), make_typed_page))
+}
+
+test_that("headers, headings, body and page numbers are classified", {
+  classified <- pdf_classify_clusters(make_typed_doc(), verbose = FALSE)
+  w <- classified[[2]]@words
+  types <- unique(w[, c(".cluster", ".type")])
+  type_of <- function(txt) as.character(w$.type[w$text == txt][1])
+  expect_equal(type_of("Jaarrapport"), "page_header")
+  expect_equal(type_of("Sectie"), "heading")
+  expect_equal(type_of("woord1"), "body")
+  expect_equal(w$.type_level[w$text == "Sectie"][1], 1L)
+  # standalone page number at the bottom, tracking the page index
+  expect_equal(as.character(w$.type[w$y == 780][1]), "page_number")
+})
+
+test_that("page furniture is ordered after the reading flow", {
+  classified <- pdf_classify_clusters(make_typed_doc(), verbose = FALSE)
+  w <- classified[[1]]@words
+  cluster_of <- function(txt) as.integer(as.character(w$.cluster[w$text == txt][1]))
+  expect_equal(cluster_of("Sectie"), 1)      # heading first
+  expect_equal(cluster_of("woord1"), 2)      # body second
+  expect_gt(cluster_of("Jaarrapport"), 2)    # furniture after the flow
+})
+
+test_that("exclude drops types from the extraction and adds .type columns", {
+  classified <- pdf_classify_clusters(make_typed_doc(), verbose = FALSE)
+  all_text <- pdf_extract_clusters(classified, verbose = FALSE)
+  expect_true(all(c(".type", ".type_level") %in% names(all_text)))
+
+  clean <- pdf_extract_clusters(
+    classified, exclude = c("page_header", "page_number"), verbose = FALSE)
+  expect_false(any(clean$.type %in% c("page_header", "page_number")))
+  expect_true(any(all_text$.type == "page_header"))
+})
+
+test_that("exclude without classification is a clear error", {
+  clusters <- pdf_detect_clusters(npo[[12]], verbose = FALSE)
+  expect_error(pdf_extract_clusters(clusters, exclude = "page_footer"),
+               "pdf_classify_clusters")
+})
+
+test_that("classifying a single page warns about missing document signals", {
+  page <- make_typed_page(1)
+  expect_message(pdf_classify_clusters(page), "single page")
+  result <- pdf_classify_clusters(page, verbose = FALSE)
+  expect_true(S7::S7_inherits(result, PdfClusters))
+  expect_true(".type" %in% names(result@words))
+})
+
+test_that("color_by .type works after classification and errors before", {
+  classified <- pdf_classify_clusters(make_typed_doc(), verbose = FALSE)
+  p <- pdf_plot_clusters(classified[[1]], color_by = ".type")
+  expect_s3_class(p, c("gg", "ggplot"))
+
+  clusters <- pdf_detect_clusters(npo[[12]], verbose = FALSE)
+  expect_error(pdf_plot_clusters(clusters, color_by = ".type"),
+               "pdf_classify_clusters")
+})
+
+test_that("footers in a real document are detected via repetition", {
+  res <- cibap[15:20] |>
+    pdf_detect_clusters(verbose = FALSE) |>
+    pdf_classify_clusters(verbose = FALSE)
+  types <- unlist(lapply(res@pages, function(p) as.character(p@words$.type)))
+  expect_true("page_footer" %in% types)
+})
+
+test_that("pdf_extract_text runs the whole pipeline", {
+  res <- pdf_extract_text(make_typed_doc(), verbose = FALSE)
+  expect_s3_class(res, "tbl_df")
+  expect_true(all(c("page", ".cluster", ".type", "word_count", "text") %in% names(res)))
+  expect_false(any(res$.type %in% c("page_header", "page_footer", "page_number")))
+})
+
+test_that("custom rules are respected", {
+  # An extreme heading threshold: nothing qualifies as heading
+  rules <- pdf_type_rules(heading_min_size_ratio = 10,
+                          heading_bold_size_ratio = 10)
+  classified <- pdf_classify_clusters(make_typed_doc(), rules = rules,
+                                      verbose = FALSE)
+  w <- classified[[1]]@words
+  expect_false("heading" %in% as.character(w$.type))
+})

@@ -7,8 +7,11 @@ reference:
   - contents:
     - pdf_read
     - pdf_detect_clusters
+    - pdf_classify_clusters
+    - pdf_type_rules
     - pdf_plot_clusters
     - pdf_extract_clusters
+    - pdf_extract_text
   - title: Classes
   - contents:
     - PdfDocument

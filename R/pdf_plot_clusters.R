@@ -12,6 +12,9 @@
 #' @param show_order logical; if `TRUE`, arrows are drawn between the
 #'   clusters in reading order, making it easy to verify the order in
 #'   which [pdf_extract_clusters()] will return the text.
+#' @param color_by `".cluster"` (default) to color each cluster
+#'   individually, or `".type"` to color by text type (requires
+#'   [pdf_classify_clusters()]).
 #' @param verbose logical; if `FALSE`, informational messages are
 #'   suppressed. Defaults to the package option `pdftextclusteR.verbose`,
 #'   or `TRUE` when that option is not set.
@@ -33,23 +36,24 @@
 #'   pdf_plot_clusters()
 pdf_plot_clusters <- S7::new_generic(
   "pdf_plot_clusters", "x",
-  function(x, show_order = FALSE,
+  function(x, show_order = FALSE, color_by = ".cluster",
            verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
     S7::S7_dispatch()
   }
 )
 
 S7::method(pdf_plot_clusters, PdfClusters) <- function(
-    x, show_order = FALSE,
+    x, show_order = FALSE, color_by = ".cluster",
     verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
   if (nrow(x@words) == 0) {
     cli::cli_abort("The provided page contains no text and cannot be plotted.")
   }
-  pdf_plot_clusters_page(x@words, number = x@number, show_order = show_order)
+  pdf_plot_clusters_page(x@words, number = x@number, show_order = show_order,
+                         color_by = color_by)
 }
 
 S7::method(pdf_plot_clusters, PdfDocument) <- function(
-    x, show_order = FALSE,
+    x, show_order = FALSE, color_by = ".cluster",
     verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
 
   if (!all(vapply(x@pages, S7::S7_inherits, logical(1), class = PdfClusters))) {
@@ -60,7 +64,7 @@ S7::method(pdf_plot_clusters, PdfDocument) <- function(
   plots <- lapply(x@pages, function(page) {
     if (nrow(page@words) == 0) NULL else
       pdf_plot_clusters_page(page@words, number = page@number,
-                             show_order = show_order)
+                             show_order = show_order, color_by = color_by)
   })
 
   successful_plots <- sum(!vapply(plots, is.null, logical(1)))
@@ -95,7 +99,10 @@ S7::method(pdf_plot_clusters, PdfDocument) <- function(
 #'   pdf_detect_clusters() |>
 #'   pdf_plot_clusters()
 pdf_plot_clusters_page <- function(pdf_data_page_clusters, number = NA,
-                                   show_order = FALSE){
+                                   show_order = FALSE, color_by = ".cluster"){
+  if (color_by == ".type" && !".type" %in% names(pdf_data_page_clusters)) {
+    cli::cli_abort("{.code color_by = \".type\"} requires text types. Run {.fn pdf_classify_clusters} first.")
+  }
 
   # Check if the page is empty
   if (nrow(pdf_data_page_clusters) == 0) {
@@ -107,6 +114,7 @@ pdf_plot_clusters_page <- function(pdf_data_page_clusters, number = NA,
     sprintf("Detected clusters on page %s", number)
 
   # Data for outlines
+  has_types <- ".type" %in% names(pdf_data_page_clusters)
   merged_data <- pdf_data_page_clusters |>
     dplyr::group_by(.cluster) |>
     dplyr::summarise(
@@ -114,6 +122,7 @@ pdf_plot_clusters_page <- function(pdf_data_page_clusters, number = NA,
       xmax = max(x + width),
       ymin = min(y),
       ymax = max(y + height),
+      .type = if (has_types) .type[1] else NULL,
       .groups = 'drop'
     ) |>
     dplyr::mutate(
@@ -130,7 +139,7 @@ pdf_plot_clusters_page <- function(pdf_data_page_clusters, number = NA,
       data = merged_data |>
         dplyr::filter(.cluster != 0),
       ggplot2::aes(
-        fill = .cluster,
+        fill = .data[[color_by]],
         xmin = xmin - 5,
         xmax = xmax + 5,
         ymin = ymin - 5,
@@ -143,7 +152,7 @@ pdf_plot_clusters_page <- function(pdf_data_page_clusters, number = NA,
     ggplot2::geom_rect(
       data = pdf_data_page_clusters,
       ggplot2::aes(
-        fill = .cluster,
+        fill = .data[[color_by]],
         xmin = x,
         xmax = x + width,
         ymin = y,

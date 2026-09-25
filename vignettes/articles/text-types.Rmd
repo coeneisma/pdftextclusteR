@@ -1,0 +1,131 @@
+---
+title: "Text types and reading order"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+```{r setup, message = FALSE}
+library(pdftextclusteR)
+```
+
+## The pipeline
+
+`pdftextclusteR` processes a document in four steps:
+
+```r
+doc <- pdf_read("document.pdf")     # 1. read: words + fonts + page sizes
+clusters <- pdf_detect_clusters(doc)   # 2. cluster words into text blocks
+classified <- pdf_classify_clusters(clusters)  # 3. assign text types
+text <- pdf_extract_clusters(classified)       # 4. extract the text
+```
+
+The steps are deliberately separate:
+
+* **Detection is per page and you typically run it more than once.** The
+  usual workflow is a tuning loop: detect, plot, adjust parameters,
+  detect again. Only the final result needs classification.
+* **Classification is document-level.** Its strongest signals span pages:
+  a footer is recognized because (nearly) the same text recurs at the
+  same position on most pages, and a page number because its value
+  increases in step with the page index. While clustering a single page
+  that information does not exist yet, so the steps are sequential by
+  nature.
+
+When you do not need to inspect or tune anything, `pdf_extract_text()`
+runs all four steps with sensible defaults — it also accepts a file path:
+
+```{r}
+text <- pdf_extract_text(cibap[15:20], verbose = FALSE)
+head(text, 5)
+```
+
+## What the classifier looks at
+
+`pdf_classify_clusters()` assigns one of these types to every cluster:
+
+| Type | Meaning | Main signal |
+|------|---------|-------------|
+| `body` | running text | the default when nothing else matches |
+| `heading` | section titles, with `.type_level` | font size relative to the body text, bold |
+| `caption` | figure/table captions | text pattern ("Figuur", "Table", ...) |
+| `figure_text` | chart and figure labels | few words, numeric, small font |
+| `page_header` | running page header | repetition in the top band |
+| `page_footer` | running page footer | repetition in the bottom band |
+| `page_number` | standalone page numbers | numeric value tracks the page index |
+
+Repetition is checked on *digit-masked* text, so "Rapport 2023 — pag. 4"
+and "Rapport 2023 — pag. 5" count as the same footer.
+
+```{r}
+classified <- cibap |>
+  pdf_detect_clusters(verbose = FALSE) |>
+  pdf_classify_clusters()
+```
+
+`color_by = ".type"` shows the result. Page 18 is an infographic: the
+title and chart titles are headings, the chart labels are `figure_text`,
+and the footer is recognized:
+
+```{r}
+classified[[18]] |>
+  pdf_plot_clusters(color_by = ".type")
+```
+
+## Text types and the reading order
+
+Clusters are numbered in reading order (a recursive XY-cut over the
+cluster bounding boxes; see `?pdf_detect_clusters`). Classification
+improves that order: page furniture — headers, footers and page
+numbers — is taken out of the XY-cut and numbered *after* the reading
+flow, so the flow contains only real content.
+
+`show_order = TRUE` draws the order as arrows:
+
+```{r}
+classified[[44]] |>
+  pdf_plot_clusters(show_order = TRUE, color_by = ".type")
+```
+
+## Excluding types from the extraction
+
+After classification the extraction carries `.type` and `.type_level`
+columns, and `exclude` drops unwanted types:
+
+```{r}
+classified[[18]] |>
+  pdf_extract_clusters(exclude = c("page_footer", "figure_text")) |>
+  head(5)
+```
+
+`pdf_extract_text()` excludes `page_header`, `page_footer` and
+`page_number` by default.
+
+## Tuning the rules
+
+All thresholds live in a rules object. Pass a modified copy to
+`pdf_classify_clusters()`:
+
+```{r}
+# A document with tall page headers: widen the top band
+rules <- pdf_type_rules(top_margin = 0.2)
+
+cibap[15:20] |>
+  pdf_detect_clusters(verbose = FALSE) |>
+  pdf_classify_clusters(rules = rules, verbose = FALSE)
+```
+
+See `?pdf_type_rules` for all thresholds. Two things to keep in mind:
+
+* Repetition-based types need multiple pages (by default at least 3
+  matching pages and 30% of the document). On a single page or a small
+  subset, headers and footers will not be detected.
+* When precision matters more than recall — excluded text is *gone* —
+  prefer conservative thresholds: a missed footer is a small nuisance,
+  body text wrongly excluded is data loss.
