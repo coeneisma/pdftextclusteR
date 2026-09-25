@@ -71,19 +71,20 @@ pdf_types <- c("body", "heading", "caption", "figure_text",
 #' @param rules result of pdf_type_rules()
 #' @noRd
 cluster_features_page <- function(page, rules) {
-  words <- dplyr::filter(page@words, .cluster != 0)
-  if (nrow(words) == 0) {
+  all_words <- page@words
+  words <- dplyr::filter(all_words, .cluster != 0)
+  if (nrow(all_words) == 0) {
     return(NULL)
   }
-  has_font <- all(c("font_name", "font_size") %in% names(words))
+  has_font <- all(c("font_name", "font_size") %in% names(all_words))
   page_height <- if (!is.na(page@height)) page@height else
-    max(words$y + words$height)
+    max(all_words$y + all_words$height)
 
   auto <- identical(rules$margins, "auto")
   top_m <- if (auto) 0.30 else rules$top_margin
   bottom_m <- if (auto) 0.30 else rules$bottom_margin
 
-  words |>
+  cluster_part <- if (nrow(words) == 0) NULL else words |>
     dplyr::group_by(.cluster) |>
     dplyr::group_modify(function(w, key) {
       size <- if (has_font) modal_value(w$font_size) else modal_value(w$height)
@@ -103,6 +104,35 @@ cluster_features_page <- function(page, rules) {
       )
     }) |>
     dplyr::ungroup() |>
+    dplyr::mutate(is_noise_word = FALSE, word_id = NA_integer_)
+
+  # Individual noise words that look like page numbers: a standalone page
+  # number is a single isolated word, which dbscan (minPts >= 2) can only
+  # label as noise. They take part in the page-number progression check.
+  noise_idx <- which(all_words$.cluster == 0 &
+                       grepl("^[0-9]{1,4}$", all_words$text))
+  noise_part <- if (length(noise_idx) == 0) NULL else {
+    w <- all_words[noise_idx, ]
+    tibble::tibble(
+      .cluster = factor(0, levels = levels(all_words$.cluster)),
+      n_words = 1L,
+      n_lines = 1L,
+      y_min = w$y,
+      y_max = w$y + w$height,
+      size = if (has_font) w$font_size else w$height,
+      bold_share = 0,
+      numeric_share = 1,
+      text = w$text,
+      is_noise_word = TRUE,
+      word_id = noise_idx
+    )
+  }
+
+  features <- dplyr::bind_rows(cluster_part, noise_part)
+  if (is.null(features) || nrow(features) == 0) {
+    return(NULL)
+  }
+  features |>
     dplyr::mutate(
       page = page@number,
       page_height = page_height,
@@ -192,7 +222,9 @@ S7::method(pdf_classify_clusters, PdfDocument) <- function(
   })
 
   if (verbose) {
-    counts <- table(features$type)
+    counts <- table(features$type[!features$is_noise_word |
+                                    (!is.na(features$type) &
+                                       features$type == "page_number")])
     counts <- counts[counts > 0]
     cli::cli_alert_success(
       "Classified {nrow(features)} cluster{?s} on {n_pages} page{?s}: {paste(names(counts), counts, sep = ' ', collapse = ', ')}."
@@ -247,7 +279,8 @@ classify_types <- function(features, rules, n_pages) {
     type[hit] <- if (band == "in_top") "page_header" else "page_footer"
   }
 
-  # Page numbers: short numeric clusters whose value tracks the page number
+  # Page numbers: short numeric clusters (or isolated noise words) whose
+  # value tracks the page number
   candidate <- type == "body" & (features$in_top | features$in_bottom) &
     features$n_words <= 2 & grepl("^[0-9]{1,4}$", trimws(features$text))
   if (sum(candidate) >= rules$repeat_min_pages) {
@@ -260,13 +293,16 @@ classify_types <- function(features, rules, n_pages) {
     }
   }
 
+  # Noise words are only ever page-number candidates
+  type[features$is_noise_word & type != "page_number"] <- NA
+
   # Captions
-  caption <- type == "body" &
+  caption <- !is.na(type) & type == "body" &
     grepl(rules$caption_pattern, features$text, ignore.case = TRUE)
   type[caption] <- "caption"
 
   # Headings: larger or bold, and short
-  heading <- type == "body" &
+  heading <- !is.na(type) & type == "body" &
     (features$size_ratio >= rules$heading_min_size_ratio |
        (features$bold_share >= 0.6 &
           features$size_ratio >= rules$heading_bold_size_ratio)) &
@@ -275,7 +311,7 @@ classify_types <- function(features, rules, n_pages) {
   type[heading] <- "heading"
 
   # Chart/figure label fragments
-  figure <- type == "body" &
+  figure <- !is.na(type) & type == "body" &
     features$n_words <= rules$figure_max_words &
     (features$numeric_share >= rules$figure_numeric_share |
        features$size_ratio <= rules$figure_max_size_ratio)
@@ -288,7 +324,7 @@ classify_types <- function(features, rules, n_pages) {
 #' @noRd
 add_heading_levels <- function(features) {
   features$type_level <- NA_integer_
-  is_heading <- features$type == "heading"
+  is_heading <- !is.na(features$type) & features$type == "heading"
   if (any(is_heading)) {
     sizes <- sort(unique(round(features$size[is_heading], 1)), decreasing = TRUE)
     features$type_level[is_heading] <-
@@ -304,16 +340,34 @@ apply_types_page <- function(page, page_features) {
   if (nrow(words) == 0 || nrow(page_features) == 0) {
     return(page)
   }
-  mapping <- stats::setNames(page_features$type,
-                             as.character(page_features$.cluster))
-  level_mapping <- stats::setNames(page_features$type_level,
-                                   as.character(page_features$.cluster))
+  cluster_features <- page_features[!page_features$is_noise_word, , drop = FALSE]
+  mapping <- stats::setNames(cluster_features$type,
+                             as.character(cluster_features$.cluster))
+  level_mapping <- stats::setNames(cluster_features$type_level,
+                                   as.character(cluster_features$.cluster))
   cl <- as.character(words$.cluster)
   words$.type <- factor(unname(mapping[cl]), levels = pdf_types)
   words$.type_level <- unname(level_mapping[cl])
 
-  furniture <- page_features$.cluster[
-    page_features$type %in% c("page_header", "page_footer", "page_number")]
+  # Promote noise words recognized as page numbers to their own cluster
+  promoted <- page_features[page_features$is_noise_word &
+                              !is.na(page_features$type) &
+                              page_features$type == "page_number", , drop = FALSE]
+  cl_int <- as.integer(as.character(words$.cluster))
+  next_id <- max(c(0L, cl_int), na.rm = TRUE)
+  for (idx in promoted$word_id) {
+    next_id <- next_id + 1L
+    cl_int[idx] <- next_id
+    words$.type[idx] <- "page_number"
+  }
+  words$.cluster <- factor(cl_int, levels = 0:next_id)
+
+  furniture <- c(
+    as.character(cluster_features$.cluster[
+      !is.na(cluster_features$type) &
+        cluster_features$type %in% c("page_header", "page_footer", "page_number")]),
+    as.character(utils::tail(0:next_id, nrow(promoted)))
+  )
   words <- order_clusters_page(words, exclude = furniture)
 
   PdfClusters(words = words, number = page@number,

@@ -38,6 +38,9 @@
   the extraction; the output includes `.type`/`.type_level` columns after
   classification.
 * `pdf_plot_clusters(color_by = ".type")` colors clusters by text type.
+* Standalone page numbers are detected even when they are isolated
+  words that the clustering labelled as noise; they are promoted to
+  their own cluster after the reading flow.
 * Header/footer detection adapts to the document by default
   (`pdf_type_rules(margins = "auto")`): repeated text in wide margin
   bands qualifies only at a stable vertical position across pages;

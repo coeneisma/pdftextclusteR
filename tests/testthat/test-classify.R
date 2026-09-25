@@ -161,3 +161,33 @@ test_that("custom rules are respected", {
   w <- classified[[1]]@words
   expect_false("heading" %in% as.character(w$.type))
 })
+
+test_that("isolated page numbers (noise words) are detected and promoted", {
+  # A standalone page number is a single isolated word: dbscan labels it
+  # noise (.cluster = 0), so classification must consider noise words too
+  add_noise_number <- function(page, n) {
+    number <- tibble::tibble(width = 15, height = 10, x = 300, y = 780,
+                             space = FALSE, text = as.character(n),
+                             font_name = "Test-Regular", font_size = 10,
+                             .cluster = factor(0, levels = 0:4))
+    words <- page@words[page@words$y != 780, ]  # drop the clustered number
+    words <- dplyr::bind_rows(words, number)
+    PdfClusters(words = words, number = page@number, width = 600, height = 800,
+                algorithm = "dbscan", params = list())
+  }
+  doc <- make_typed_doc()
+  doc@pages <- lapply(seq_along(doc@pages),
+                      function(i) add_noise_number(doc@pages[[i]], i))
+
+  classified <- pdf_classify_clusters(doc, verbose = FALSE)
+  w <- classified[[2]]@words
+  number_row <- w[w$y == 780, ]
+  expect_equal(as.character(number_row$.type), "page_number")
+  expect_true(number_row$.cluster != 0)
+  # promoted cluster sits after the reading flow
+  expect_equal(as.integer(as.character(number_row$.cluster)),
+               max(as.integer(as.character(w$.cluster))))
+  # and the default pipeline excludes it
+  text <- pdf_extract_text(doc, verbose = FALSE)
+  expect_false(any(text$text == "2"))
+})
