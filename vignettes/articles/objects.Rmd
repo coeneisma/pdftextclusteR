@@ -1,0 +1,125 @@
+---
+title: "Working with PdfDocument objects"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+```{r setup, message = FALSE}
+library(pdftextclusteR)
+```
+
+`pdf_read()` returns a `PdfDocument`: a list-like object with one
+`PdfPage` per page. After `pdf_detect_clusters()` the pages are
+`PdfClusters` objects — the same pages, with every word assigned to a
+cluster. This article walks through the generics that work on all three.
+The bundled `cibap` dataset is a `PdfDocument`, so we use it directly.
+
+## Printing
+
+Every object prints a one-line summary:
+
+```{r}
+cibap
+cibap[[18]]
+
+clusters <- cibap[[18]] |> pdf_detect_clusters(verbose = FALSE)
+clusters
+```
+
+A clustered document also reports the algorithm:
+
+```{r}
+doc_clusters <- cibap[15:20] |> pdf_detect_clusters(verbose = FALSE)
+doc_clusters
+```
+
+## Subsetting: `length()`, `[[` and `[`
+
+A document behaves like a list of pages: `[[` returns one page, `[`
+returns a smaller `PdfDocument`:
+
+```{r}
+length(cibap)
+cibap[[18]]@number
+cibap[15:20]
+```
+
+Note that pages keep their real page number: `cibap[15:20][[1]]` is page
+15, and the `page` column in extracted text says 15, not 1.
+
+## Properties: `@`
+
+Object metadata lives in properties, accessed with `@`:
+
+```{r}
+cibap@source
+cibap[[18]]@number
+cibap[[18]]@width
+cibap[[18]]@height
+```
+
+A `PdfClusters` page adds the algorithm and the parameters you passed:
+
+```{r}
+tuned <- cibap[[18]] |> pdf_detect_clusters(eps = 10, verbose = FALSE)
+tuned@algorithm
+tuned@params
+```
+
+`S7::props(x)` lists all properties at once.
+
+## To plain data: `as_tibble()` and `as.data.frame()`
+
+The word data behind any object is available as a plain tibble or data
+frame. For a document, a `page` column is added:
+
+```{r}
+tibble::as_tibble(cibap[[18]]) |> head(3)
+tibble::as_tibble(cibap[15:16]) |> head(3)
+```
+
+This is the escape hatch to dplyr and friends; the objects themselves
+stay out of your data wrangling.
+
+## Summaries: `summary()`
+
+Each level summarizes what is useful at that level. A document: words
+(and, once clustered, clusters) per page — the returned tibble is handy
+for spotting problem pages:
+
+```{r}
+overview <- summary(doc_clusters)
+dplyr::filter(overview, clusters > 15)
+```
+
+A page: the fonts in use — a quick feel for the structure:
+
+```{r}
+summary(cibap[[18]])
+```
+
+A clustered page: a per-cluster overview with a text preview:
+
+```{r}
+summary(clusters) |> head(5)
+```
+
+## Plotting: `pdf_plot_clusters()`, `plot()` and `autoplot()`
+
+`pdf_plot_clusters()` is the documented entry point; `plot()` and
+`ggplot2::autoplot()` do the same thing:
+
+```{r}
+plot(clusters)
+```
+
+All plotting options (`show_order`, `color_by`) work through every
+entry point; see `?pdf_plot_clusters` and the article
+[Text types and reading order](text-types.html).

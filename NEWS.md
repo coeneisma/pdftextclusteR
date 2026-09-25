@@ -38,6 +38,10 @@
   the extraction; the output includes `.type`/`.type_level` columns after
   classification.
 * `pdf_plot_clusters(color_by = ".type")` colors clusters by text type.
+* Header/footer detection adapts to the document by default
+  (`pdf_type_rules(margins = "auto")`): repeated text in wide margin
+  bands qualifies only at a stable vertical position across pages;
+  `margins = "fixed"` restores fixed bands.
 * `pdf_extract_text()` runs the whole pipeline (read, detect, classify,
   order, extract) in one step, excluding page furniture by default.
 

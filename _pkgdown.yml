@@ -2,16 +2,25 @@ url: https://coeneisma.github.io/pdftextclusteR/
 template:
   light-switch: true
   bootstrap: 5
+navbar:
+  structure:
+    left: [reference, intro, articles, news]
 reference:
-  - title: Functions
+  - title: Read & inspect
   - contents:
     - pdf_read
+  - title: Detect & classify
+  - contents:
     - pdf_detect_clusters
     - pdf_classify_clusters
     - pdf_type_rules
-    - pdf_plot_clusters
+  - title: Extract
+  - contents:
     - pdf_extract_clusters
     - pdf_extract_text
+  - title: Visualize
+  - contents:
+    - pdf_plot_clusters
   - title: Classes
   - contents:
     - PdfDocument
@@ -21,4 +30,3 @@ reference:
   - contents:
     - npo
     - cibap
-
