@@ -19,6 +19,10 @@
 #'   a line break are merged (a word ending in `-` at the end of a line is
 #'   joined with the next word when that word starts with a lowercase
 #'   letter). Default `FALSE`.
+#' @param exclude character vector of text types to leave out of the
+#'   extraction, e.g. `c("page_header", "page_footer", "page_number")`.
+#'   Requires [pdf_classify_clusters()] to have been run. When types are
+#'   available they are included as `.type`/`.type_level` columns.
 
 #' @details The text of each cluster is built in visual reading order:
 #'   words are grouped into lines from top to bottom, and read from left
@@ -47,6 +51,7 @@
 pdf_extract_clusters <- S7::new_generic(
   "pdf_extract_clusters", "x",
   function(x, combine = TRUE, include_noise = FALSE, dehyphenate = FALSE,
+           exclude = NULL,
            verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
     S7::S7_dispatch()
   }
@@ -54,14 +59,17 @@ pdf_extract_clusters <- S7::new_generic(
 
 S7::method(pdf_extract_clusters, PdfClusters) <- function(
     x, combine = TRUE, include_noise = FALSE, dehyphenate = FALSE,
+    exclude = NULL,
     verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
   pdf_extract_clusters_text_page(x@words, include_noise = include_noise,
                                  dehyphenate = dehyphenate,
+                                 exclude = exclude,
                                  verbose = verbose)
 }
 
 S7::method(pdf_extract_clusters, PdfDocument) <- function(
     x, combine = TRUE, include_noise = FALSE, dehyphenate = FALSE,
+    exclude = NULL,
     verbose = getOption("pdftextclusteR.verbose", TRUE), ...) {
 
   if (!all(vapply(x@pages, S7::S7_inherits, logical(1), class = PdfClusters))) {
@@ -79,7 +87,7 @@ S7::method(pdf_extract_clusters, PdfDocument) <- function(
   for (i in seq_len(total_pages)) {
     results[[i]] <- pdf_extract_clusters_text_page(
       x@pages[[i]]@words, include_noise = include_noise,
-      dehyphenate = dehyphenate, verbose = FALSE)
+      dehyphenate = dehyphenate, exclude = exclude, verbose = FALSE)
     if (show_progress) cli::cli_progress_update()
   }
   if (show_progress) cli::cli_progress_done()
@@ -121,6 +129,7 @@ S7::method(pdf_extract_clusters, PdfDocument) <- function(
 #' @noRd
 pdf_extract_clusters_text_page <- function(pdf_data, include_noise = FALSE,
                                            dehyphenate = FALSE,
+                                           exclude = NULL,
                                            verbose = TRUE){
   # Return empty tibble if input is empty or NULL
   if(is.null(pdf_data) || nrow(pdf_data) == 0) {
@@ -136,19 +145,31 @@ pdf_extract_clusters_text_page <- function(pdf_data, include_noise = FALSE,
       dplyr::filter(.cluster != 0)
   }
 
+  # Exclude text types (requires pdf_classify_clusters())
+  if (!is.null(exclude)) {
+    if (!".type" %in% names(pdf_data)) {
+      cli::cli_abort("{.arg exclude} requires text types. Run {.fn pdf_classify_clusters} first.")
+    }
+    pdf_data <- pdf_data |>
+      dplyr::filter(!(.type %in% exclude))
+  }
+
   # Binding variable to function to prevent "Undefined global functions or
   # variables:" note from devtools::check()
   word_count <- NA
 
+  has_types <- ".type" %in% names(pdf_data)
   clusters_text <- pdf_data |>
     dplyr::group_by(.cluster) |>
     dplyr::summarise(
+      .type = if (has_types) .type[1] else NULL,
+      .type_level = if (has_types) .type_level[1] else NULL,
       text = cluster_text(dplyr::pick(dplyr::everything()),
                           dehyphenate = dehyphenate),
       .groups = "drop"
     ) |>
     dplyr::mutate(word_count = stringr::str_count(text, "\\b\\w+\\b")) |>
-    dplyr::select(.cluster, word_count, text)
+    dplyr::relocate(word_count, .before = text)
 
   return(clusters_text)
 }

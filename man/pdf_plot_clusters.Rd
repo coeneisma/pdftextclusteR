@@ -7,6 +7,7 @@
 pdf_plot_clusters(
   x,
   show_order = FALSE,
+  color_by = ".cluster",
   verbose = getOption("pdftextclusteR.verbose", TRUE),
   ...
 )
@@ -18,6 +19,10 @@ pdf_plot_clusters(
 \item{show_order}{logical; if \code{TRUE}, arrows are drawn between the
 clusters in reading order, making it easy to verify the order in
 which \code{\link[=pdf_extract_clusters]{pdf_extract_clusters()}} will return the text.}
+
+\item{color_by}{\code{".cluster"} (default) to color each cluster
+individually, or \code{".type"} to color by text type (requires
+\code{\link[=pdf_classify_clusters]{pdf_classify_clusters()}}).}
 
 \item{verbose}{logical; if \code{FALSE}, informational messages are
 suppressed. Defaults to the package option \code{pdftextclusteR.verbose},

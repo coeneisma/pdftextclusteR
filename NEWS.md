@@ -26,6 +26,21 @@
 * `pdf_plot_clusters(show_order = TRUE)` draws arrows between clusters in
   reading order.
 
+## Text types
+
+* `pdf_classify_clusters()` assigns a text type to every cluster (`body`,
+  `heading` with level, `caption`, `figure_text`, `page_header`,
+  `page_footer`, `page_number`), using document-level signals: repeated
+  (digit-masked) text in the page margins and page-number progression.
+  Page furniture is moved to the end of the reading order. Thresholds are
+  tunable via `pdf_type_rules()`.
+* `pdf_extract_clusters()` gains an `exclude` argument to drop types from
+  the extraction; the output includes `.type`/`.type_level` columns after
+  classification.
+* `pdf_plot_clusters(color_by = ".type")` colors clusters by text type.
+* `pdf_extract_text()` runs the whole pipeline (read, detect, classify,
+  order, extract) in one step, excluding page furniture by default.
+
 ## Other changes
 
 * Implemented cluster algorithm, plot function and text extraction

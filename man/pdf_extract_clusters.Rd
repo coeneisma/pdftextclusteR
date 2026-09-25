@@ -9,6 +9,7 @@ pdf_extract_clusters(
   combine = TRUE,
   include_noise = FALSE,
   dehyphenate = FALSE,
+  exclude = NULL,
   verbose = getOption("pdftextclusteR.verbose", TRUE),
   ...
 )
@@ -29,6 +30,11 @@ output. Set to \code{TRUE} to include them as cluster 0.}
 a line break are merged (a word ending in \code{-} at the end of a line is
 joined with the next word when that word starts with a lowercase
 letter). Default \code{FALSE}.}
+
+\item{exclude}{character vector of text types to leave out of the
+extraction, e.g. \code{c("page_header", "page_footer", "page_number")}.
+Requires \code{\link[=pdf_classify_clusters]{pdf_classify_clusters()}} to have been run. When types are
+available they are included as \code{.type}/\code{.type_level} columns.}
 
 \item{verbose}{logical; if \code{FALSE}, progress bars and informational
 messages are suppressed. Defaults to the package option
