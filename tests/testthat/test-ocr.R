@@ -43,3 +43,11 @@ test_that("ocr = 'always' without tesseract is an error", {
           "tesseract is installed")
   expect_error(pdf_read(scanned_pdf, ocr = "always"), "tesseract")
 })
+
+test_that("a failing OCR engine warns instead of erroring", {
+  skip_if_not_installed("tesseract")
+  expect_warning(
+    doc <- pdf_read(scanned_pdf, ocr_language = "xx_nonexistent"),
+    "OCR failed")
+  expect_equal(nrow(doc[[1]]@words), 0)
+})
