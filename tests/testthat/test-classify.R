@@ -202,3 +202,20 @@ test_that("classification handles pages without text", {
   expect_length(classified, 3)
   expect_equal(nrow(classified[[2]]@words), 0)
 })
+
+test_that("decorated page numbers ('2 |') are recognized", {
+  decorate <- function(page, n) {
+    pipe <- tibble::tibble(width = 5, height = 10, x = 320, y = 780,
+                           space = FALSE, text = "|",
+                           font_name = "Test-Regular", font_size = 10,
+                           .cluster = factor(4, levels = 0:4))
+    page@words <- dplyr::bind_rows(page@words, pipe)
+    page
+  }
+  doc <- make_typed_doc()
+  doc@pages <- lapply(seq_along(doc@pages),
+                      function(i) decorate(doc@pages[[i]], i))
+  classified <- pdf_classify_clusters(doc, verbose = FALSE)
+  w <- classified[[2]]@words
+  expect_equal(as.character(w$.type[w$y == 780]), rep("page_number", 2))
+})

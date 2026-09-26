@@ -111,7 +111,8 @@ cluster_features_page <- function(page, rules) {
   # number is a single isolated word, which dbscan (minPts >= 2) can only
   # label as noise. They take part in the page-number progression check.
   noise_idx <- which(all_words$.cluster == 0 &
-                       grepl("^[0-9]{1,4}$", all_words$text))
+                       grepl("^[[:punct:]]*[0-9]{1,4}[[:punct:]]*$",
+                             all_words$text))
   noise_part <- if (length(noise_idx) == 0) NULL else {
     w <- all_words[noise_idx, ]
     tibble::tibble(
@@ -281,11 +282,15 @@ classify_types <- function(features, rules, n_pages) {
   }
 
   # Page numbers: short numeric clusters (or isolated noise words) whose
-  # value tracks the page number
+  # value tracks the page number. The number may be decorated with
+  # punctuation, as in "2 |" or "- 2 -".
   candidate <- type == "body" & (features$in_top | features$in_bottom) &
-    features$n_words <= 2 & grepl("^[0-9]{1,4}$", trimws(features$text))
+    features$n_words <= 2 &
+    grepl("^[[:punct:][:space:]]*[0-9]{1,4}[[:punct:][:space:]]*$",
+          trimws(features$text))
   if (sum(candidate) >= rules$repeat_min_pages) {
-    offsets <- as.integer(features$text[candidate]) - features$page[candidate]
+    offsets <- as.integer(gsub("[^0-9]", "", features$text[candidate])) -
+      features$page[candidate]
     common <- as.integer(names(which.max(table(offsets))))
     matching <- candidate
     matching[candidate] <- offsets == common
