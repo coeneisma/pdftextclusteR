@@ -182,7 +182,7 @@ modal_value <- function(x) {
 #' @export
 #'
 #' @examples
-#' classified <- npo[1:5] |>
+#' classified <- burgerschap[1:5] |>
 #'   pdf_detect_clusters() |>
 #'   pdf_classify_clusters()
 #'

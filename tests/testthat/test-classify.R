@@ -60,7 +60,7 @@ test_that("exclude drops types from the extraction and adds .type columns", {
 })
 
 test_that("exclude without classification is a clear error", {
-  clusters <- pdf_detect_clusters(npo[[12]], verbose = FALSE)
+  clusters <- pdf_detect_clusters(burgerschap[[12]], verbose = FALSE)
   expect_error(pdf_extract_clusters(clusters, exclude = "page_footer"),
                "pdf_classify_clusters")
 })
@@ -78,7 +78,7 @@ test_that("color_by .type works after classification and errors before", {
   p <- pdf_plot_clusters(classified[[1]], color_by = ".type")
   expect_s3_class(p, c("gg", "ggplot"))
 
-  clusters <- pdf_detect_clusters(npo[[12]], verbose = FALSE)
+  clusters <- pdf_detect_clusters(burgerschap[[12]], verbose = FALSE)
   expect_error(pdf_plot_clusters(clusters, color_by = ".type"),
                "pdf_classify_clusters")
 })
@@ -193,9 +193,9 @@ test_that("isolated page numbers (noise words) are detected and promoted", {
 })
 
 test_that("classification handles pages without text", {
-  empty <- PdfClusters(words = npo[[7]]@words[0, ], number = 2L,
+  empty <- PdfClusters(words = burgerschap[[7]]@words[0, ], number = 2L,
                        algorithm = "dbscan", params = list())
-  doc <- pdf_detect_clusters(npo[7:8], verbose = FALSE)
+  doc <- pdf_detect_clusters(burgerschap[7:8], verbose = FALSE)
   doc@pages <- append(doc@pages, list(empty), after = 1)
 
   classified <- pdf_classify_clusters(doc, verbose = FALSE)

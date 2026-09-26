@@ -7,15 +7,7 @@
 \format{
 \subsection{\code{cibap}}{
 
-A \link{PdfDocument} with 73 pages. Each page is a \link{PdfPage} whose \code{words}
-tibble contains one row per word:
-\describe{
-\item{width, height}{Width and height of a word}
-\item{x, y}{The x and y coordinates of a word. The y-coordinate is measured from the top of the page.}
-\item{space}{Indicates whether there is a space after the word. This indicates a line break.}
-\item{text}{The word that the metadata refers to.}
-\item{font_name, font_size}{The font name and font size of the word.}
-}
+A \link{PdfDocument} with 73 pages; see \link{burgerschap} for the word columns.
 }
 }
 \source{
@@ -25,9 +17,9 @@ tibble contains one row per word:
 cibap
 }
 \description{
-This dataset is the result of reading the report
-\verb{Kwaliteitsagenda 2024-2027 Cibap} with \code{\link[=pdf_read]{pdf_read()}}. The report was
-posted on the Rijksoverheid website on September 16, 2024. It was chosen
-because it contains several pages with columns and different layouts.
+The report \verb{Kwaliteitsagenda 2024-2027 Cibap}, published on the
+Rijksoverheid website on September 16, 2024, read with \code{\link[=pdf_read]{pdf_read()}}. It
+was chosen because it contains several pages with columns, infographics
+and different layouts.
 }
 \keyword{datasets}

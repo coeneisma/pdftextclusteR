@@ -43,12 +43,12 @@ compare the result with the original PDF.
 }
 \examples{
 # A single page
-npo[[12]] |>
+burgerschap[[12]] |>
   pdf_detect_clusters() |>
   pdf_plot_clusters()
 
 # A list of pages
-npo[1:3] |>
+burgerschap[1:3] |>
   pdf_detect_clusters() |>
   pdf_plot_clusters()
 }

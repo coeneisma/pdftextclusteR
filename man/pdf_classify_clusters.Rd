@@ -45,7 +45,7 @@ signals need multiple pages; on a single page only the position and
 font based rules apply.
 }
 \examples{
-classified <- npo[1:5] |>
+classified <- burgerschap[1:5] |>
   pdf_detect_clusters() |>
   pdf_classify_clusters()
 

@@ -5,15 +5,15 @@ summarise_extraction <- function(extracted) {
   as.data.frame(extracted)
 }
 
-test_that("extraction of npo page 7 is stable", {
-  res <- npo[[7]] |>
+test_that("extraction of burgerschap page 7 is stable", {
+  res <- burgerschap[[7]] |>
     pdf_detect_clusters(verbose = FALSE) |>
     pdf_extract_clusters(verbose = FALSE)
   expect_snapshot(summarise_extraction(res))
 })
 
-test_that("extraction of npo page 12 is stable", {
-  res <- npo[[12]] |>
+test_that("extraction of burgerschap page 12 is stable", {
+  res <- burgerschap[[12]] |>
     pdf_detect_clusters(verbose = FALSE) |>
     pdf_extract_clusters(verbose = FALSE)
   expect_snapshot(summarise_extraction(res))
@@ -27,8 +27,8 @@ test_that("extraction of cibap page 5 is stable", {
 })
 
 test_that("an empty page in the middle of a document is handled", {
-  empty <- PdfPage(words = npo[[7]]@words[0, ], number = 2L)
-  doc <- PdfDocument(pages = list(npo[[7]], empty, npo[[12]]))
+  empty <- PdfPage(words = burgerschap[[7]]@words[0, ], number = 2L)
+  doc <- PdfDocument(pages = list(burgerschap[[7]], empty, burgerschap[[12]]))
   detected <- suppressMessages(pdf_detect_clusters(doc, verbose = FALSE))
   expect_length(detected, 3)
   expect_equal(nrow(detected[[2]]@words), 0)
