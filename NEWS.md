@@ -10,8 +10,11 @@
 * Standard generics on the objects: `print()`, `summary()`, `plot()`,
   `ggplot2::autoplot()`, `as_tibble()`, `as.data.frame()`, `length()`,
   `[[` and `[`.
-* The `npo` and `cibap` datasets are now `PdfDocument` objects, read with
-  font information and page dimensions.
+* The bundled datasets are `PdfDocument` objects, read with font
+  information and page dimensions: `burgerschap` and `cibap` (Dutch
+  government reports), `eu2024` (the EU annual report) and `eurostat`
+  (Key figures on Europe). The `npo` dataset was removed because its
+  source is no longer available online.
 
 ## Reading order
 

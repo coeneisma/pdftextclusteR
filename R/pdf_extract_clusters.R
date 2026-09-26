@@ -40,12 +40,12 @@
 #'
 #' @examples
 #' # A single page
-#' npo[[1]] |>
+#' burgerschap[[1]] |>
 #'   pdf_detect_clusters() |>
 #'   pdf_extract_clusters()
 #'
 #' # Multiple pages combined into one tibble
-#' npo[1:3] |>
+#' burgerschap[1:3] |>
 #'   pdf_detect_clusters() |>
 #'   pdf_extract_clusters()
 pdf_extract_clusters <- S7::new_generic(

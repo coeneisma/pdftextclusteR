@@ -39,6 +39,6 @@ Equivalent to \code{pdf_read()} + \code{\link[=pdf_detect_clusters]{pdf_detect_c
 individual steps when you want to inspect or tune intermediate results.
 }
 \examples{
-npo[1:3] |>
+burgerschap[1:3] |>
   pdf_extract_text()
 }

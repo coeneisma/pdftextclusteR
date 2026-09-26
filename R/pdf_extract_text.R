@@ -23,7 +23,7 @@
 #' @export
 #'
 #' @examples
-#' npo[1:3] |>
+#' burgerschap[1:3] |>
 #'   pdf_extract_text()
 pdf_extract_text <- function(x,
                              exclude = c("page_header", "page_footer",

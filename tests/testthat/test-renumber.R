@@ -129,7 +129,7 @@ test_that("prefer = 'columns' reads columns before rows", {
 })
 
 test_that("tolerance_factor is deprecated", {
-  expect_warning(pdf_detect_clusters(npo[[12]], tolerance_factor = 0.1,
+  expect_warning(pdf_detect_clusters(burgerschap[[12]], tolerance_factor = 0.1,
                                      verbose = FALSE),
                  class = "lifecycle_warning_deprecated")
 })

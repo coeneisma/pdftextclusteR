@@ -28,5 +28,7 @@ reference:
     - PdfClusters
   - title: Datasets
   - contents:
-    - npo
+    - burgerschap
     - cibap
+    - eu2024
+    - eurostat

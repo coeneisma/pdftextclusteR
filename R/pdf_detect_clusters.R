@@ -39,11 +39,11 @@
 #'
 #' @examples
 #' # A single page
-#' npo[[3]] |>
+#' burgerschap[[3]] |>
 #'   pdf_detect_clusters()
 #'
 #' # The first 3 pages, with the sNNclust algorithm
-#' npo[1:3] |>
+#' burgerschap[1:3] |>
 #'   pdf_detect_clusters(algorithm = "sNNclust", minPts = 5)
 pdf_detect_clusters <- S7::new_generic(
   "pdf_detect_clusters", "x",

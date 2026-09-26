@@ -1,5 +1,5 @@
 test_that("extraction is independent of the row order of the words", {
-  clusters <- pdf_detect_clusters(npo[[7]], verbose = FALSE)
+  clusters <- pdf_detect_clusters(burgerschap[[7]], verbose = FALSE)
   shuffled <- clusters
   set.seed(42)
   shuffled@words <- clusters@words[sample(nrow(clusters@words)), ]

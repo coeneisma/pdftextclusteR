@@ -26,7 +26,7 @@ library(pdftextclusteR)
 
 ## Example Data
 
-The examples in this vignette use the `cibap` dataset that is bundled with the package: the report *Kwaliteitsagenda 2024-2027 Cibap*, published on [rijksoverheid.nl](https://www.rijksoverheid.nl/documenten/rapporten/2024/09/16/kwaliteitsagenda-2024-2027-cibap). This document was chosen because it contains several pages with columns, text boxes and different layouts. The package also bundles a second, similar dataset: `npo`.
+The examples in this vignette use the `cibap` dataset that is bundled with the package: the report *Kwaliteitsagenda 2024-2027 Cibap*, published on [rijksoverheid.nl](https://www.rijksoverheid.nl/documenten/rapporten/2024/09/16/kwaliteitsagenda-2024-2027-cibap). This document was chosen because it contains several pages with columns, text boxes and different layouts. The package bundles three more example documents: `burgerschap` (a Dutch two-column report), `eu2024` (the EU annual report, with text boxes and quotes) and `eurostat` (a statistical publication).
 
 Both datasets are `PdfDocument` objects, created by reading the PDF file with `pdf_read()`. To apply the same workflow to your own documents, read them the same way (or simply pass the path directly to `pdf_detect_clusters()`):
 
