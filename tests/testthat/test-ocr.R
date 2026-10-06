@@ -51,3 +51,11 @@ test_that("a failing OCR engine warns instead of erroring", {
     "OCR failed")
   expect_equal(nrow(doc[[1]]@words), 0)
 })
+
+test_that("the OCR language can be set via a package option", {
+  skip_if_not_installed("tesseract")
+  withr::local_options(pdftextclusteR.ocr_language = "nld")
+  expect_message(
+    suppressWarnings(pdf_read(scanned_pdf)),
+    "language: nld")
+})

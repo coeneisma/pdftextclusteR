@@ -8,7 +8,7 @@ pdf_read(
   path,
   font_info = TRUE,
   ocr = c("auto", "never", "always"),
-  ocr_language = "eng",
+  ocr_language = getOption("pdftextclusteR.ocr_language", "eng"),
   ocr_dpi = 300,
   verbose = getOption("pdftextclusteR.verbose", TRUE)
 )
@@ -24,8 +24,12 @@ word. Defaults to \code{TRUE}.}
 text layer (useful when a PDF carries a bad text layer).}
 
 \item{ocr_language}{language passed to the OCR engine, e.g. \code{"eng"} or
-\code{"nld"}. The corresponding tesseract training data must be
-installed; see \code{\link[tesseract:tesseract_download]{tesseract::tesseract_download()}}.}
+\code{"nld"}. Defaults to the package option \code{pdftextclusteR.ocr_language},
+or \code{"eng"} when that option is not set — set
+\code{options(pdftextclusteR.ocr_language = "nld")} in your \code{.Rprofile}
+when you mostly read Dutch documents. The corresponding tesseract
+training data must be installed; see
+\code{\link[tesseract:tesseract_download]{tesseract::tesseract_download()}}.}
 
 \item{ocr_dpi}{resolution at which pages are rendered for OCR. Higher
 is more accurate but slower.}

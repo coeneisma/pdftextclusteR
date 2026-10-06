@@ -7,15 +7,22 @@
 pdf_extract_text(
   x,
   exclude = c("page_header", "page_footer", "page_number"),
+  ocr = c("auto", "never", "always"),
+  ocr_language = getOption("pdftextclusteR.ocr_language", "eng"),
+  ocr_dpi = 300,
   verbose = getOption("pdftextclusteR.verbose", TRUE),
   ...
 )
 }
 \arguments{
-\item{x}{a path/URL to a PDF file, or a \link{PdfDocument}.}
+\item{x}{a path/URL to a PDF file, a vector of paths, the path of a
+directory containing PDF files, or a \link{PdfDocument}.}
 
 \item{exclude}{character vector of text types to leave out. Defaults to
 the page furniture: header, footer and page number.}
+
+\item{ocr, ocr_language, ocr_dpi}{how pages without a text layer are
+handled when \code{x} is a path; see \code{\link[=pdf_read]{pdf_read()}}.}
 
 \item{verbose}{logical; if \code{FALSE}, progress bars and informational
 messages are suppressed.}
@@ -24,7 +31,8 @@ messages are suppressed.}
 }
 \value{
 A tibble with one row per cluster: \code{page}, \code{.cluster}, \code{.type},
-\code{.type_level}, \code{word_count} and \code{text}, in reading order.
+\code{.type_level}, \code{word_count} and \code{text}, in reading order. For
+multiple documents, a \code{document} column is added in front.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
@@ -34,11 +42,26 @@ text clusters, classifies their types, orders them in reading order and
 extracts the text — excluding page headers, footers and page numbers by
 default.
 
-Equivalent to \code{pdf_read()} + \code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}} +
+Equivalent to \code{\link[=pdf_read]{pdf_read()}} + \code{\link[=pdf_detect_clusters]{pdf_detect_clusters()}} +
 \code{\link[=pdf_classify_clusters]{pdf_classify_clusters()}} + \code{\link[=pdf_extract_clusters]{pdf_extract_clusters()}}. Use the
 individual steps when you want to inspect or tune intermediate results.
 }
+\section{Multiple documents}{
+
+
+A vector of paths, or the path of a directory (its \verb{*.pdf} files are
+used), processes every document through the full pipeline. The result
+is one tibble with a \code{document} column (the file name) in front of the
+\code{page} column. A document that cannot be processed is skipped with a
+warning instead of failing the batch.
+}
+
 \examples{
 burgerschap[1:3] |>
   pdf_extract_text()
+
+\dontrun{
+# A whole directory of PDF files
+texts <- pdf_extract_text("path/to/folder")
+}
 }

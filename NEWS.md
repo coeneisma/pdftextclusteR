@@ -53,6 +53,14 @@
 
 ## Other changes
 
+* `pdf_extract_text()` processes multiple documents in one call: pass a
+  vector of paths or a directory, and get one tibble with a `document`
+  column. Unreadable files are skipped with a warning.
+* `pdf_extract_text()` now routes `ocr`, `ocr_language` and `ocr_dpi` to
+  `pdf_read()`; previously they leaked into the cluster algorithm and
+  caused an error.
+* The default OCR language can be set once via
+  `options(pdftextclusteR.ocr_language = "nld")`.
 * Scanned pages (no text layer) are read through OCR when the
   `tesseract` package is installed (`pdf_read(ocr = "auto")`, the
   default); without it, a warning explains how to install it. OCR-ed
