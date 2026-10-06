@@ -27,8 +27,12 @@
 #'   `"never"`: no OCR; `"always"`: OCR every page, ignoring an existing
 #'   text layer (useful when a PDF carries a bad text layer).
 #' @param ocr_language language passed to the OCR engine, e.g. `"eng"` or
-#'   `"nld"`. The corresponding tesseract training data must be
-#'   installed; see [tesseract::tesseract_download()].
+#'   `"nld"`. Defaults to the package option `pdftextclusteR.ocr_language`,
+#'   or `"eng"` when that option is not set — set
+#'   `options(pdftextclusteR.ocr_language = "nld")` in your `.Rprofile`
+#'   when you mostly read Dutch documents. The corresponding tesseract
+#'   training data must be installed; see
+#'   [tesseract::tesseract_download()].
 #' @param ocr_dpi resolution at which pages are rendered for OCR. Higher
 #'   is more accurate but slower.
 #' @param verbose logical; if `FALSE`, informational messages are
@@ -47,7 +51,8 @@
 #' }
 pdf_read <- function(path, font_info = TRUE,
                      ocr = c("auto", "never", "always"),
-                     ocr_language = "eng", ocr_dpi = 300,
+                     ocr_language = getOption("pdftextclusteR.ocr_language", "eng"),
+                     ocr_dpi = 300,
                      verbose = getOption("pdftextclusteR.verbose", TRUE)) {
   ocr <- match.arg(ocr)
   words_list <- pdftools::pdf_data(path, font_info = font_info)
